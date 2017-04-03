@@ -67,7 +67,7 @@ class Db
         }
     }
 
-    public function select($query, array $params = array(), $fetchType = PDO::FETCH_ASSOC)
+    public function select($query, array $params = array(), $fetchType = \PDO::FETCH_ASSOC)
     {
         $normParams = $this->normalizeParams($params);
 
@@ -92,14 +92,14 @@ class Db
         return $command->fetchAll($fetchType);
     }
 
-    public function selectOne($query, array $params = array(), $fetchType = PDO::FETCH_ASSOC)
+    public function selectOne($query, array $params = array(), $fetchType = \PDO::FETCH_ASSOC)
     {
         $rows = $this->select($query, $params, $fetchType);
 
         return array_shift($rows);
     }
 
-    public function selectValues($query, array $params = array(), $fetchType = PDO::FETCH_ASSOC)
+    public function selectValues($query, array $params = array(), $fetchType = \PDO::FETCH_ASSOC)
     {
         $row = $this->selectOne($query, $params, $fetchType);
         if (empty($row)) {
@@ -111,7 +111,7 @@ class Db
 
     public function selectValue($query, array $params = array())
     {
-        $values = $this->selectValues($query, $params, PDO::FETCH_NUM);
+        $values = $this->selectValues($query, $params, \PDO::FETCH_NUM);
 
         return $values[0];
     }
