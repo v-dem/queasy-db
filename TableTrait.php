@@ -9,7 +9,7 @@ trait TableTrait
     {
         $tableName = self::TABLE_NAME;
 
-        return DB::getInstance()->$tableName;
+        return Db::getInstance()->$tableName;
     }
 
 }

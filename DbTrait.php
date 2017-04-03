@@ -2,12 +2,12 @@
 
 namespace queasy\db;
 
-trait DBTrait
+trait DbTrait
 {
 
     private static function db()
     {
-        return DB::getInstance();
+        return Db::getInstance();
     }
 
 }

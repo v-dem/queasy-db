@@ -16,7 +16,7 @@ class Table
 
     public function all($fetchType = \PDO::FETCH_ASSOC)
     {
-        return DB::getInstance()->select(
+        return Db::getInstance()->select(
             sprintf('
                 SELECT  *
                 FROM    `%s`',
@@ -29,7 +29,7 @@ class Table
 
     public function select($fieldName, $value, $fetchType = \PDO::FETCH_ASSOC)
     {
-        return DB::getInstance()->select(
+        return Db::getInstance()->select(
             sprintf('
                 SELECT  *
                 FROM    `%s`
@@ -56,12 +56,12 @@ class Table
         // TODO: Check for ability to insert a record with empty fields
         // (for example when table contains only auto-increment field or other fields have default values)
 
-        $normParams = DB::getInstance()->normalizeParams($fields);
+        $normParams = Db::getInstance()->normalizeParams($fields);
 
         $paramNames = implode(', ', array_keys($normParams));
         $fieldNames = '`' . implode('`, `', array_keys($fields)) . '`';
 
-        DB::getInstance()->execute(
+        Db::getInstance()->execute(
             sprintf('
                 INSERT  INTO `%s` (%s)
                 VALUES  (%s)',
@@ -82,7 +82,7 @@ class Table
             return;
         }
 
-        $fieldNames = array_keys(DB::getInstance()->normalizeParams($rows[0]));
+        $fieldNames = array_keys(Db::getInstance()->normalizeParams($rows[0]));
 
         $normParams = array();
         $paramNames = '';
@@ -102,7 +102,7 @@ class Table
             $counter++;
         }
 
-        DB::getInstance()->execute(
+        Db::getInstance()->execute(
             sprintf('
                 INSERT  INTO `%s` %s
                 VALUES  %s',
@@ -127,7 +127,7 @@ class Table
             $sqlWhere = sprintf('WHERE `%s` = :%s', $fieldName, $fieldName);
         }
 
-        $normUpdateFields = DB::getInstance()->normalizeParams($updateFields);
+        $normUpdateFields = Db::getInstance()->normalizeParams($updateFields);
         $sqlSetRows = array();
         foreach ($updateFields as $updateFieldName => $updateFieldValue) {
             $sqlSetRows[] = sprintf('`%s` = :%s', $updateFieldName, $updateFieldName);
@@ -163,13 +163,13 @@ class Table
         }
 
         if (!$command->execute()) {
-            throw new DbException('DB::update(): Can\'t execute query.');
+            throw new DbException('Db::update(): Can\'t execute query.');
         }
     }
 
     public function remove($fieldName, $value)
     {
-        DB::getInstance()->execute(
+        Db::getInstance()->execute(
             sprintf('
                 DELETE  FROM `%s`
                 WHERE   `%s` = :value',
@@ -184,7 +184,7 @@ class Table
 
     public function clear()
     {
-        DB::getInstance()->execute(sprintf('
+        Db::getInstance()->execute(sprintf('
             DELETE  FROM `%s`',
             $this->tableName
         ));
