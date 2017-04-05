@@ -26,10 +26,10 @@ class Db
 
     private function __construct($name = 'default')
     {
-        $configs = $this->config();
-        $config = new ConfigSection($configs[$name]);
-
         try {
+            $configs = $this->config();
+            $config = new ConfigSection($configs->getMandatory($name));
+
             $this->pdo = new \PDO(
                 sprintf('%s:host=%s;dbname=%s',
                     $config->getMandatory('driver'),
