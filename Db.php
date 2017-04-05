@@ -15,7 +15,7 @@ class Db
     public static function getInstance($name = 'default')
     {
         if (!isset(self::$instances[$name])) {
-            self::$instances = new self($name);
+            self::$instances[$name] = new self($name);
         }
 
         return self::$instances[$name];
