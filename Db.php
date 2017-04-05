@@ -2,6 +2,7 @@
 
 namespace queasy\db;
 
+use queasy\config\ConfigSection;
 use queasy\config\ConfigTrait;
 
 class Db
@@ -9,23 +10,24 @@ class Db
 
     use ConfigTrait;
 
-    private static $instance;
+    private static $instances = array();
 
-    public static function getInstance()
+    public static function getInstance($name = 'default')
     {
-        if (is_null(self::$instance)) {
-            self::$instance = new self();
+        if (!isset(self::$instances[$name])) {
+            self::$instances = new self($name);
         }
 
-        return self::$instance;
+        return self::$instances[$name];
     }
 
     private $pdo;
     private $tables = array();
 
-    private function __construct()
+    private function __construct($name = 'default')
     {
-        $config = $this->config();
+        $configs = $this->config();
+        $config = new ConfigSection($configs[$name]);
 
         try {
             $this->pdo = new \PDO(
@@ -124,6 +126,11 @@ class Db
         }
 
         return $normParams;
+    }
+
+    public function pdo()
+    {
+        return $this->pdo;
     }
 
 }
