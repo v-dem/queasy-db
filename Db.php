@@ -133,5 +133,20 @@ class Db
         return $this->pdo;
     }
 
+    public function trans(callable $a)
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            $a();
+
+            $this->pdo->commit();
+        } catch (Exception $e) {
+            $this->pdo->rollBack();
+
+            throw $e;
+        }
+    }
+
 }
 
