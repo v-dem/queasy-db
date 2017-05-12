@@ -5,18 +5,18 @@ namespace queasy\db;
 class Table
 {
 
-    private $pdo;
+    private $db;
     private $tableName;
 
-    public function __construct(\PDO $pdo, $tableName)
+    public function __construct(Db $db, $tableName)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
         $this->tableName = $tableName;
     }
 
     public function all($fetchType = \PDO::FETCH_ASSOC)
     {
-        return Db::getInstance()->select(
+        return $this->db->select(
             sprintf('
                 SELECT  *
                 FROM    `%s`',
@@ -29,7 +29,7 @@ class Table
 
     public function select($fieldName, $value, $fetchType = \PDO::FETCH_ASSOC)
     {
-        return Db::getInstance()->select(
+        return $this->db->select(
             sprintf('
                 SELECT  *
                 FROM    `%s`
@@ -56,12 +56,12 @@ class Table
         // TODO: Check for ability to insert a record with empty fields
         // (for example when table contains only auto-increment field or other fields have default values)
 
-        $normParams = Db::getInstance()->normalizeParams($fields);
+        $normParams = $this->db->normalizeParams($fields);
 
         $paramNames = implode(', ', array_keys($normParams));
         $fieldNames = '`' . implode('`, `', array_keys($fields)) . '`';
 
-        Db::getInstance()->execute(
+        $this->db->execute(
             sprintf('
                 INSERT  INTO `%s` (%s)
                 VALUES  (%s)',
@@ -73,7 +73,7 @@ class Table
             false
         );
 
-        return $this->pdo->lastInsertId();
+        return $this->db->pdo()->lastInsertId();
     }
 
     public function batchInsert(array $rows = array())
@@ -102,7 +102,7 @@ class Table
             $counter++;
         }
 
-        Db::getInstance()->execute(
+        $this->db->execute(
             sprintf('
                 INSERT  INTO `%s` %s
                 VALUES  %s',
@@ -127,7 +127,7 @@ class Table
             $sqlWhere = sprintf('WHERE `%s` = :%s', $fieldName, $fieldName);
         }
 
-        $normUpdateFields = Db::getInstance()->normalizeParams($updateFields);
+        $normUpdateFields = $this->db->normalizeParams($updateFields);
         $sqlSetRows = array();
         foreach ($updateFields as $updateFieldName => $updateFieldValue) {
             $sqlSetRows[] = sprintf('`%s` = :%s', $updateFieldName, $updateFieldName);
@@ -135,7 +135,7 @@ class Table
 
         $sqlSet = implode(', ', $sqlSetRows);
 
-        $command = $this->pdo->prepare(
+        $command = $this->db->pdo()->prepare(
             $sql = sprintf('
                 UPDATE  `%s`
                 SET     %s
@@ -169,7 +169,7 @@ class Table
 
     public function remove($fieldName, $value)
     {
-        Db::getInstance()->execute(
+        $this->db->execute(
             sprintf('
                 DELETE  FROM `%s`
                 WHERE   `%s` = :value',
@@ -184,7 +184,7 @@ class Table
 
     public function clear()
     {
-        Db::getInstance()->execute(sprintf('
+        $this->db->execute(sprintf('
             DELETE  FROM `%s`',
             $this->tableName
         ));

@@ -21,23 +21,26 @@ class Db
         return self::$instances[$name];
     }
 
+    private $name;
+    private $config;
     private $pdo;
     private $tables = array();
 
     private function __construct($name = 'default')
     {
-        try {
-            $config = $this->config()->need($name);
+        $this->name = $name;
+        $this->config = $this->config()->need($name);
 
+        try {
             $this->pdo = new \PDO(
                 sprintf('%s:host=%s;dbname=%s',
-                    $config->need('driver'),
-                    $config->need('host'),
-                    $config->need('name')
+                    $this->config->need('driver'),
+                    $this->config->need('host'),
+                    $this->config->need('name')
                 ),
-                $config->need('user'),
-                $config->need('password'),
-                $config->get('options')->toArray()
+                $this->config->need('user'),
+                $this->config->need('password'),
+                $this->config->get('options')->toArray()
             );
         } catch (\Exception $ex) {
             throw new DbException('Cannot connect to database.');
@@ -47,7 +50,9 @@ class Db
     public function __get($tableName)
     {
         if (!isset($this->tables[$tableName])) {
-            $this->tables[$tableName] = new Table($this->pdo, $tableName);
+            $config = $this->config->get('tables', array())[$tableName];
+
+            $this->tables[$tableName] = new Table($this, $tableName, $config);
         }
 
         return $this->tables[$tableName];
