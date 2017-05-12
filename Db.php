@@ -27,7 +27,7 @@ class Db
     private function __construct($name = 'default')
     {
         try {
-            $config = $this->config()->need($name));
+            $config = $this->config()->need($name);
 
             $this->pdo = new \PDO(
                 sprintf('%s:host=%s;dbname=%s',
