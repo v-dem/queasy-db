@@ -27,20 +27,17 @@ class Db
     private function __construct($name = 'default')
     {
         try {
-            $configs = $this->config();
-            $config = new ConfigSection($configs->getMandatory($name));
+            $config = $this->config()->need($name));
 
             $this->pdo = new \PDO(
                 sprintf('%s:host=%s;dbname=%s',
-                    $config->getMandatory('driver'),
-                    $config->getMandatory('host'),
-                    $config->getMandatory('name')
+                    $config->need('driver'),
+                    $config->need('host'),
+                    $config->need('name')
                 ),
-                $config->getMandatory('user'),
-                $config->getMandatory('password'),
-                array(
-                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8; SET CHARACTER SET utf8;'
-                )
+                $config->need('user'),
+                $config->need('password'),
+                $config->get('options')
             );
         } catch (\Exception $ex) {
             throw new DbException('Cannot connect to database.');
@@ -133,12 +130,12 @@ class Db
         return $this->pdo;
     }
 
-    public function trans(callable $a)
+    public function trans(callable $func)
     {
         $this->pdo->beginTransaction();
 
         try {
-            $a();
+            $func();
 
             $this->pdo->commit();
         } catch (Exception $e) {
