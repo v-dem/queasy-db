@@ -37,7 +37,7 @@ class Db
                 ),
                 $config->need('user'),
                 $config->need('password'),
-                $config->get('options')
+                $config->get('options')->toArray()
             );
         } catch (\Exception $ex) {
             throw new DbException('Cannot connect to database.');
