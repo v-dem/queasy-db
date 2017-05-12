@@ -21,6 +21,16 @@ class Db
         return self::$instances[$name];
     }
 
+    public static function map($field, $rows)
+    {
+        $result = array();
+        foreach ($rows as $row) {
+            $result[$row[$field]] = $row;
+        }
+
+        return $result;
+    }
+
     private $name;
     private $config;
     private $pdo;
@@ -50,12 +60,17 @@ class Db
     public function __get($tableName)
     {
         if (!isset($this->tables[$tableName])) {
-            $config = $this->config->get('tables', array())[$tableName];
+            $config = $this->config->get('queries', array())[$tableName];
 
             $this->tables[$tableName] = new Table($this, $tableName, $config);
         }
 
         return $this->tables[$tableName];
+    }
+
+    public function executeNew()
+    {
+        
     }
 
     public function execute($query, array $params = array(), $isNormalized = false)
@@ -71,7 +86,7 @@ class Db
         }
     }
 
-    public function select($query, array $params = array(), $fetchType = \PDO::FETCH_ASSOC)
+    public function select($query, array $params = array())
     {
         $normParams = $this->normalizeParams($params);
 
@@ -93,17 +108,17 @@ class Db
             throw new DbException('Can\'t execute query.');
         }
 
-        return $command->fetchAll($fetchType);
+        return $command->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function selectOne($query, array $params = array(), $fetchType = \PDO::FETCH_ASSOC)
+    public function selectOne($query, array $params = array())
     {
         $rows = $this->select($query, $params, $fetchType);
 
         return array_shift($rows);
     }
 
-    public function selectValues($query, array $params = array(), $fetchType = \PDO::FETCH_ASSOC)
+    public function selectValues($query, array $params = array())
     {
         $row = $this->selectOne($query, $params, $fetchType);
         if (empty($row)) {
@@ -115,9 +130,9 @@ class Db
 
     public function selectValue($query, array $params = array())
     {
-        $values = $this->selectValues($query, $params, \PDO::FETCH_NUM);
+        $values = $this->selectValues($query, $params);
 
-        return $values[0];
+        return array_shift($values);
     }
 
     public function normalizeParams(array $params = array())

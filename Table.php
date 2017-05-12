@@ -7,27 +7,36 @@ class Table
 
     private $db;
     private $tableName;
+    private $config;
 
-    public function __construct(Db $db, $tableName)
+    public function __construct(Db $db, $tableName, $config = [])
     {
         $this->db = $db;
         $this->tableName = $tableName;
+        $this->config = $config;
     }
 
-    public function all($fetchType = \PDO::FETCH_ASSOC)
+    public function __call($method)
+    {
+        if (isset($this->config[$method])) {
+            $query = 
+        } else {
+            throw new DbException(sprintf('Method "%s" not implemented for table "%s".', $method, $this->tableName));
+        }
+    }
+
+    public function all()
     {
         return $this->db->select(
             sprintf('
                 SELECT  *
                 FROM    `%s`',
                 $this->tableName
-            ),
-            array(),
-            $fetchType
+            )
         );
     }
 
-    public function select($fieldName, $value, $fetchType = \PDO::FETCH_ASSOC)
+    public function select($fieldName, $value)
     {
         return $this->db->select(
             sprintf('
@@ -39,14 +48,13 @@ class Table
             ),
             array(
                 ':value' => $value
-            ),
-            $fetchType
+            )
         );
     }
 
-    public function get($fieldName, $value, $fetchType = \PDO::FETCH_ASSOC)
+    public function get($fieldName, $value)
     {
-        $rows = $this->select($fieldName, $value, $fetchType);
+        $rows = $this->select($fieldName, $value);
 
         return array_shift($rows);
     }
@@ -184,10 +192,12 @@ class Table
 
     public function clear()
     {
-        $this->db->execute(sprintf('
-            DELETE  FROM `%s`',
-            $this->tableName
-        ));
+        $this->db->execute(
+            sprintf('
+                DELETE  FROM `%s`',
+                $this->tableName
+            )
+        );
     }
 
 }
