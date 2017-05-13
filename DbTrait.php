@@ -5,9 +5,9 @@ namespace queasy\db;
 trait DbTrait
 {
 
-    private static function db()
+    private static function db($name = 'default')
     {
-        return Db::getInstance();
+        return Db::getInstance($name);
     }
 
 }

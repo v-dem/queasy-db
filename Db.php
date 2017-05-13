@@ -39,7 +39,7 @@ class Db
     private function __construct($name = 'default')
     {
         $this->name = $name;
-        $this->config = $this->config()->need($name);
+        $this->config = self::config()->need($name);
 
         try {
             $this->pdo = new \PDO(
@@ -57,92 +57,98 @@ class Db
         }
     }
 
-    public function __get($tableName)
+    public function __get($name)
     {
-        if (!isset($this->tables[$tableName])) {
-            $config = $this->config->get('queries', array())[$tableName];
+        if (!isset($this->tables[$name])) {
+            $queriesConfig = $this->config->get('queries', array());
+            $config = $queriesConfig[$name];
 
-            $this->tables[$tableName] = new Table($this, $tableName, $config);
+            $this->tables[$name] = new Table($this, $name, $config);
         }
 
-        return $this->tables[$tableName];
+        return $this->tables[$name];
     }
 
-    public function executeNew()
+    public function execute($query)
     {
-        
-    }
+        $params = array();
+        if (func_num_args() > 1) {
+            if (is_array(func_get_arg(1))) { // Check if params passed as an array (key-value pairs)
+                $params = func_get_arg(1);
 
-    public function execute($query, array $params = array(), $isNormalized = false)
-    {
-        $normParams = $isNormalized? $params: $this->normalizeParams($params);
+                $params = $this->normalizeParams($params);
+            } else { // Params passed as a list of variables
+                $params = func_get_args();
 
-        $command = $this->pdo->prepare($query);
-
-        $command->closeCursor();
-
-        if (!$command->execute($normParams)) {
-            throw new DbException('Can\'t execute query:');
-        }
-    }
-
-    public function select($query, array $params = array())
-    {
-        $normParams = $this->normalizeParams($params);
-
-        $command = $this->pdo->prepare($query);
-
-        $command->closeCursor();
-
-        foreach ($normParams as $paramName => $paramValue) {
-            if (is_array($paramValue)
-                    && isset($paramValue['type'])
-                    && isset($paramValue['value'])) {
-                $command->bindValue($paramName, $paramValue['value'], $paramValue['type']);
-            } else {
-                $command->bindValue($paramName, $paramValue);
+                array_shift($params); // Remove first item ($query)
             }
         }
 
-        if (!$command->execute()) {
-            throw new DbException('Can\'t execute query.');
+        $command = $pdo->prepare($query);
+        $command->closeCursor();
+
+        $counter = 1;
+        foreach ($params as $paramKey => $paramValue) {
+            if (is_int($paramKey)) { // Use counter as a key if keys are numeric
+                $command->bindValue(
+                    $counter,
+                    $paramValue,
+                    is_int($paramValue)? \PDO::PARAM_INT: \PDO::PARAM_STR
+                );
+
+                $counter++;
+            } else { // Use keys and prepend them with ":" when needed
+                $command->bindValue(
+                    (strlen($paramKey) && (':' === $paramKey{0}))? $paramKey: ':' . $paramKey,
+                    $paramValue,
+                    is_int($paramValue)? \PDO::PARAM_INT: \PDO::PARAM_STR
+                );
+            }
         }
 
-        return $command->fetchAll(\PDO::FETCH_ASSOC);
+        if (!$command->execute($params)) {
+            list($sqlErrorCode, $driverErrorCode, $errorMessage) = $command->errorInfo();
+
+            throw new DbException(sprintf('Can\'t execute query (%s): %s', $errorMessage, $query));
+        }
+
+        $rows = $command->fetchAll($this->config->get('fetchMode', \PDO::FETCH_ASSOC));
+
+        return $rows;
     }
 
-    public function selectOne($query, array $params = array())
+    public function select($query)
     {
-        $rows = $this->select($query, $params, $fetchType);
+        return call_user_func_array(array($this, 'execute'), func_get_args());
+    }
+
+    public function get($query)
+    {
+        $rows = call_user_func_array(array($this, 'select'), func_get_args());
 
         return array_shift($rows);
     }
 
-    public function selectValues($query, array $params = array())
+    public function values($query)
     {
-        $row = $this->selectOne($query, $params, $fetchType);
+        $row = call_user_func_array(array($this, 'get'), func_get_args());
         if (empty($row)) {
-            throw new DbException('No values selected.');
+            throw new DbException(sprintf('No values selected by query %s', $query));
         } else {
             return $row;
         }
     }
 
-    public function selectValue($query, array $params = array())
+    public function value($query)
     {
-        $values = $this->selectValues($query, $params);
+        $values = call_user_func_array(array($this, 'values'), func_get_args());
 
         return array_shift($values);
     }
 
-    public function normalizeParams(array $params = array())
+    public function id()
     {
-        $normParams = array();
-        foreach ($params as $paramKey => $paramValue) {
-            $normParams[(strlen($paramKey) && (':' === $paramKey{0}))? $paramKey: ':' . $paramKey] = $paramValue;
-        }
-
-        return $normParams;
+        return $this->pdo->lastInsertId();
     }
 
     public function pdo()

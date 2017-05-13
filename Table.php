@@ -6,22 +6,22 @@ class Table
 {
 
     private $db;
-    private $tableName;
+    private $name;
     private $config;
 
-    public function __construct(Db $db, $tableName, $config = [])
+    public function __construct(Db $db, $name, $config = [])
     {
         $this->db = $db;
-        $this->tableName = $tableName;
+        $this->name = $name;
         $this->config = $config;
     }
 
     public function __call($method)
     {
         if (isset($this->config[$method])) {
-            $query = 
+            $query = $this->config[$method]['query']; // TODO:
         } else {
-            throw new DbException(sprintf('Method "%s" not implemented for table "%s".', $method, $this->tableName));
+            throw new DbException(sprintf('Method "%s" not implemented for table "%s".', $method, $this->name));
         }
     }
 
@@ -31,7 +31,7 @@ class Table
             sprintf('
                 SELECT  *
                 FROM    `%s`',
-                $this->tableName
+                $this->name
             )
         );
     }
@@ -43,11 +43,11 @@ class Table
                 SELECT  *
                 FROM    `%s`
                 WHERE   `%s` = :value',
-                $this->tableName,
+                $this->name,
                 $fieldName
             ),
             array(
-                ':value' => $value
+                'value' => $value
             )
         );
     }
@@ -59,29 +59,35 @@ class Table
         return array_shift($rows);
     }
 
-    public function insert(array $fields)
+    public function insert($fields = null)
     {
-        // TODO: Check for ability to insert a record with empty fields
-        // (for example when table contains only auto-increment field or other fields have default values)
+        $fieldsPrepared = array();
+        $params = array();
+        foreach ($fields as $field => $value) { // Will loop through both arrays and objects
+            $fieldsPrepared[$field] = $value;
+            $params[(strlen($field) && (':' === $field{0}))? $field: ':' . $field] = 1;
+        }
 
-        $normParams = $this->db->normalizeParams($fields);
+        $paramNames = implode(', ', $params);
 
-        $paramNames = implode(', ', array_keys($normParams));
-        $fieldNames = '`' . implode('`, `', array_keys($fields)) . '`';
+        $fieldNames = '';
+        if (!empty($fields)) {
+            $fieldNames = '`' . implode('`, `', array_keys($fields)) . '`';
+        }
 
         $this->db->execute(
             sprintf('
                 INSERT  INTO `%s` (%s)
                 VALUES  (%s)',
-                $this->tableName,
+                $this->name,
                 $fieldNames,
                 $paramNames
             ),
-            $normParams,
+            $fieldsPrepared,
             false
         );
 
-        return $this->db->pdo()->lastInsertId();
+        return $this->db->id();
     }
 
     public function batchInsert(array $rows = array())
@@ -90,12 +96,19 @@ class Table
             return;
         }
 
-        $fieldNames = array_keys(Db::getInstance()->normalizeParams($rows[0]));
+        $fieldNames = null;
 
         $normParams = array();
         $paramNames = '';
         $counter = 0;
         foreach ($rows as $row) {
+            if (is_null($fieldNames)) {
+                $fieldNames = array();
+                foreach ($row as $field => $value) {
+                    
+                }
+            }
+
             $paramNames .= ((0 < $counter)? ',': '') . '(';
 
             $nextParamNames = array();
@@ -114,7 +127,7 @@ class Table
             sprintf('
                 INSERT  INTO `%s` %s
                 VALUES  %s',
-                $this->tableName,
+                $this->name,
                 $fieldNames,
                 $paramNames
             ),
@@ -148,7 +161,7 @@ class Table
                 UPDATE  `%s`
                 SET     %s
                 %s',
-                $this->tableName,
+                $this->name,
                 $sqlSet,
                 $sqlWhere
             )
@@ -181,7 +194,7 @@ class Table
             sprintf('
                 DELETE  FROM `%s`
                 WHERE   `%s` = :value',
-                $this->tableName,
+                $this->name,
                 $fieldName
             ),
             array(
@@ -195,7 +208,7 @@ class Table
         $this->db->execute(
             sprintf('
                 DELETE  FROM `%s`',
-                $this->tableName
+                $this->name
             )
         );
     }

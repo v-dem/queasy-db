@@ -7,9 +7,12 @@ trait TableTrait
 
     private static function table()
     {
-        $tableName = self::TABLE_NAME;
+        // If TABLE_NAME is not declared, use unqualified class name as a table name
+        $name = defined(__CLASS__ . '::TABLE_NAME')
+            ? self::TABLE_NAME
+            : str_replace(__NAMESPACE__ . "\\", '', __CLASS__);
 
-        return Db::getInstance()->$tableName;
+        return Db::getInstance()->$name;
     }
 
 }
