@@ -25,6 +25,11 @@ class Table
         }
     }
 
+    /**
+     * Returns all records from table
+     *
+     * @return array Selected rows
+     */
     public function all()
     {
         return $this->db->select(
@@ -36,6 +41,13 @@ class Table
         );
     }
 
+    /**
+     * Returns records where $fieldName column value equals to @value
+     *
+     * @param string $fieldName Column name
+     * @param string $value Value
+     * @return array Selected rows
+     */
     public function select($fieldName, $value)
     {
         return $this->db->select(
@@ -52,6 +64,13 @@ class Table
         );
     }
 
+    /**
+     * Returns one record where $fieldName column value equals to @value
+     *
+     * @param string $fieldName Column name
+     * @param string $value Value
+     * @return array Selected row
+     */
     public function get($fieldName, $value)
     {
         $rows = $this->select($fieldName, $value);
@@ -59,6 +78,12 @@ class Table
         return array_shift($rows);
     }
 
+    /**
+     * Inserts one record into table
+     *
+     * @param array $fields Associative array, keys are column names
+     * @return integer Inserted record id
+     */
     public function insert($fields = null)
     {
         $fieldsPrepared = array();
@@ -90,6 +115,12 @@ class Table
         return $this->db->id();
     }
 
+    /**
+     * Inserts many records into table in one query
+     *
+     * @param array $rows Array of associative arrays where keys are column names
+     * @return integer Last inserted record id
+     */
     public function batchInsert(array $rows = array())
     {
         if (empty($rows)) {
@@ -103,24 +134,42 @@ class Table
         $counter = 0;
         foreach ($rows as $row) {
             if (is_null($fieldNames)) {
-                $fieldNames = array();
-                foreach ($row as $field => $value) {
-                    
+                if (is_array($row)) {
+                    $fieldNames = array_keys($row);
+                } else if (is_object($row)) {
+                    $fieldNames = get_object_vars($row);
+                } else {
+                    throw new DbException('Incorrect row type. Must be array or object.');
                 }
             }
 
-            $paramNames .= ((0 < $counter)? ',': '') . '(';
+            $paramNames .= ((0 < $counter)? ', ': '') . '(';
 
             $nextParamNames = array();
-            foreach($row as $paramKey => $paramValue) {
-                $nextParamNames[] = ':' . $paramKey . $counter;
-                $normParams[':' . $paramKey . $counter] = $paramValue;
+            foreach ($fieldNames as $field) {
+                $paramKey = (strlen($field) && (':' === $field{0}))? $field: ':' . $field;
+                if (is_array($row)) {
+                    $paramValue = $row[$field];
+                } else if (is_object($row)) {
+                    $paramValue = $row->$field;
+                } else {
+                    throw new DbException('Incorrect row type. Must be array or object.');
+                }
+
+                $nextParamNames[] = $paramKey . $counter;
+                $normParams[$paramKey . $counter] = $paramValue;
             }
 
-            $paramNames .= implode(',', $nextParamNames);
+            $paramNames .= implode(', ', $nextParamNames);
             $paramNames .= ')';
 
             $counter++;
+        }
+
+        if (count($fieldNames)) {
+            $fieldNames = '`' . implode('`, `', $fieldNames) . '`';
+        } else {
+            $fieldNames = '';
         }
 
         $this->db->execute(
@@ -131,27 +180,24 @@ class Table
                 $fieldNames,
                 $paramNames
             ),
-            $normParams,
-            false
+            $normParams
         );
     }
 
-    public function update($fieldName, $fieldValue, array $updateFields, $updateAll = false)
+    public function update($fieldName, $fieldValue, array $fields = array())
     {
         if (is_null($fieldName)) {
-            if(!$updateAll) {
-                throw new DbException('Attempt to update all table records without confirmation.');
-            }
-
             $sqlWhere = '';
         } else {
             $sqlWhere = sprintf('WHERE `%s` = :%s', $fieldName, $fieldName);
         }
 
-        $normUpdateFields = $this->db->normalizeParams($updateFields);
+        $normFields = array();
         $sqlSetRows = array();
-        foreach ($updateFields as $updateFieldName => $updateFieldValue) {
+        foreach ($fields as $field => $value) {
+            $
             $sqlSetRows[] = sprintf('`%s` = :%s', $updateFieldName, $updateFieldName);
+            $normFields[]
         }
 
         $sqlSet = implode(', ', $sqlSetRows);
@@ -188,6 +234,13 @@ class Table
         }
     }
 
+    /**
+     * Removes record(s) where specified column matches specified value
+     *
+     * @param string $fieldName Field name to match rows
+     * @param mixed $value Value to match
+     * @return null
+     */
     public function remove($fieldName, $value)
     {
         $this->db->execute(
@@ -203,6 +256,11 @@ class Table
         );
     }
 
+    /**
+     * Removes all records from table
+     *
+     * @return null
+     */
     public function clear()
     {
         $this->db->execute(
