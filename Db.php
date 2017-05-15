@@ -75,8 +75,6 @@ class Db
         if (func_num_args() > 1) {
             if (is_array(func_get_arg(1))) { // Check if params passed as an array (key-value pairs)
                 $params = func_get_arg(1);
-
-                $params = $this->normalizeParams($params);
             } else { // Params passed as a list of variables
                 $params = func_get_args();
 
