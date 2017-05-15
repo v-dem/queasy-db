@@ -82,7 +82,7 @@ class Db
             }
         }
 
-        $command = $pdo->prepare($query);
+        $command = $this->pdo->prepare($query);
         $command->closeCursor();
 
         $counter = 1;
