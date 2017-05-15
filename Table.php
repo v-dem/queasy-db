@@ -16,10 +16,14 @@ class Table
         $this->config = $config;
     }
 
-    public function __call($method)
+    public function __call($method, array $args)
     {
         if (isset($this->config[$method])) {
-            $query = $this->config[$method]['query']; // TODO:
+            $query = $this->config[$method]['query'];
+
+            $db = $this->db;
+
+            return call_user_func_array(array($db, 'execute'), array_merge(array($query), $args));
         } else {
             throw new DbException(sprintf('Method "%s" not implemented for table "%s".', $method, $this->name));
         }
@@ -195,14 +199,17 @@ class Table
         $normFields = array();
         $sqlSetRows = array();
         foreach ($fields as $field => $value) {
-            $
-            $sqlSetRows[] = sprintf('`%s` = :%s', $updateFieldName, $updateFieldName);
-            $normFields[]
+            $sqlSetRows[] = sprintf('`%s` = %s%s', $updateFieldName, (strlen($updateFieldName) && (':' === $updateFieldName{0}))? '': ':', $updateFieldName);
+            $normFields[(strlen($updateFieldName) && (':' === $updateFieldName{0}))? '': ':'] = $value;
         }
 
         $sqlSet = implode(', ', $sqlSetRows);
 
-        $command = $this->db->pdo()->prepare(
+        if (!empty($sqlWhere)) {
+            $normFields[(strlen($fieldName) && (':' === $fieldName{0}))? '': ':'] = $fieldValue;
+        }
+
+        $this->db->execute(
             $sql = sprintf('
                 UPDATE  `%s`
                 SET     %s
@@ -212,26 +219,6 @@ class Table
                 $sqlWhere
             )
         );
-
-        $command->closeCursor();
-
-        foreach ($normUpdateFields as $updateFieldName => $updateFieldValue) {
-            if (is_array($updateFieldValue)
-                    && isset($updateFieldValue['type'])
-                    && isset($updateFieldValue['value'])) {
-                $command->bindValue($updateFieldName, $updateFieldValue['value'], $updateFieldValue['type']);
-            } else {
-                $command->bindValue($updateFieldName, $updateFieldValue);
-            }
-        }
-
-        if (!empty($sqlWhere)) {
-            $command->bindValue(':' . $fieldName, $fieldValue);
-        }
-
-        if (!$command->execute()) {
-            throw new DbException('Db::update(): Can\'t execute query.');
-        }
     }
 
     /**
