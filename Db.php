@@ -75,10 +75,8 @@ class Db
         if (func_num_args() > 1) {
             if (is_array(func_get_arg(1))) { // Check if params passed as an array (key-value pairs)
                 $params = func_get_arg(1);
-                \queasy\log\Logger::info(print_r($params, true));
             } else { // Params passed as a list of variables
                 $params = func_get_args();
-                \queasy\log\Logger::info(print_r($params, true));
 
                 array_shift($params); // Remove first item ($query)
             }
