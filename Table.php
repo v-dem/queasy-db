@@ -97,7 +97,7 @@ class Table
             $params[(strlen($field) && (':' === $field{0}))? $field: ':' . $field] = 1;
         }
 
-        $paramNames = implode(', ', $params);
+        $paramNames = implode(', ', array_keys($params));
 
         $fieldNames = '';
         if (!empty($fields)) {
