@@ -69,6 +69,14 @@ class Db
         return $this->tables[$name];
     }
 
+    /**
+     * Executes SQL $query
+     *
+     * @param string $query Query code
+     * @params mixed Query arguments, can be an array or a list
+     * @return array Returned data depends on query, usually it is an array (empty array for queries like INSERT, DELETE or UPDATE)
+     * @throws DbException On error
+     */
     public function execute($query)
     {
         $params = array();

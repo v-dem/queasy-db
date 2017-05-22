@@ -16,6 +16,14 @@ class Table
         $this->config = $config;
     }
 
+    /**
+     * Calls an user-defined (in configuration) method
+     *
+     * @param string $method Method name
+     * @param array $args Arguments
+     * @return mixed Return type depends on configuration. It can be a single value, an object, an array, or an array of objects or arrays
+     * @throws DbException On error
+     */
     public function __call($method, array $args)
     {
         if (isset($this->config[$method])) {
