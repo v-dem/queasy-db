@@ -2,7 +2,6 @@
 
 namespace queasy\db;
 
-use queasy\config\ConfigSection;
 use queasy\config\ConfigTrait;
 
 class Db
