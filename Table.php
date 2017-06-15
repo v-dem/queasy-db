@@ -186,7 +186,7 @@ class Table
 
         $this->db->execute(
             sprintf('
-                INSERT  INTO `%s` %s
+                INSERT  INTO `%s` (%s)
                 VALUES  %s',
                 $this->name,
                 $fieldNames,
