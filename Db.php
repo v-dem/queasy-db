@@ -49,7 +49,7 @@ class Db
                 ),
                 $this->config->need('user'),
                 $this->config->need('password'),
-                $this->config->get('options')->toArray()
+                $this->config->get('options', array())->toArray()
             );
         } catch (\Exception $ex) {
             throw new DbException('Cannot connect to database.');
@@ -60,6 +60,7 @@ class Db
     {
         if (!isset($this->tables[$name])) {
             $queriesConfig = $this->config->get('queries', array());
+
             $config = $queriesConfig[$name];
 
             $this->tables[$name] = new Table($this, $name, $config);
