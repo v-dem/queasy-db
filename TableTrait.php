@@ -10,7 +10,7 @@ trait TableTrait
      *
      * @return queasy\db\Table
      */
-    private static function table()
+    protected static function table()
     {
         // If TABLE_NAME is not declared, use unqualified class name as a table name
         $name = defined(__CLASS__ . '::TABLE_NAME')
