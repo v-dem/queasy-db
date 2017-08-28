@@ -232,7 +232,7 @@ class Table
     /**
      * Removes record(s) where specified column matches specified value
      *
-     * @param string $fieldName Field name to match rows
+     * @param string $fieldName Field name to match row(s)
      * @param mixed $value Value to match
      * @return null
      */
