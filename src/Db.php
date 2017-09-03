@@ -7,11 +7,13 @@ use queasy\config\ConfigTrait;
 class Db
 {
 
+    const DEFAULT_FETCH_MODE = \PDO::FETCH_ASSOC;
+
     use ConfigTrait;
 
     private static $instances = array();
 
-    public static function getInstance($name = 'default')
+    public static function instance($name = 'default')
     {
         if (!isset(self::$instances[$name])) {
             self::$instances[$name] = new self($name);
@@ -20,11 +22,25 @@ class Db
         return self::$instances[$name];
     }
 
-    public static function map($field, $rows)
+    /**
+     * Creates a key/value map by an array key or object field.
+     *
+     * @param string $field Field or key name
+     * @param array Array of arrays or objects
+     *
+     * @return array Array containing $field as a key and responsive row as a value
+     */
+    public static function map($field, array $rows)
     {
         $result = array();
         foreach ($rows as $row) {
-            $result[$row[$field]] = $row;
+            if (is_object($row)) {
+                $result[$row[$field]] = $row;
+            } elseif (is_array($row)) {
+                $result[$row->$field] = $row;
+            } else {
+                throw new \InvalidArgumentException();
+            }
         }
 
         return $result;
@@ -58,10 +74,24 @@ class Db
 
     public function __get($name)
     {
-        if (!isset($this->tables[$name])) {
-            $queriesConfig = $this->config->get('queries', array());
+        return $this->table($name);
+    }
 
-            $config = $queriesConfig[$name];
+    public function __invoke($name)
+    {
+        return $this->table($name);
+    }
+
+    public function table($name)
+    {
+        if (!isset($this->tables[$name])) {
+            $queriesConfig = isset($this->config['queries'])
+                ? $this->config->get('queries', array())
+                : array();
+
+            $config = isset($queriesConfig[$name])
+                ? $queriesConfig[$name]
+                : array();
 
             $this->tables[$name] = new Table($this, $name, $config);
         }
@@ -73,11 +103,13 @@ class Db
      * Executes SQL $query
      *
      * @param string $query Query code
-     * @params mixed Query arguments, can be an array or a list
+     * @param mixed $args Query arguments, can be an array or a list
+     *
      * @return array Returned data depends on query, usually it is an array (empty array for queries like INSERT, DELETE or UPDATE)
+     *
      * @throws DbException On error
      */
-    public function execute($query)
+    public function execute($query, $args = null)
     {
         $params = array();
         if (func_num_args() > 1) {
@@ -118,7 +150,7 @@ class Db
             throw new DbException(sprintf('Can\'t execute query (%s): %s', $errorMessage, $query));
         }
 
-        $rows = $command->fetchAll($this->config->get('fetchMode', \PDO::FETCH_ASSOC));
+        $rows = $command->fetchAll($this->config->get('fetchMode', self::DEFAULT_FETCH_MODE));
 
         return $rows;
     }
@@ -162,8 +194,12 @@ class Db
         return $this->pdo;
     }
 
-    public function trans(callable $func)
+    public function trans($func)
     {
+        if (!is_callable($func)) {
+            throw new InvalidArgumentException(); // TODO: Add error message
+        }
+
         $this->pdo->beginTransaction();
 
         try {

@@ -21,7 +21,9 @@ class Table
      *
      * @param string $method Method name
      * @param array $args Arguments
+     *
      * @return mixed Return type depends on configuration. It can be a single value, an object, an array, or an array of objects or arrays
+     *
      * @throws DbException On error
      */
     public function __call($method, array $args)
@@ -58,6 +60,7 @@ class Table
      *
      * @param string $fieldName Column name
      * @param string $value Value
+     *
      * @return array Selected rows
      */
     public function select($fieldName, $value)
@@ -81,6 +84,7 @@ class Table
      *
      * @param string $fieldName Column name
      * @param string $value Value
+     *
      * @return array Selected row
      */
     public function get($fieldName, $value)
@@ -94,6 +98,7 @@ class Table
      * Inserts one record into table
      *
      * @param array $fields Associative array, keys are column names
+     *
      * @return integer Inserted record id
      */
     public function insert($fields = null)
@@ -131,6 +136,7 @@ class Table
      * Inserts many records into table in one query
      *
      * @param array $rows Array of associative arrays where keys are column names
+     *
      * @return integer Last inserted record id
      */
     public function batchInsert(array $rows = array())
@@ -234,6 +240,7 @@ class Table
      *
      * @param string $fieldName Field name to match row(s)
      * @param mixed $value Value to match
+     *
      * @return null
      */
     public function remove($fieldName, $value)

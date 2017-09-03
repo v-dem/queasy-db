@@ -12,7 +12,7 @@ class Command
     {
         $this->pdo = $pdo;
 
-        $this->command = CommandCache::getInstance($this->pdo(), $query, $name);
+        $this->command = CommandCache::instance($this->pdo(), $query, $name);
     }
 
     public function get()
