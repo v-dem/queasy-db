@@ -2,31 +2,30 @@
 
 namespace queasy\db;
 
-use queasy\config\ConfigTrait;
+use PDO as BasePDO;
+use Exception;
+use InvalidArgumentException;
+
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
+use queasy\config\ConfigInterface;
+use queasy\config\Config;
+
+use queasy\db\query\Custom;
 
 class Db
 {
+    use LoggerAwareTrait;
 
-    const DEFAULT_FETCH_MODE = \PDO::FETCH_ASSOC;
-
-    use ConfigTrait;
-
-    private static $instances = array();
-
-    public static function instance($name = 'default')
-    {
-        if (!isset(self::$instances[$name])) {
-            self::$instances[$name] = new self($name);
-        }
-
-        return self::$instances[$name];
-    }
+    const DEFAULT_FETCH_MODE = BasePDO::FETCH_ASSOC;
 
     /**
      * Creates a key/value map by an array key or object field.
      *
      * @param string $field Field or key name
-     * @param array Array of arrays or objects
+     * @param array $rows Array of arrays or objects
      *
      * @return array Array containing $field as a key and responsive row as a value
      */
@@ -46,30 +45,18 @@ class Db
         return $result;
     }
 
-    private $name;
     private $config;
+
     private $pdo;
-    private $tables = array();
 
-    private function __construct($name = 'default')
+    private $tables;
+    private $queries;
+
+    public function __construct(ConfigInterface $config, LoggerInterface $logger = null)
     {
-        $this->name = $name;
-        $this->config = self::config()->need($name);
+        $this->config = $config;
 
-        try {
-            $this->pdo = new \PDO(
-                sprintf('%s:host=%s;dbname=%s',
-                    $this->config->need('driver'),
-                    $this->config->need('host'),
-                    $this->config->need('name')
-                ),
-                $this->config->need('user'),
-                $this->config->need('password'),
-                $this->config->get('options', array())->toArray()
-            );
-        } catch (\Exception $ex) {
-            throw new DbException('Cannot connect to database.');
-        }
+        $this->setLogger($logger? $logger: new NullLogger());
     }
 
     public function __get($name)
@@ -77,14 +64,14 @@ class Db
         return $this->table($name);
     }
 
-    public function __invoke($name)
+    public function __call($name, array $args = array())
     {
-        return $this->table($name);
+        return call_user_func_array(array($this, 'query'), array_merge(array($name), $args));
     }
 
     public function table($name)
     {
-        if (!isset($this->tables[$name])) {
+        if (isset($this->tables()->$name)) {
             $queriesConfig = isset($this->config['queries'])
                 ? $this->config->get('queries', array())
                 : array();
@@ -99,99 +86,46 @@ class Db
         return $this->tables[$name];
     }
 
-    /**
-     * Executes SQL $query
-     *
-     * @param string $query Query code
-     * @param mixed $args Query arguments, can be an array or a list
-     *
-     * @return array Returned data depends on query, usually it is an array (empty array for queries like INSERT, DELETE or UPDATE)
-     *
-     * @throws DbException On error
-     */
-    public function execute($query, $args = null)
+    public function query($name)
     {
-        $params = array();
-        if (func_num_args() > 1) {
-            if (is_array(func_get_arg(1))) { // Check if params passed as an array (key-value pairs)
-                $params = func_get_arg(1);
-            } else { // Params passed as a list of variables
-                $params = func_get_args();
+        if (isset($this->queries()->$name)) {
+            $args = func_get_args();
 
-                array_shift($params); // Remove first item ($query)
-            }
-        }
+            array_shift($args);
 
-        $command = $this->pdo->prepare($query);
-        $command->closeCursor();
+            $query = new Custom($this->queries()->$name, $this->pdo());
 
-        $counter = 1;
-        foreach ($params as $paramKey => $paramValue) {
-            if (is_int($paramKey)) { // Use counter as a key if keys are numeric
-                $command->bindValue(
-                    $counter,
-                    $paramValue,
-                    is_int($paramValue)? \PDO::PARAM_INT: \PDO::PARAM_STR
-                );
-
-                $counter++;
-            } else { // Use keys and prepend them with ":" when needed
-                $command->bindValue(
-                    (strlen($paramKey) && (':' === $paramKey{0}))? $paramKey: ':' . $paramKey,
-                    $paramValue,
-                    is_int($paramValue)? \PDO::PARAM_INT: \PDO::PARAM_STR
-                );
-            }
-        }
-
-        if (!$command->execute($params)) {
-            list($sqlErrorCode, $driverErrorCode, $errorMessage) = $command->errorInfo();
-
-            throw new DbException(sprintf('Can\'t execute query (%s): %s', $errorMessage, $query));
-        }
-
-        $rows = $command->fetchAll($this->config->get('fetchMode', self::DEFAULT_FETCH_MODE));
-
-        return $rows;
-    }
-
-    public function select($query)
-    {
-        return call_user_func_array(array($this, 'execute'), func_get_args());
-    }
-
-    public function get($query)
-    {
-        $rows = call_user_func_array(array($this, 'select'), func_get_args());
-
-        return array_shift($rows);
-    }
-
-    public function values($query)
-    {
-        $row = call_user_func_array(array($this, 'get'), func_get_args());
-        if (empty($row)) {
-            throw new DbException(sprintf('No values selected by query %s', $query));
+            return call_user_func_array(array($query, 'run'), $args);
         } else {
-            return $row;
+            throw new DbException(sprintf('Query "%s" was not declared in configuration.', $name));
         }
     }
 
-    public function value($query)
+    public function run($queryClass)
     {
-        $values = call_user_func_array(array($this, 'values'), func_get_args());
+        $interfaces = class_implements($queryClass);
+        if (!$interfaces
+                || !isset($interfaces['queasy\db\query\QueryInterface'])) {
+            throw new InvalidArgumentException(sprintf('Query class "%s" does not implement queasy\db\query\QueryInterface.', $queryClass));
+        } else {
+            $args = func_get_args();
 
-        return array_shift($values);
+            array_shift($args); // Remove $queryClass
+
+            $queryString = array_shift($args);
+            if (!$queryString || !is_string($queryString)) {
+                throw new InvalidArgumentException('Query string is missing or not a string.');
+            }
+
+            $query = new $queryClass($this->pdo(), $queryString);
+
+            return call_user_func_array(array($query, 'run'), $args);
+        }
     }
 
-    public function id()
+    public function id($sequence = null)
     {
-        return $this->pdo->lastInsertId();
-    }
-
-    public function pdo()
-    {
-        return $this->pdo;
+        return $this->pdo()->lastInsertId($sequence);
     }
 
     public function trans($func)
@@ -200,18 +134,80 @@ class Db
             throw new InvalidArgumentException(); // TODO: Add error message
         }
 
-        $this->pdo->beginTransaction();
+        $this->pdo()->beginTransaction();
 
         try {
             $func();
 
-            $this->pdo->commit();
-        } catch (Exception $e) {
-            $this->pdo->rollBack();
+            $this->pdo()->commit();
+        } catch (Exception $ex) {
+            $this->pdo()->rollBack();
 
-            throw $e;
+            throw $ex;
         }
     }
 
+    protected function pdo()
+    {
+        if (!$this->pdo) {
+            try {
+                $connection = $this->config()->connection;
+
+                $this->pdo = new PDO(
+                    sprintf('%s:host=%s;dbname=%s',
+                        $connection->driver,
+                        $connection->host,
+                        $connection->name
+                    ),
+                    $connection->get('user'),
+                    $connection->get('password'),
+                    $connection->get('options')
+                );
+
+                $fetchMode = $this->config()->get('fetchMode', static::DEFAULT_FETCH_MODE);
+                if (!$this->pdo->setAttribute(BasePDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
+                    $this->logger->warning('Cannot set default fetch mode.');
+                }
+            } catch (Exception $ex) {
+                throw new DbException('Cannot connect to database.', 0, $ex);
+            }
+        }
+
+        return $this->pdo;
+    }
+
+    protected function config()
+    {
+        return $this->config;
+    }
+
+    protected function tables()
+    {
+        if (!$this->tables) {
+            $this->tables = $this->config()->tables;
+            if (!$this->tables) {
+                $this->tables = new Config(array());
+            }
+        }
+
+        return $this->tables;
+    }
+
+    protected function queries()
+    {
+        if (!$this->queries) {
+            $this->queries = $this->config()->queries;
+            if (!$this->queries) {
+                $this->queries = new Config(array());
+            }
+        }
+
+        return $this->queries;
+    }
+
+    protected function logger()
+    {
+        return $this->logger;
+    }
 }
 

@@ -2,9 +2,9 @@
 
 namespace queasy\db;
 
-use queasy\SystemException;
+use Exception;
 
-class DbException extends SystemException
+class DbException extends Exception
 {
 
 }

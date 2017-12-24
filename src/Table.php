@@ -2,18 +2,18 @@
 
 namespace queasy\db;
 
+use queasy\config\ConfigInterface;
+
 class Table
 {
-
-    private $db;
-    private $name;
     private $config;
 
-    public function __construct(Db $db, $name, $config = [])
+    private $name;
+
+    public function __construct(ConfigInterface $config)
     {
-        $this->db = $db;
-        $this->name = $name;
         $this->config = $config;
+        $this->name = $name;
     }
 
     /**

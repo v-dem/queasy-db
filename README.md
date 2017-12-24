@@ -1,59 +1,26 @@
-# Welcome to the queasy-core wiki!
+# [Queasy PHP Framework](https://github.com/v-dem/queasy-app/)
 
-Queasy PHP framework was developed to help with small projects whose don't require a lot of features implemented in other big, great and nice frameworks like Laravel.
+## Package `v-dem/queasy-db`
 
-1. [Intro](https://github.com/v-dem/queasy-core/wiki/Intro)
-2. [Configs](https://github.com/v-dem/queasy-core/wiki/Configs)
-3. [Logs](https://github.com/v-dem/queasy-core/wiki/Logs)
-4. [Routes and Controllers](https://github.com/v-dem/queasy-core/wiki/Routes)
-5. [Database and Models](https://github.com/v-dem/queasy-core/wiki/Database-and-Models)
-6. [Forms and Validation](https://github.com/v-dem/queasy-core/wiki/Forms)
-7. [Internationalization](https://github.com/v-dem/queasy-core/wiki/Internationalization)
-8. [Events and Listeners](https://github.com/v-dem/queasy-core/wiki/Events)
+Database access classes. Some the most usual queries can be built automatically, more complex queries can be
+added into database and/or tables config.
 
-## Requirements
-* PHP 5.3 - Newer PHP versions surely can be used too. This framework doesn't use any things came in newer versions, so it is useful even within PHP 5.3 hostings.
-* PDO - for database access.
-* Apache Httpd - to serve .htaccess for human-readable URLs.
+### Features
 
-## Installation
-* Install [Composer](http://getcomposer.org/download/)
-* Run `composer create-project --stability=dev --prefer-dist v-dem/queasy-app YOUR_PROJECT_NAME`
-* Copy `queasy-config.php.sample` to `queasy-config.php` and modify its settings due to your system configuration.
+### Requirements
 
-## Features
+* PHP version 5.3 or higher
+* Package `v-dem/queasy-config`
+* Package `v-dem/queasy-log` *(optional)*
 
-### Quick
-* Much faster than other micro frameworks.
+### Documentation
 
-### Easy
-* No complex things like DI or IoC used. Just a standard OOP. So debugging is very easy and source code is clean to understand.
+See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 
-### Small
-* Just a several tens of files. And they are loaded only when needed.
+### Installation
 
-### Functional
-* Supports complex configurations with ability to load from different files.
-* Supports internationalization from a box.
-* Forms validation from a box too.
-* Built-in logger, it has to be PSR-compatible in future.
-* Database access is very easy for easy queries (like INSERT, DELETE, UPDATE or SELECT by a single field), more complex queries can be configured in config files.
-* REST support. Every Controller should respond to HTTP methods like GET, POST, PUT, DELETE etc - no routes required.
+    composer require v-dem/queasy-db:master-dev
 
-### MVC
+### Usage
 
-## Folders structure
-* **`/app`** Default folder for custom application files
-* * **`/app/controllers`** Controllers
-* * **`/app/models`** Models
-* * **`/app/forms`** Forms
-* * **`/app/events`** Events
-* * **`/app/listeners`** Event listeners
-* * **`/app/App.php`** Main application class
-* **`/public`** Default folder for public resources like CSS, JS, images etc.
-* **`/public/index.php`** Queasy loader
-* **`/i18n`** Default folder for translations
-* **`/logs`** Default folder for log files
-* **`/views`** Default folder for views
-* **`/vendor`** Contains Composer classes, including Queasy core files
 

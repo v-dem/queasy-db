@@ -1,5 +1,10 @@
 {
     "name": "v-dem/queasy-db",
+    "description": "Database access classes, part of Queasy PHP framework",
+    "homepage": "https://github.com/v-dem/queasy-db/",
+    "keywords": ["database", "pdo", "mysql", "postgresql"],
+    "license": "LGPL-3.0",
+    "version": "1.0.1",
     "minimum-stability": "dev",
     "authors": [
         {
@@ -8,15 +13,24 @@
         }
     ],
     "require": {
-        "php": ">=5.3.0",
-        "ext-pdo": "*"
+        "php": ">=5.3.0|>=7.0.0",
+        "ext-pdo": "*",
+        "psr/log": "~1.0",
+        "v-dem/queasy-config": "dev-master",
+        "v-dem/queasy-log": "dev-master"
     },
     "require-dev": {
+        "php": ">=5.6.0|>=7.0.0",
         "phpunit/phpunit": "~5.7"
     },
     "autoload":{
         "psr-4":{
             "queasy\\db\\": "src/"
+        }
+    },
+    "autoload-dev":{
+        "psr-4":{
+            "queasy\\db\\tests\\": "tests/"
         }
     }
 }
