@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-use \PDO;
+use PDO;
 use queasy\db\DbException;
 
 abstract class TableQuery extends Query

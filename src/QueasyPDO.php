@@ -2,9 +2,9 @@
 
 namespace queasy\db;
 
-use PDO as BasePDO;
+use PDO;
 
-class PDO extends BasePDO
+class QueasyPDO extends PDO
 {
     private $statements = array();
 

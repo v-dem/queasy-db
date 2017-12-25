@@ -27,7 +27,7 @@ abstract class AbstractQuery implements QueryInterface
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(\PDO $pdo, $query)
+    public function __construct(PDO $pdo, $query)
     {
         $this->pdo = $pdo;
         $this->query = $query;

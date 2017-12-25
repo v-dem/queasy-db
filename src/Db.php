@@ -2,7 +2,6 @@
 
 namespace queasy\db;
 
-use PDO as BasePDO;
 use Exception;
 use InvalidArgumentException;
 
@@ -19,7 +18,7 @@ class Db
 {
     use LoggerAwareTrait;
 
-    const DEFAULT_FETCH_MODE = BasePDO::FETCH_ASSOC;
+    const DEFAULT_FETCH_MODE = QueasyPDO::FETCH_ASSOC;
 
     /**
      * Creates a key/value map by an array key or object field.
@@ -153,7 +152,7 @@ class Db
             try {
                 $connection = $this->config()->connection;
 
-                $this->pdo = new PDO(
+                $this->pdo = new QueasyPDO(
                     sprintf('%s:host=%s;dbname=%s',
                         $connection->driver,
                         $connection->host,
@@ -166,7 +165,7 @@ class Db
                 );
 
                 $fetchMode = $this->config()->get('fetchMode', static::DEFAULT_FETCH_MODE);
-                if (!$this->pdo->setAttribute(BasePDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
+                if (!$this->pdo->setAttribute(QueasyPDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
                     $this->logger->warning('Cannot set default fetch mode.');
                 }
             } catch (Exception $ex) {
