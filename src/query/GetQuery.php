@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-class Get extends SelectQuery
+class GetQuery extends SelectQuery
 {
     /**
      * Executes SQL query and returns all selected rows.

@@ -6,7 +6,7 @@ use PDO;
 
 use queasy\config\ConfigInterface;
 
-class Custom extends Query
+class CustomQuery extends Query
 {
     private $fetchMode;
 

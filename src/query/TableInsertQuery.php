@@ -5,7 +5,7 @@ namespace queasy\db\query;
 use \PDO;
 use queasy\db\DbException;
 
-abstract class TableQuery extends Query
+class TableInsertQuery extends Query
 {
     private $table;
 

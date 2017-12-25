@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-class ValuesQuery extends GetQuery
+class SingleValueQuery extends GetQuery
 {
     /**
      * Executes SQL query and returns all selected rows.

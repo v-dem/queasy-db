@@ -13,7 +13,7 @@ use Psr\Log\NullLogger;
 use queasy\config\ConfigInterface;
 use queasy\config\Config;
 
-use queasy\db\query\Custom;
+use queasy\db\query\CustomQuery;
 
 class Db
 {
@@ -93,7 +93,7 @@ class Db
 
             array_shift($args);
 
-            $query = new Custom($this->queries()->$name, $this->pdo());
+            $query = new CustomQuery($this->queries()->$name, $this->pdo());
 
             return call_user_func_array(array($query, 'run'), $args);
         } else {
@@ -157,6 +157,7 @@ class Db
                     sprintf('%s:host=%s;dbname=%s',
                         $connection->driver,
                         $connection->host,
+                        $connection->get('port'),
                         $connection->name
                     ),
                     $connection->get('user'),
