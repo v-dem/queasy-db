@@ -13,12 +13,12 @@ class SingleValueQuery extends GetQuery
      *
      * @throws DbException On error
      */
-    public function execute()
+    public function run()
     {
-        $row = call_user_func_array('parent::execute', func_get_args());
+        $row = call_user_func_array('parent::run', func_get_args());
 
         if (empty($row)) {
-            throw new DbException(sprintf('No values were selected by query "%s".', $query));
+            throw new DbException(sprintf('No value was selected by query "%s".', $query));
         } else {
             return $row;
         }

@@ -25,7 +25,7 @@ abstract class TableQuery extends Query
      *
      * @throws DbException On error
      */
-    public function execute($args = null)
+    public function run($args = null)
     {
     }
 }

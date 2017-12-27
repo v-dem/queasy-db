@@ -5,17 +5,8 @@ namespace queasy\db\query;
 use PDO;
 use queasy\db\DbException;
 
-class TableInsertQuery extends Query
+class TableInsertQuery extends TableQuery
 {
-    private $table;
-
-    public function __construct(PDO $pdo, $table)
-    {
-        $this->table = $table;
-
-        parent::__construct($pdo, '');
-    }
-
     /**
      * Build SQL query.
      *
@@ -25,7 +16,7 @@ class TableInsertQuery extends Query
      *
      * @throws DbException On error
      */
-    public function execute($args = null)
+    public function run($args = null)
     {
     }
 

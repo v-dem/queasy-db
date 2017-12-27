@@ -8,6 +8,17 @@ use queasy\db\DbException;
 
 class Query extends AbstractQuery
 {
+    public function params(array $args = array())
+    {
+        if (count($args)) {
+            
+
+            return array();
+        }
+
+        return $args;
+    }
+
     /**
      * Executes SQL query.
      *
@@ -17,7 +28,7 @@ class Query extends AbstractQuery
      *
      * @throws DbException On error
      */
-    public function run($args = null)
+    public function run()
     {
         $args = array();
         if (func_num_args() > 0) {
@@ -27,8 +38,6 @@ class Query extends AbstractQuery
                 $args = func_get_args();
             }
         }
-
-        $this->statement()->closeCursor(); // To avoid some issues with unclosed cursor
 
         $counter = 1;
         foreach ($args as $paramKey => $paramValue) {

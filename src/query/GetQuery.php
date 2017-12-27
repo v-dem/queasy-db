@@ -13,9 +13,9 @@ class GetQuery extends SelectQuery
      *
      * @throws DbException On error
      */
-    public function execute()
+    public function run()
     {
-        $rows = call_user_func_array('parent::execute', func_get_args());
+        $rows = call_user_func_array('parent::run', func_get_args());
 
         return array_shift($rows);
     }

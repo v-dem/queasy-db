@@ -153,7 +153,7 @@ class Db
                 $connection = $this->config()->connection;
 
                 $this->pdo = new QueasyPDO(
-                    sprintf('%s:host=%s;dbname=%s',
+                    sprintf('%s:host=%s;port=%s;dbname=%s',
                         $connection->driver,
                         $connection->host,
                         $connection->get('port'),
