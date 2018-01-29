@@ -15,7 +15,7 @@ class SingleValueQuery extends GetQuery
      */
     public function run()
     {
-        $row = call_user_func_array('parent::run', func_get_args());
+        $row = parent::run(func_get_args());
 
         if (empty($row)) {
             throw new DbException(sprintf('No value was selected by query "%s".', $query));

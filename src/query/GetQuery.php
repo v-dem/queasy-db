@@ -15,7 +15,7 @@ class GetQuery extends SelectQuery
      */
     public function run()
     {
-        $rows = call_user_func_array('parent::run', func_get_args());
+        $rows = parent::run(func_get_args());
 
         return array_shift($rows);
     }

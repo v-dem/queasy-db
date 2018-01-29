@@ -39,6 +39,10 @@ class Query extends AbstractQuery
             }
         }
 
+        while ((1 == count($args)) && (is_array($args[0]))) {
+            $args = $args[0];
+        }
+
         $counter = 1;
         foreach ($args as $paramKey => $paramValue) {
             // Detect parameter type

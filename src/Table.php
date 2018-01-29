@@ -33,7 +33,7 @@ class Table
 
             $db = $this->db;
 
-            return call_user_func_array(array($db, 'execute'), array_merge(array($query), $args));
+            $db->execute(array_merge(array($query), $args));
         } else {
             throw new DbException(sprintf('Method "%s" not implemented for table "%s".', $method, $this->name));
         }

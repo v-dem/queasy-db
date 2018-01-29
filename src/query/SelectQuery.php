@@ -15,7 +15,7 @@ class SelectQuery extends Query
      */
     public function run()
     {
-        call_user_func_array('parent::run', func_get_args());
+        parent::run(func_get_args());
 
         return $this->statement()->fetchAll();
     }

@@ -65,7 +65,7 @@ class Db
 
     public function __call($name, array $args = array())
     {
-        return call_user_func_array(array($this, 'query'), array_merge(array($name), $args));
+        return $this->query($name, $args);
     }
 
     public function table($name)
@@ -93,8 +93,9 @@ class Db
             array_shift($args);
 
             $query = new CustomQuery($this->queries()->$name, $this->pdo());
+            $query->setLogger($this->logger());
 
-            return call_user_func_array(array($query, 'run'), $args);
+            return $query->run($args);
         } else {
             throw new DbException(sprintf('Query "%s" was not declared in configuration.', $name));
         }
@@ -117,8 +118,9 @@ class Db
             }
 
             $query = new $queryClass($this->pdo(), $queryString);
+            $query->setLogger($this->logger());
 
-            return call_user_func_array(array($query, 'run'), $args);
+            return $query->run($args);
         }
     }
 

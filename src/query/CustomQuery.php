@@ -10,12 +10,12 @@ class CustomQuery extends Query
 {
     private $fetchMode;
 
-    private $fetchClass;
+    private $fetchArg;
 
     public function __construct(ConfigInterface $config, PDO $pdo)
     {
         $this->fetchMode = $config->get('fetchMode');
-        $this->fetchClass = $config->get('fetchClass');
+        $this->fetchArg = $config->get('fetchArg');
 
         parent::__construct($pdo, $config->query);
     }
@@ -31,9 +31,13 @@ class CustomQuery extends Query
      */
     public function run()
     {
-        call_user_func_array('parent::run', func_get_args());
+        parent::run(func_get_args());
 
-        return $this->statement()->fetchAll($this->fetchMode(), $this->fetchClass());
+        if ($this->fetchArg()) {
+            return $this->statement()->fetchAll($this->fetchMode(), $this->fetchArg());
+        } else {
+            return $this->statement()->fetchAll($this->fetchMode());
+        }
     }
 
     protected function fetchMode()
@@ -41,9 +45,9 @@ class CustomQuery extends Query
         return $this->fetchMode;
     }
 
-    protected function fetchClass()
+    protected function fetchArg()
     {
-        return $this->fetchClass;
+        return $this->fetchArg;
     }
 }
 
