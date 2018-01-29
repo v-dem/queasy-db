@@ -18,7 +18,7 @@ class Db
 {
     use LoggerAwareTrait;
 
-    const DEFAULT_FETCH_MODE = QueasyPDO::FETCH_ASSOC;
+    const DEFAULT_FETCH_MODE = QueasyPdo::FETCH_ASSOC;
 
     /**
      * Creates a key/value map by an array key or object field.
@@ -154,7 +154,7 @@ class Db
             try {
                 $connection = $this->config()->connection;
 
-                $this->pdo = new QueasyPDO(
+                $this->pdo = new QueasyPdo(
                     sprintf('%s:host=%s;port=%s;dbname=%s',
                         $connection->driver,
                         $connection->host,
@@ -167,7 +167,7 @@ class Db
                 );
 
                 $fetchMode = $this->config()->get('fetchMode', static::DEFAULT_FETCH_MODE);
-                if (!$this->pdo->setAttribute(QueasyPDO::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
+                if (!$this->pdo->setAttribute(QueasyPdo::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
                     $this->logger->warning('Cannot set default fetch mode.');
                 }
             } catch (Exception $ex) {
