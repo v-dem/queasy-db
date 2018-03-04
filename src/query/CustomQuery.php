@@ -12,7 +12,7 @@ class CustomQuery extends Query
 
     private $fetchArg;
 
-    public function __construct(ConfigInterface $config, PDO $pdo)
+    public function __construct(PDO $pdo, ConfigInterface $config)
     {
         $this->fetchMode = $config->get('fetchMode');
         $this->fetchArg = $config->get('fetchArg');

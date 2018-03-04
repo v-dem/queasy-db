@@ -3,10 +3,11 @@
 namespace queasy\db\query;
 
 use PDO;
-use PDOException;
 
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
+
+use queasy\db\DbException;
 
 abstract class AbstractQuery implements QueryInterface
 {
@@ -55,7 +56,7 @@ abstract class AbstractQuery implements QueryInterface
         if (!$this->statement) {
             try {
                 $this->statement = $this->pdo()->prepare($this->query());
-            } catch (PDOException $e) {
+            } catch (Exception $e) {
                 throw new DbException(sprintf('Cannot prepare statement "%s".', $query), null, $e);
             }
         }

@@ -39,14 +39,16 @@ class Query extends AbstractQuery
             }
         }
 
-        while ((1 == count($args)) && (is_array($args[0]))) {
+        $argKeys = array_keys($args);
+        while ((1 == count($args)) && (is_array($args[$argKeys[0]]))) {
             $args = $args[0];
+
+            $argKeys = array_keys($args);
         }
 
         $counter = 1;
         foreach ($args as $paramKey => $paramValue) {
-            // Detect parameter type
-            if (is_int($paramValue)) {
+            if (is_int($paramValue)) { // Detect parameter type
                 $paramType = PDO::PARAM_INT;
             } else {
                 if (is_float($paramValue)) {
@@ -56,14 +58,12 @@ class Query extends AbstractQuery
                 $paramType = PDO::PARAM_STR;
             }
 
-            if (is_int($paramKey)) { // Use counter as a key if params keys are numeric (so query string use question mark placeholders)
+            if (is_int($paramKey)) { // Use counter as a key if param keys are numeric (so query string use question mark placeholders)
                 $bindKey = $counter;
 
                 $counter++;
-            } else { // Use keys and prepend them with ":" when needed (use named placeholders)
-                $bindKey = (strlen($paramKey) && (':' === $paramKey{0}))
-                    ? $paramKey
-                    : ':' . $paramKey;
+            } else { // Use param key as a bind key (use named placeholders)
+                $bindKey = $paramKey;
             }
 
             $this->statement()->bindValue(
