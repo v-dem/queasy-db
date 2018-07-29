@@ -21,6 +21,10 @@ class Db extends PDO
 
     const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
 
+    const RETURN_STATEMENT = 0;
+    const RETURN_ONE = 1;
+    const RETURN_ALL = 2;
+
     /**
      * Creates a key/value map by an array key or object field.
      *
@@ -93,7 +97,7 @@ class Db extends PDO
 
     public function __call($name, array $args = array())
     {
-        return $this->query($name, $args);
+        return $this->customQuery($name, $args);
     }
 
     public function prepare($query, $options = null)
@@ -121,13 +125,9 @@ class Db extends PDO
         return $this->tables[$name];
     }
 
-    public function query($name)
+    protected function customQuery($name, array $args = array())
     {
         if (isset($this->queries()->$name)) {
-            $args = func_get_args();
-
-            array_shift($args);
-
             $query = new CustomQuery($this, $this->queries()->$name);
             $query->setLogger($this->logger());
 
@@ -146,7 +146,7 @@ class Db extends PDO
         } else {
             $args = func_get_args();
 
-            array_shift($args); // Remove $queryClass
+            array_shift($args); // Remove $queryClass arg
 
             $queryString = array_shift($args);
             if (!$queryString || !is_string($queryString)) {

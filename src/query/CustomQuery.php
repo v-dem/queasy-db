@@ -6,16 +6,16 @@ use PDO;
 
 use queasy\config\ConfigInterface;
 
+use queasy\db\Db;
+use queasy\db\DbException;
+
 class CustomQuery extends Query
 {
-    private $fetchMode;
-
-    private $fetchArg;
+    private $config;
 
     public function __construct(PDO $pdo, ConfigInterface $config)
     {
-        $this->fetchMode = $config->get('fetchMode');
-        $this->fetchArg = $config->get('fetchArg');
+        $this->config = $config;
 
         parent::__construct($pdo, $config->query);
     }
@@ -33,21 +33,49 @@ class CustomQuery extends Query
     {
         parent::run(func_get_args());
 
-        if ($this->fetchArg()) {
-            return $this->statement()->fetchAll($this->fetchMode(), $this->fetchArg());
-        } else {
-            return $this->statement()->fetchAll($this->fetchMode());
+        $returns = $this->config()->returns;
+
+        $this->logger()->debug('$returns: ', array('returns' => $returns));
+
+        if ($returns) {
+            $fetchMode = $this->config()->fetchMode;
+            $fetchArg = $this->config()->fetchArg;
+            switch ($returns) {
+                case Db::RETURN_ONE:
+                    if (PDO::FETCH_CLASS === $fetchMode) {
+                        return $this->statement()->fetchObject($fetchArg? $fetchArg: 'stdClass');
+                    } else {
+                        return $this->statement()->fetch($fetchMode);
+                    }
+
+                    break;
+
+                case Db::RETURN_ALL:
+
+                default:
+                    $fetchMethod = 'fetchAll';
+
+                    if (PDO::FETCH_CLASS === $fetchMode) {
+                        return $this->statement()->fetchAll($fetchMode, $fetchArg);
+                    } else {
+                        return $this->statement()->fetchAll($fetchMode);
+                    }
+            }
+        } else { // $returns is not set or 0 - the same as Db::RETURN_STATEMENT (default)
+            return $this->statement();
         }
     }
-
-    protected function fetchMode()
+    /*
+    protected function internalFetch($fetchMethod, $fetchMode, $fetchArg = null)
     {
-        return $this->fetchMode;
+        return ($fetchArg)
+            ? $this->statement()->$fetchMethod($fetchMode, $fetchArg)
+            : $this->statement()->$fetchMethod($fetchMode);
     }
-
-    protected function fetchArg()
+    */
+    protected function config()
     {
-        return $this->fetchArg;
+        return $this->config;
     }
 }
 

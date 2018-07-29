@@ -20,7 +20,7 @@ class SingleValueQuery extends GetQuery
         if (empty($row)) {
             throw new DbException(sprintf('No value was selected by query "%s".', $query));
         } else {
-            return $row;
+            return array_shift($row);
         }
     }
 }

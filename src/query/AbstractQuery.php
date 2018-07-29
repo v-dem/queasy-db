@@ -13,7 +13,7 @@ abstract class AbstractQuery implements QueryInterface
 {
     use LoggerAwareTrait;
 
-    private $pdo;
+    private $db;
 
     private $query;
 
@@ -28,17 +28,30 @@ abstract class AbstractQuery implements QueryInterface
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(PDO $pdo, $query)
+    public function __construct(PDO $db, $query)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
         $this->query = $query;
     }
 
     abstract public function run();
 
-    protected function pdo()
+    public function statement()
     {
-        return $this->pdo;
+        if (!$this->statement) {
+            try {
+                $this->statement = $this->db()->prepare($this->query());
+            } catch (Exception $e) {
+                throw new DbException(sprintf('Cannot prepare statement "%s".', $query), null, $e);
+            }
+        }
+
+        return $this->statement;
+    }
+
+    protected function db()
+    {
+        return $this->db;
     }
 
     protected function query()
@@ -49,19 +62,6 @@ abstract class AbstractQuery implements QueryInterface
     protected function setQuery($query)
     {
         $this->query = $query;
-    }
-
-    protected function statement()
-    {
-        if (!$this->statement) {
-            try {
-                $this->statement = $this->pdo()->prepare($this->query());
-            } catch (Exception $e) {
-                throw new DbException(sprintf('Cannot prepare statement "%s".', $query), null, $e);
-            }
-        }
-
-        return $this->statement;
     }
 
     protected function logger()
