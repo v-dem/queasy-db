@@ -16,19 +16,6 @@ abstract class TableQuery extends Query
         parent::__construct($pdo, '');
     }
 
-    /**
-     * Build SQL query.
-     *
-     * @param string $args Query arguments, can be an array or a list of function arguments
-     *
-     * @return int Number of inserted rows
-     *
-     * @throws DbException On error
-     */
-    public function run($args = null)
-    {
-    }
-
     protected function tableName()
     {
         return $this->tableName;

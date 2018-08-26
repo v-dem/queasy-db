@@ -144,10 +144,6 @@ class Db extends PDO
                 || !isset($interfaces['queasy\db\query\QueryInterface'])) {
             throw InvalidArgumentException::queryInterfaceNotImplemented($queryClass);
         } else {
-            $args = func_get_args();
-
-            array_shift($args); // Remove $queryClass arg
-
             $queryString = array_shift($args);
             if (!$queryString || !is_string($queryString)) {
                 throw InvalidArgumentException::missingQueryString();
@@ -155,6 +151,10 @@ class Db extends PDO
 
             $query = new $queryClass($this, $queryString);
             $query->setLogger($this->logger());
+
+            $args = func_get_args();
+
+            array_shift($args); // Remove $queryClass arg
 
             return $query->run($args);
         }

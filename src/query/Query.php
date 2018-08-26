@@ -7,17 +7,6 @@ use queasy\db\DbException;
 
 class Query extends AbstractQuery
 {
-    public function params(array $args = array())
-    {
-        if (count($args)) {
-            
-
-            return array();
-        }
-
-        return $args;
-    }
-
     /**
      * Executes SQL query.
      *
@@ -49,6 +38,10 @@ class Query extends AbstractQuery
         foreach ($args as $paramKey => $paramValue) {
             if (is_int($paramValue)) { // Detect parameter type
                 $paramType = Db::PARAM_INT;
+            } elseif (is_bool($paramValue)) {
+                $paramType = Db::PARAM_BOOL;
+            } elseif (is_null($paramValue)) {
+                $paramType = Db::PARAM_NULL;
             } else {
                 if (is_float($paramValue)) {
                     $paramValue = strval($paramValue);
