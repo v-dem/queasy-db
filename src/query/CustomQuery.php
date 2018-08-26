@@ -2,8 +2,6 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
 use queasy\config\ConfigInterface;
 
 use queasy\db\Db;
@@ -13,7 +11,7 @@ class CustomQuery extends Query
 {
     private $config;
 
-    public function __construct(PDO $pdo, ConfigInterface $config)
+    public function __construct(Db $pdo, ConfigInterface $config)
     {
         $this->config = $config;
 
@@ -35,14 +33,12 @@ class CustomQuery extends Query
 
         $returns = $this->config()->returns;
 
-        $this->logger()->debug('$returns: ', array('returns' => $returns));
-
         if ($returns) {
             $fetchMode = $this->config()->fetchMode;
             $fetchArg = $this->config()->fetchArg;
             switch ($returns) {
                 case Db::RETURN_ONE:
-                    if (PDO::FETCH_CLASS === $fetchMode) {
+                    if (Db::FETCH_CLASS === $fetchMode) {
                         return $this->statement()->fetchObject($fetchArg? $fetchArg: 'stdClass');
                     } else {
                         return $this->statement()->fetch($fetchMode);
@@ -55,24 +51,17 @@ class CustomQuery extends Query
                 default:
                     $fetchMethod = 'fetchAll';
 
-                    if (PDO::FETCH_CLASS === $fetchMode) {
+                    if (Db::FETCH_CLASS === $fetchMode) {
                         return $this->statement()->fetchAll($fetchMode, $fetchArg);
                     } else {
                         return $this->statement()->fetchAll($fetchMode);
                     }
             }
-        } else { // $returns is not set or 0 - the same as Db::RETURN_STATEMENT (default)
+        } else {
             return $this->statement();
         }
     }
-    /*
-    protected function internalFetch($fetchMethod, $fetchMode, $fetchArg = null)
-    {
-        return ($fetchArg)
-            ? $this->statement()->$fetchMethod($fetchMode, $fetchArg)
-            : $this->statement()->$fetchMethod($fetchMode);
-    }
-    */
+
     protected function config()
     {
         return $this->config;

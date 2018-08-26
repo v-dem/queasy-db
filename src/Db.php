@@ -12,12 +12,14 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 use queasy\config\ConfigInterface;
+use queasy\config\ConfigAwareTrait;
 
 use queasy\db\query\CustomQuery;
 
 class Db extends PDO
 {
     use LoggerAwareTrait;
+    use ConfigAwareTrait;
 
     const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
 
@@ -42,24 +44,22 @@ class Db extends PDO
             } elseif (is_array($row)) {
                 $result[$row->$field] = $row;
             } else {
-                throw new \InvalidArgumentException();
+                throw InvalidArgumentException::rowsUnexpectedValue();
             }
         }
 
         return $result;
     }
 
-    private $config;
+    private $tables = array();
 
-    private $tables;
-
-    private $queries;
+    private $queries = array();
 
     private $statements = array();
 
     public function __construct(ConfigInterface $config, LoggerInterface $logger = null)
     {
-        $this->config = $config;
+        $this->setConfig($config);
 
         $this->setLogger($logger? $logger: new NullLogger());
 
@@ -72,21 +72,21 @@ class Db extends PDO
                 $connection->password,
                 $connection->options
             );
-        } catch (Exception $ex) {
-            throw new DbException('Cannot connect to database.', 0, $ex);
+        } catch (Exception $e) {
+            throw DbException::connectionFailed($e);
         }
 
         if (!$this->setAttribute(self::ATTR_STATEMENT_CLASS, array('\queasy\db\Statement', array($this)))) {
-            throw new DbException('Cannot set statement class.');
+            throw DbException::statementClassNotSet();
+        }
+
+        if (!$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION)) {
+            throw DbException::errorModeNotSet();
         }
 
         $fetchMode = $config->get('fetchMode', static::DEFAULT_FETCH_MODE);
         if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
-            $this->logger->warning('Cannot set default fetch mode.');
-        }
-
-        if (!$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION)) {
-            $this->logger->warning('Cannot set error mode to exceptions.');
+            throw DbException::fetchModeNotSet();
         }
     }
 
@@ -133,7 +133,7 @@ class Db extends PDO
 
             return $query->run($args);
         } else {
-            throw new DbException(sprintf('Query "%s" was not declared in configuration.', $name));
+            throw DbException::queryNotDeclared($name);
         }
     }
 
@@ -142,7 +142,7 @@ class Db extends PDO
         $interfaces = class_implements($queryClass);
         if (!$interfaces
                 || !isset($interfaces['queasy\db\query\QueryInterface'])) {
-            throw new InvalidArgumentException(sprintf('Query class "%s" does not implement queasy\db\query\QueryInterface.', $queryClass));
+            throw InvalidArgumentException::queryInterfaceNotImplemented($queryClass);
         } else {
             $args = func_get_args();
 
@@ -150,7 +150,7 @@ class Db extends PDO
 
             $queryString = array_shift($args);
             if (!$queryString || !is_string($queryString)) {
-                throw new InvalidArgumentException('Query string is missing or not a string.');
+                throw InvalidArgumentException::missingQueryString();
             }
 
             $query = new $queryClass($this, $queryString);
@@ -168,13 +168,13 @@ class Db extends PDO
     public function trans($func)
     {
         if (!is_callable($func)) {
-            throw new InvalidArgumentException(); // TODO: Add error message
+            throw InvalidArgumentException::argumentNotCallable();
         }
 
         $this->beginTransaction();
 
         try {
-            $func();
+            $func($this);
 
             $this->commit();
         } catch (Exception $ex) {
@@ -201,11 +201,6 @@ class Db extends PDO
         return $this->statements[$query];
     }
 
-    protected function config()
-    {
-        return $this->config;
-    }
-
     protected function tables()
     {
         if (!$this->tables) {
@@ -228,6 +223,11 @@ class Db extends PDO
         }
 
         return $this->queries;
+    }
+
+    protected function config()
+    {
+        return $this->config;
     }
 
     protected function logger()

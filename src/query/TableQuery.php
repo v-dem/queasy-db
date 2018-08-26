@@ -2,16 +2,16 @@
 
 namespace queasy\db\query;
 
-use PDO;
+use queasy\db\Db;
 use queasy\db\DbException;
 
 abstract class TableQuery extends Query
 {
-    private $table;
+    private $tableName;
 
-    public function __construct(PDO $pdo, $table)
+    public function __construct(Db $pdo, $tableName)
     {
-        $this->table = $table;
+        $this->tableName = $tableName;
 
         parent::__construct($pdo, '');
     }
@@ -21,12 +21,17 @@ abstract class TableQuery extends Query
      *
      * @param string $args Query arguments, can be an array or a list of function arguments
      *
-     * @return int Number of affected rows or 0 for SELECT queries
+     * @return int Number of inserted rows
      *
      * @throws DbException On error
      */
     public function run($args = null)
     {
+    }
+
+    protected function tableName()
+    {
+        return $this->tableName;
     }
 }
 

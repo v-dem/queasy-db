@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-use PDO;
+use queasy\db\Db;
 use queasy\db\DbException;
 
 class TableInsertQuery extends TableQuery
@@ -128,6 +128,5 @@ class TableInsertQuery extends TableQuery
             $normParams
         );
     }
-
 }
 

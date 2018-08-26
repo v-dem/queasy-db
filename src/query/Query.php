@@ -2,8 +2,7 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
+use queasy\db\Db;
 use queasy\db\DbException;
 
 class Query extends AbstractQuery
@@ -49,13 +48,13 @@ class Query extends AbstractQuery
         $counter = 1;
         foreach ($args as $paramKey => $paramValue) {
             if (is_int($paramValue)) { // Detect parameter type
-                $paramType = PDO::PARAM_INT;
+                $paramType = Db::PARAM_INT;
             } else {
                 if (is_float($paramValue)) {
                     $paramValue = strval($paramValue);
                 }
 
-                $paramType = PDO::PARAM_STR;
+                $paramType = Db::PARAM_STR;
             }
 
             if (is_int($paramKey)) { // Use counter as a key if param keys are numeric (so query string use question mark placeholders)
@@ -76,7 +75,7 @@ class Query extends AbstractQuery
         if (!$this->statement()->execute()) {
             list($sqlErrorCode, $driverErrorCode, $errorMessage) = $this->statement()->errorInfo();
 
-            throw new DbException(sprintf('Can\'t execute query (%s: %s): %s', $sqlErrorCode, $errorMessage, $this->query()));
+            throw DbException::cannotExecuteQuery($this->query(), $sqlErrorCode, $errorMessage);
         }
 
         return $this->statement()->rowCount();
