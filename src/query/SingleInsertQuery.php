@@ -10,38 +10,24 @@ class SingleInsertQuery extends TableQuery
     /**
      * Build SQL query.
      *
-     * @param string $args Query arguments, can be an array or a list of function arguments
+     * @param array $params Query parameters
      *
-     * @return int Number of affected rows or 0 for SELECT queries
+     * @return int Number of affected records (1 if row was inserted)
      *
      * @throws DbException On error
      */
-    public function run()
+    public function run(array $params = array())
     {
-        if (0 === func_num_args()) {
-            throw new DbException('No field values specified for insert.');
-        }
-
-        $count = count(func_get_arg(0));
-
-        $str = str_repeat('? ', $count);
-
-        $params = explode('?', $str);
-
-        $paramsStr = rtrim(implode('?, ', $params), ', ');
-
         $query = sprintf('
             INSERT  INTO `%s`
             VALUES  (%s)',
             $this->tableName(),
-            $paramsStr
+            rtrim(implode('?, ', explode('?', str_repeat('?', count($params)))), ', ')
         );
 
         $this->setQuery($query);
 
-        parent::run(func_get_args());
-
-        return $this->db()->id();
+        return parent::run($params);
     }
 }
 

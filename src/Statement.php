@@ -8,7 +8,7 @@ use Iterator;
 
 use PDOStatement;
 
-class Statement extends PDOStatement implements Countable, ArrayAccess, Iterator
+class Statement extends PDOStatement /*implements Countable, ArrayAccess, Iterator*/
 {
     private $rowsCache;
 

@@ -8,6 +8,8 @@ use ArrayAccess;
 use queasy\config\ConfigInterface;
 use queasy\config\ConfigAwareTrait;
 
+use queasy\db\SingleInsertQuery;
+
 class Table implements ArrayAccess
 {
     use ConfigAwareTrait;
@@ -73,7 +75,9 @@ class Table implements ArrayAccess
                 }
             } else { // Single inserts
                 if (is_numeric($keys[0])) { // By order, without field names
-                    return 1;
+                    $query = new SingleInsertQuery($this->db, $this->name);
+
+                    return $query->run($value);
                 } else { // By field names
                     return 2;
                 }
@@ -103,11 +107,9 @@ class Table implements ArrayAccess
         if (isset($this->config[$method])) {
             $query = $this->config[$method]['query'];
 
-            $db = $this->db;
-
-            $db->execute(array_merge(array($query), $args));
+            $this->db->execute(array_merge(array($query), $args));
         } else {
-            throw DbException::tableMethodNotImplemented($this->name, $method));
+            throw DbException::tableMethodNotImplemented($this->name, $method);
         }
     }
 }

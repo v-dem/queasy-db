@@ -110,7 +110,10 @@ class Db extends PDO
 
     public function table($name)
     {
-        if (isset($this->tables()->$name)) {
+        $this->logger()->debug($name);
+        if (!isset($this->tables()->$name)) {
+            $this->logger()->debug('Creating Table instance...');
+
             $queriesConfig = isset($this->config['queries'])
                 ? $this->config()->get('queries', array())
                 : array();
@@ -121,6 +124,8 @@ class Db extends PDO
 
             $this->tables[$name] = new Table($this, $name, $config);
         }
+
+        $this->logger()->debug(print_r($this->tables[$name], true));
 
         return $this->tables[$name];
     }
@@ -144,6 +149,10 @@ class Db extends PDO
                 || !isset($interfaces['queasy\db\query\QueryInterface'])) {
             throw InvalidArgumentException::queryInterfaceNotImplemented($queryClass);
         } else {
+            $args = func_get_args();
+
+            array_shift($args); // Remove $queryClass arg
+
             $queryString = array_shift($args);
             if (!$queryString || !is_string($queryString)) {
                 throw InvalidArgumentException::missingQueryString();
@@ -151,10 +160,6 @@ class Db extends PDO
 
             $query = new $queryClass($this, $queryString);
             $query->setLogger($this->logger());
-
-            $args = func_get_args();
-
-            array_shift($args); // Remove $queryClass arg
 
             return $query->run($args);
         }

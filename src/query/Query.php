@@ -10,14 +10,15 @@ class Query extends AbstractQuery
     /**
      * Executes SQL query.
      *
-     * @param mixed $args Query arguments, can be an array or a list of function arguments
+     * @param array $params Query arguments
      *
-     * @return int Number of affected rows or 0 for SELECT queries
+     * @return int Number of affected rows for UPDATE/INSERT/DELETE queries or queasy\db\Statement instance for SELECT queries
      *
      * @throws DbException On error
      */
-    public function run()
+    public function run(array $params = array())
     {
+        /*
         $args = array();
         if (func_num_args() > 0) {
             if (is_array(func_get_arg(0))) { // Check if params passed as an array (key-value pairs), other args are ignored in this case
@@ -33,15 +34,17 @@ class Query extends AbstractQuery
 
             $argKeys = array_keys($args);
         }
+        */
 
         $counter = 1;
-        foreach ($args as $paramKey => $paramValue) {
-            if (is_int($paramValue)) { // Detect parameter type
+        foreach ($params as $paramKey => $paramValue) {
+            // Detect parameter type
+            if (is_null($paramValue)) {
+                $paramType = Db::PARAM_NULL;
+            } elseif (is_int($paramValue)) {
                 $paramType = Db::PARAM_INT;
             } elseif (is_bool($paramValue)) {
                 $paramType = Db::PARAM_BOOL;
-            } elseif (is_null($paramValue)) {
-                $paramType = Db::PARAM_NULL;
             } else {
                 if (is_float($paramValue)) {
                     $paramValue = strval($paramValue);
@@ -55,7 +58,7 @@ class Query extends AbstractQuery
 
                 $counter++;
             } else { // Use param key as a bind key (use named placeholders)
-                $bindKey = $paramKey;
+                $bindKey = ':' . $paramKey;
             }
 
             $this->statement()->bindValue(
@@ -71,7 +74,11 @@ class Query extends AbstractQuery
             throw DbException::cannotExecuteQuery($this->query(), $sqlErrorCode, $errorMessage);
         }
 
-        return $this->statement()->rowCount();
+        if ($this->statement()->columnCount()) {
+            return $this->statement();
+        } else {
+            return $this->statement()->rowCount();
+        }
     }
 }
 

@@ -4,6 +4,6 @@ namespace queasy\db\query;
 
 interface QueryInterface
 {
-    public function run();
+    public function run(array $params = array());
 }
 

@@ -16,8 +16,6 @@ abstract class AbstractQuery implements QueryInterface
 
     private $query;
 
-    private $params;
-
     private $statement;
 
     /**
@@ -27,13 +25,13 @@ abstract class AbstractQuery implements QueryInterface
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(Db $db, $query)
+    public function __construct(Db $db, $query = null)
     {
         $this->db = $db;
         $this->query = $query;
     }
 
-    abstract public function run();
+    abstract public function run(array $params = array());
 
     public function statement()
     {
@@ -55,6 +53,10 @@ abstract class AbstractQuery implements QueryInterface
 
     protected function query()
     {
+        if (empty($this->query)) {
+            throw new DbException('Query is not set.');
+        }
+
         return $this->query;
     }
 
