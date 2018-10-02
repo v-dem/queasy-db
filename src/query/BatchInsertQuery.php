@@ -5,14 +5,14 @@ namespace queasy\db\query;
 use queasy\db\Db;
 use queasy\db\DbException;
 
-class SingleInsertQuery extends TableQuery
+class BatchInsertQuery extends TableQuery
 {
     /**
      * Build SQL query.
      *
-     * @param array $params Query parameters
+     * @param array $params Query parameters as array of arrays
      *
-     * @return int Number of affected records (1 if row was inserted)
+     * @return int Number of affected records
      *
      * @throws DbException On error
      */
@@ -22,7 +22,7 @@ class SingleInsertQuery extends TableQuery
             INSERT  INTO `%s`
             VALUES  (%s)',
             $this->tableName(),
-            rtrim(str_repeat('?, ', count($params)), ', ')
+            rtrim(str_repeat('?, ', count($params, COUNT_RECURSIVE)), ', ')
         );
 
         $this->setQuery($query);
