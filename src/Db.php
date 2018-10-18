@@ -84,7 +84,7 @@ class Db extends PDO
             throw DbException::errorModeNotSet();
         }
 
-        $fetchMode = $config->get('fetchMode', static::DEFAULT_FETCH_MODE);
+        $fetchMode = $config('fetchMode', static::DEFAULT_FETCH_MODE);
         if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
             throw DbException::fetchModeNotSet();
         }
@@ -110,12 +110,9 @@ class Db extends PDO
 
     public function table($name)
     {
-        $this->logger()->debug($name);
-        if (!isset($this->tables()->$name)) {
-            $this->logger()->debug('Creating Table instance...');
-
+        if (!isset($this->tables[$name])) {
             $queriesConfig = isset($this->config['queries'])
-                ? $this->config()->get('queries', array())
+                ? $this->config['queries']
                 : array();
 
             $config = isset($queriesConfig[$name])
@@ -124,8 +121,6 @@ class Db extends PDO
 
             $this->tables[$name] = new Table($this, $name, $config);
         }
-
-        $this->logger()->debug(print_r($this->tables[$name], true));
 
         return $this->tables[$name];
     }

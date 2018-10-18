@@ -8,7 +8,7 @@ use ArrayAccess;
 use queasy\config\ConfigInterface;
 use queasy\config\ConfigAwareTrait;
 
-use queasy\db\SingleInsertQuery;
+use queasy\db\query\SingleInsertQuery;
 
 class Table implements ArrayAccess
 {
