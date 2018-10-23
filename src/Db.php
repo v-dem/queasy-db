@@ -187,8 +187,10 @@ class Db extends PDO
     protected function statement($query, $options = null)
     {
         $statement = null;
+        $this->logger()->debug($query);
         if (isset($this->statements[$query])) {
             $statement = $this->statements[$query];
+            $this->logger()->debug(1);
 
             // Check if it is NOT a SELECT statement, we do not cache them
             if (0 === $statement->columnCount()) {

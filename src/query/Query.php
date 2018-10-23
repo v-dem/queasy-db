@@ -2,6 +2,8 @@
 
 namespace queasy\db\query;
 
+use queasy\helper\Strings;
+
 use queasy\db\Db;
 use queasy\db\DbException;
 
@@ -58,7 +60,7 @@ class Query extends AbstractQuery
 
                 $counter++;
             } else { // Use param key as a bind key (use named placeholders)
-                $bindKey = ':' . $paramKey;
+                $bindKey = Strings::startsWith($paramKey, ':')? $paramKey: ':' . $paramKey;
             }
 
             $this->statement()->bindValue(

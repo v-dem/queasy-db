@@ -9,6 +9,9 @@ use queasy\config\ConfigInterface;
 use queasy\config\ConfigAwareTrait;
 
 use queasy\db\query\SingleInsertQuery;
+use queasy\db\query\SingleNamedInsertQuery;
+use queasy\db\query\BatchInsertQuery;
+use queasy\db\query\BatchNamedInsertQuery;
 
 class Table implements ArrayAccess
 {
@@ -51,40 +54,34 @@ class Table implements ArrayAccess
         if (is_null($value)) {
             throw new DbException('Cannot assign null to table field.');
         } elseif (is_array($value)) {
-            /* // It's possible that a table has only one auto-increment field so we allow empty array as an argument. FIXME: Maybe allow null values too?
-            if (!count($array)) {
-                throw new DbException('');
-            }
-            */
-
             $keys = array_keys($value);
-            if (is_array($value[$keys[0]])) { // Batch inserts
+            if (count($keys) && is_array($value[$keys[0]])) { // Batch inserts
                 if ((2 === count($value))
                         && is_array($value[1])
                         && (0 < count($value[1]))
                         && isset($value[1][0])
                         && is_array($value[1][0])) { // Batch insert with field names listed in a separate array
-                    return 5;
+                    $query = new BatchSeparatelyNamedInsertQuery($this->db, $this->name);
                 } else {
                     $keys = array_keys($value[$keys[0]]);
-                    if (is_numeric($keys[0])) { // Batch insert
-                        return 3;
+                    if (!count($keys) || is_numeric($keys[0])) { // Batch insert
+                        $query = new BatchInsertQuery($this->db, $this->name);
                     } else { // Batch insert with field names
-                        return 4;
+                        $query = new BatchNamedInsertQuery($this->db, $this->name);
                     }
                 }
             } else { // Single inserts
-                if (is_numeric($keys[0])) { // By order, without field names
+                if (!count($keys) || is_numeric($keys[0])) { // By order, without field names
                     $query = new SingleInsertQuery($this->db, $this->name);
-
-                    return $query->run($value);
                 } else { // By field names
-                    return 2;
+                    $query = new SingleNamedInsertQuery($this->db, $this->name);
                 }
             }
         } else {
             throw new DbException('Invalid assignment type (must be array).');
         }
+
+        return $query->run($value);
     }
 
     public function offsetUnset($offset)
