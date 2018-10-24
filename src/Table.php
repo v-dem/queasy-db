@@ -12,6 +12,7 @@ use queasy\db\query\SingleInsertQuery;
 use queasy\db\query\SingleNamedInsertQuery;
 use queasy\db\query\BatchInsertQuery;
 use queasy\db\query\BatchNamedInsertQuery;
+use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 
 class Table implements ArrayAccess
 {
@@ -35,35 +36,24 @@ class Table implements ArrayAccess
         return $this[$fieldName];
     }
 
-    public function offsetExists($offset)
+    public function insert()
     {
-        return true;
-    }
+        // TODO: Be careful!!!
+        $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
 
-    public function offsetGet($offset)
-    {
-        if (!isset($this->fields[$offset])) {
-            $this->fields[$offset] = new Field($this->name, $offset);
-        }
-
-        return $this->fields[$offset];
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        if (is_null($value)) {
+        if (is_null($params)) {
             throw new DbException('Cannot assign null to table field.');
-        } elseif (is_array($value)) {
-            $keys = array_keys($value);
-            if (count($keys) && is_array($value[$keys[0]])) { // Batch inserts
-                if ((2 === count($value))
-                        && is_array($value[1])
-                        && (0 < count($value[1]))
-                        && isset($value[1][0])
-                        && is_array($value[1][0])) { // Batch insert with field names listed in a separate array
+        } elseif (is_array($params)) {
+            $keys = array_keys($params);
+            if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
+                if ((2 === count($params))
+                        && is_array($params[1])
+                        && (0 < count($params[1]))
+                        && isset($params[1][0])
+                        && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
                     $query = new BatchSeparatelyNamedInsertQuery($this->db, $this->name);
                 } else {
-                    $keys = array_keys($value[$keys[0]]);
+                    $keys = array_keys($params[$keys[0]]);
                     if (!count($keys) || is_numeric($keys[0])) { // Batch insert
                         $query = new BatchInsertQuery($this->db, $this->name);
                     } else { // Batch insert with field names
@@ -81,7 +71,30 @@ class Table implements ArrayAccess
             throw new DbException('Invalid assignment type (must be array).');
         }
 
-        return $query->run($value);
+        return $query->run($params);
+    }
+
+    public function offsetExists($offset)
+    {
+        return true;
+    }
+
+    public function offsetGet($offset)
+    {
+        if (!isset($this->fields[$offset])) {
+            $this->fields[$offset] = new Field($this->name, $offset);
+        }
+
+        return $this->fields[$offset];
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        if (is_null($offset)) {
+            $this->insert($value);
+        } else {
+            throw new DbException('Not implemented. Use Field instead of Table to update record.');
+        }
     }
 
     public function offsetUnset($offset)
