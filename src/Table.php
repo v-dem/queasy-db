@@ -4,17 +4,19 @@ namespace queasy\db;
 
 use PDO;
 use ArrayAccess;
+use Countable;
 
 use queasy\config\ConfigInterface;
 use queasy\config\ConfigAwareTrait;
 
+use queasy\db\query\SingleValueQuery;
 use queasy\db\query\SingleInsertQuery;
 use queasy\db\query\SingleNamedInsertQuery;
 use queasy\db\query\BatchInsertQuery;
 use queasy\db\query\BatchNamedInsertQuery;
 use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 
-class Table implements ArrayAccess
+class Table implements ArrayAccess, Countable
 {
     use ConfigAwareTrait;
 
@@ -36,6 +38,13 @@ class Table implements ArrayAccess
         return $this[$fieldName];
     }
 
+    public function count()
+    {
+        $query = new SingleValueQuery($this->db, sprintf('SELECT count(*) FROM `%s`', $this->name));
+
+        return $query->run();
+    }
+
     public function insert()
     {
         // TODO: Be careful!!!
@@ -54,18 +63,15 @@ class Table implements ArrayAccess
                     $query = new BatchSeparatelyNamedInsertQuery($this->db, $this->name);
                 } else {
                     $keys = array_keys($params[$keys[0]]);
-                    if (!count($keys) || is_numeric($keys[0])) { // Batch insert
-                        $query = new BatchInsertQuery($this->db, $this->name);
-                    } else { // Batch insert with field names
-                        $query = new BatchNamedInsertQuery($this->db, $this->name);
-                    }
+
+                    $query = (!count($keys) || is_numeric($keys[0]))
+                        ? new BatchInsertQuery($this->db, $this->name) // Batch insert
+                        : new BatchNamedInsertQuery($this->db, $this->name); // Batch insert with field names
                 }
             } else { // Single inserts
-                if (!count($keys) || is_numeric($keys[0])) { // By order, without field names
-                    $query = new SingleInsertQuery($this->db, $this->name);
-                } else { // By field names
-                    $query = new SingleNamedInsertQuery($this->db, $this->name);
-                }
+                $query = (!count($keys) || is_numeric($keys[0]))
+                    ? new SingleInsertQuery($this->db, $this->name) // By order, without field names
+                    : new SingleNamedInsertQuery($this->db, $this->name); // By field names
             }
         } else {
             throw new DbException('Invalid assignment type (must be array).');
@@ -82,7 +88,7 @@ class Table implements ArrayAccess
     public function offsetGet($offset)
     {
         if (!isset($this->fields[$offset])) {
-            $this->fields[$offset] = new Field($this->name, $offset);
+            $this->fields[$offset] = new Field($this->db, $this->name, $offset);
         }
 
         return $this->fields[$offset];

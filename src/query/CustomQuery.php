@@ -38,24 +38,17 @@ class CustomQuery extends Query
             $fetchArg = $this->config()->fetchArg;
             switch ($returns) {
                 case Db::RETURN_ONE:
-                    if (Db::FETCH_CLASS === $fetchMode) {
-                        return $this->statement()->fetchObject($fetchArg? $fetchArg: 'stdClass');
-                    } else {
-                        return $this->statement()->fetch($fetchMode);
-                    }
-
-                    break;
+                    return (Db::FETCH_CLASS === $fetchMode)
+                        ? $this->statement()->fetchObject($fetchArg? $fetchArg: 'stdClass')
+                        : $this->statement()->fetch($fetchMode);
 
                 case Db::RETURN_ALL:
 
                 default:
                     $fetchMethod = 'fetchAll';
-
-                    if (Db::FETCH_CLASS === $fetchMode) {
-                        return $this->statement()->fetchAll($fetchMode, $fetchArg);
-                    } else {
-                        return $this->statement()->fetchAll($fetchMode);
-                    }
+                    return (Db::FETCH_CLASS === $fetchMode)
+                        ? $this->statement()->fetchAll($fetchMode, $fetchArg)
+                        : $this->statement()->fetchAll($fetchMode);
             }
         } else {
             return $this->statement();

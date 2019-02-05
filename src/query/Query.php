@@ -76,11 +76,9 @@ class Query extends AbstractQuery
             throw DbException::cannotExecuteQuery($this->query(), $sqlErrorCode, $errorMessage);
         }
 
-        if ($this->statement()->columnCount()) {
-            return $this->statement();
-        } else {
-            return $this->statement()->rowCount();
-        }
+        return ($this->statement()->columnCount())
+            ? $this->statement()
+            : $this->statement()->rowCount();
     }
 }
 
