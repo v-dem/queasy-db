@@ -2,21 +2,26 @@
 
 namespace queasy\db\query;
 
-use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 use queasy\db\Db;
 use queasy\db\DbException;
 
 abstract class AbstractQuery implements QueryInterface
 {
-    use LoggerAwareTrait;
-
     private $db;
 
     private $query;
 
     private $statement;
+
+    /**
+     * The logger instance.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Constructor.
@@ -54,7 +59,7 @@ abstract class AbstractQuery implements QueryInterface
     protected function query()
     {
         if (empty($this->query)) {
-            throw new DbException('Query is not set.');
+            throw new DbException('Query is empty.');
         }
 
         return $this->query;
@@ -63,6 +68,17 @@ abstract class AbstractQuery implements QueryInterface
     protected function setQuery($query)
     {
         $this->query = $query;
+    }
+
+    /**
+     * Sets a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+
     }
 
     protected function logger()

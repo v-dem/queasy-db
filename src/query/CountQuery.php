@@ -2,11 +2,20 @@
 
 namespace queasy\db\query;
 
+use queasy\db\Db;
+
 class CountQuery extends SingleValueQuery
 {
-    public function __construct()
+    /**
+     * Constructor.
+     *
+     * @param string $query Query string
+     *
+     * @throws DbException When query can't be prepared
+     */
+    public function __construct(Db $db, $tableName)
     {
-        
+        parent::__construct($db, sprintf('SELECT count(*) FROM `%s`', $tableName));
     }
 
     /**
@@ -23,9 +32,9 @@ class CountQuery extends SingleValueQuery
         $row = parent::run($params);
 
         if (empty($row)) {
-            throw DbException::noValueSelected($query);
+            throw DbException::noValueSelected($this->query());
         } else {
-            return array_shift($row);
+            return (int) $row;
         }
     }
 }

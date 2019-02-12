@@ -7,20 +7,15 @@ use InvalidArgumentException;
 
 use PDO;
 
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
 use queasy\config\ConfigInterface;
-use queasy\config\ConfigAwareTrait;
 
 use queasy\db\query\CustomQuery;
 
 class Db extends PDO
 {
-    use LoggerAwareTrait;
-    use ConfigAwareTrait;
-
     const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
 
     const RETURN_STATEMENT = 0;
@@ -57,11 +52,23 @@ class Db extends PDO
 
     private $statements = array();
 
-    public function __construct(ConfigInterface $config, LoggerInterface $logger = null)
+    /**
+     * The config instance.
+     *
+     * @var ConfigInterface
+     */
+    protected $config;
+
+    /**
+     * The logger instance.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    public function __construct(ConfigInterface $config)
     {
         $this->setConfig($config);
-
-        $this->setLogger($logger? $logger: new NullLogger());
 
         try {
             $connection = $config->connection;
@@ -88,6 +95,29 @@ class Db extends PDO
         if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
             throw DbException::fetchModeNotSet();
         }
+    }
+
+    /**
+     * Sets a config.
+     *
+     * @param array|ConfigInterface $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = ($config instanceof ConfigInterface)
+            ? $config
+            : new Config($config);
+    }
+
+    /**
+     * Sets a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+
     }
 
     public function __get($name)
@@ -232,6 +262,10 @@ class Db extends PDO
 
     protected function logger()
     {
+        if (is_null($this->logger)) {
+            $this->logger = new NullLogger();
+        }
+
         return $this->logger;
     }
 }

@@ -6,10 +6,13 @@ use PDO;
 use ArrayAccess;
 use Countable;
 
-use queasy\config\ConfigInterface;
-use queasy\config\ConfigAwareTrait;
+use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
 
-use queasy\db\query\SingleValueQuery;
+use queasy\config\ConfigInterface;
+use queasy\config\Config;
+
+use queasy\db\query\CountQuery;
 use queasy\db\query\SingleInsertQuery;
 use queasy\db\query\SingleNamedInsertQuery;
 use queasy\db\query\BatchInsertQuery;
@@ -18,19 +21,32 @@ use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 
 class Table implements ArrayAccess, Countable
 {
-    use ConfigAwareTrait;
-
     private $db;
 
     private $name;
 
     private $fields;
 
-    public function __construct(PDO $db, $name)
+    /**
+     * The config instance.
+     *
+     * @var ConfigInterface
+     */
+    protected $config;
+
+    /**
+     * The logger instance.
+     *
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    public function __construct(PDO $db, $name, $config = array())
     {
         $this->db = $db;
         $this->name = $name;
         $this->fields = array();
+        $this->setConfig($config);
     }
 
     public function __get($fieldName)
@@ -40,7 +56,7 @@ class Table implements ArrayAccess, Countable
 
     public function count()
     {
-        $query = new SingleValueQuery($this->db, sprintf('SELECT count(*) FROM `%s`', $this->name));
+        $query = new CountQuery($this->db, $this->name);
 
         return $query->run();
     }
@@ -123,10 +139,41 @@ class Table implements ArrayAccess, Countable
         if (isset($this->config[$method])) {
             $query = $this->config[$method]['query'];
 
-            $this->db->execute(array_merge(array($query), $args));
+            return $this->db->execute(array_merge(array($query), $args));
         } else {
             throw DbException::tableMethodNotImplemented($this->name, $method);
         }
+    }
+
+    /**
+     * Sets a config.
+     *
+     * @param array|ConfigInterface $config
+     */
+    public function setConfig($config)
+    {
+        $this->config = ($config instanceof ConfigInterface)
+            ? $config
+            : new Config($config);
+    }
+
+    /**
+     * Sets a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    protected function logger()
+    {
+        if (is_null($this->logger)) {
+            $this->logger = new NullLogger();
+        }
+
+        return $this->logger;
     }
 }
 
