@@ -41,19 +41,7 @@ class Query extends AbstractQuery
         $counter = 1;
         foreach ($params as $paramKey => $paramValue) {
             // Detect parameter type
-            if (is_null($paramValue)) {
-                $paramType = Db::PARAM_NULL;
-            } elseif (is_int($paramValue)) {
-                $paramType = Db::PARAM_INT;
-            } elseif (is_bool($paramValue)) {
-                $paramType = Db::PARAM_BOOL;
-            } else {
-                if (is_float($paramValue)) {
-                    $paramValue = strval($paramValue);
-                }
-
-                $paramType = Db::PARAM_STR;
-            }
+            $paramType = $this->getParamType($paramValue);
 
             if (is_int($paramKey)) { // Use counter as a key if param keys are numeric (so query string use question mark placeholders)
                 $bindKey = $counter;
@@ -79,6 +67,25 @@ class Query extends AbstractQuery
         return ($this->statement()->columnCount())
             ? $this->statement()
             : $this->statement()->rowCount();
+    }
+
+    protected function getParamType($value)
+    {
+        if (is_null($value)) {
+            $paramType = Db::PARAM_NULL;
+        } elseif (is_int($value)) {
+            $paramType = Db::PARAM_INT;
+        } elseif (is_bool($value)) {
+            $paramType = Db::PARAM_BOOL;
+        } else {
+            if (is_float($value)) {
+                $value = strval($value);
+            }
+
+            $paramType = Db::PARAM_STR;
+        }
+
+        return $paramType;
     }
 }
 

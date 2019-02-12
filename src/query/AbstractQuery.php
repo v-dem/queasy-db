@@ -2,10 +2,11 @@
 
 namespace queasy\db\query;
 
+use PDO;
+
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
-use queasy\db\Db;
 use queasy\db\DbException;
 
 abstract class AbstractQuery implements QueryInterface
@@ -30,7 +31,7 @@ abstract class AbstractQuery implements QueryInterface
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(Db $db, $query = null)
+    public function __construct(PDO $db, $query = null)
     {
         $this->db = $db;
         $this->query = $query;
