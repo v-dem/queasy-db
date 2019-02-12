@@ -5,11 +5,11 @@ namespace queasy\db\query;
 class SingleValueQuery extends GetQuery
 {
     /**
-     * Executes SQL query and returns all selected rows.
+     * Executes SQL query that selects a single value.
      *
      * @param array $params Query parameters
      *
-     * @return array Returned data depends on query, usually it is an array (empty array for queries like INSERT, DELETE or UPDATE)
+     * @return mixed Returned value
      *
      * @throws DbException On error
      */

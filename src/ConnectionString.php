@@ -16,7 +16,7 @@ class ConnectionString
 
     public function __construct(ConfigInterface $config = null)
     {
-        if (!$config) {
+        if (empty($config)) {
             $this->string = static::DEFAULT;
         } else {
             $driver = $config->get('driver', static::DEFAULT_DRIVER);
@@ -40,6 +40,11 @@ class ConnectionString
     public function get()
     {
         return $this->string;
+    }
+
+    public function __invoke()
+    {
+        return $this->get();
     }
 }
 

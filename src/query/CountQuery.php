@@ -6,6 +6,8 @@ use queasy\db\Db;
 
 class CountQuery extends SingleValueQuery
 {
+    private $tableName;
+
     /**
      * Constructor.
      *
@@ -15,7 +17,9 @@ class CountQuery extends SingleValueQuery
      */
     public function __construct(Db $db, $tableName)
     {
-        parent::__construct($db, sprintf('SELECT count(*) FROM `%s`', $tableName));
+        parent::__construct($db);
+
+        $this->tableName = $tableName;
     }
 
     /**
@@ -23,12 +27,18 @@ class CountQuery extends SingleValueQuery
      *
      * @param array $params Query parameters
      *
-     * @return array Returned data depends on query, usually it is an array (empty array for queries like INSERT, DELETE or UPDATE)
+     * @return int Count of records found
      *
      * @throws DbException On error
      */
     public function run(array $params = array())
     {
+        if (count($params)) {
+            $this->setQuery(sprintf('SELECT count(*) FROM `%s` WHERE `%s` = :%2$s', $this->tableName, key($params)));
+        } else {
+            $this->setQuery(sprintf('SELECT count(*) FROM `%s`', $this->tableName));
+        }
+
         $row = parent::run($params);
 
         if (empty($row)) {

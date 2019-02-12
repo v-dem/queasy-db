@@ -5,6 +5,9 @@ namespace queasy\db;
 use PDO;
 use ArrayAccess;
 
+use queasy\db\query\CountQuery;
+use queasy\db\query\SelectInQuery;
+
 class Field implements ArrayAccess
 {
     private $db;
@@ -22,14 +25,19 @@ class Field implements ArrayAccess
 
     public function offsetExists($offset)
     {
-        // echo 'SELECT count(*) FROM `' . $this->tableName . '` WHERE `' . $this->name . '` = ' . $offset . PHP_EOL;
+        $query = new CountQuery($this->db, $this->tableName);
+
+        return $query->run(array($this->name => $offset)) > 0;
     }
 
     public function offsetGet($offset)
     {
         if (is_array($offset)) {
-            // SELECT * FROM $this->tableName WHERE $this->name IN (...)
+            $query = new SelectInQuery($this->db, $this->tableName, $this->name);
+
+            return $query->run($offset);
         } else {
+            // $query = new GetQuery
             // echo 'SELECT * FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '\' IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
         }
     }
