@@ -70,7 +70,7 @@ class Db extends PDO
             $connection = isset($config['connection'])? $config['connection']: null;
             $connectionString = new ConnectionString($connection);
             parent::__construct(
-                $connectionString->get(),
+                $connectionString(),
                 isset($connection['user'])? $connection['user']: null,
                 isset($connection['password'])? $connection['password']: null,
                 isset($connection['options'])? $connection['options']: null

@@ -45,9 +45,9 @@ class ConnectionString
                         $this->string = sprintf(
                             static::GENERIC_TEMPLATE,
                             $driver,
-                            $config['host'],
-                            $config['port'],
-                            $config['name']
+                            isset($config['host'])? $config['host']: null,
+                            isset($config['port'])? $config['port']: null,
+                            isset($config['name'])? $config['name']: null
                         );
                 }
             }
