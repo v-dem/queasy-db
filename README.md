@@ -10,8 +10,9 @@ added into database and/or tables config.
 ### Requirements
 
 * PHP version 5.3 or higher
-* Package `v-dem/queasy-config`
-* Package `v-dem/queasy-log` *(optional)*
+* Package `v-dem/queasy-helper`
+* Package `v-dem/queasy-config` *(required for `dev` only)*
+* Package `v-dem/queasy-log` *(required for `dev` only)*
 
 ### Documentation
 
