@@ -6,6 +6,11 @@ use Exception;
 
 class DbException extends Exception
 {
+    public static function invalidConnectionDsn()
+    {
+        return new DbException('Invalid connection DSN.');
+    }
+
     public static function connectionFailed($e = null)
     {
         return new DbException('Cannot connect to database.', 0, $e);

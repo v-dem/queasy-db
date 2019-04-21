@@ -9,9 +9,6 @@ use Countable;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
-use queasy\config\ConfigInterface;
-use queasy\config\Config;
-
 use queasy\db\query\CountQuery;
 use queasy\db\query\SingleInsertQuery;
 use queasy\db\query\SingleNamedInsertQuery;
@@ -30,7 +27,7 @@ class Table implements ArrayAccess, Countable
     /**
      * The config instance.
      *
-     * @var ConfigInterface
+     * @var array|ArrayAccess
      */
     protected $config;
 
@@ -136,8 +133,9 @@ class Table implements ArrayAccess, Countable
      */
     public function __call($method, array $args)
     {
-        if (isset($this->config[$method])) {
-            $query = $this->config[$method]['query'];
+        $config = $this->config();
+        if (isset($config[$method])) {
+            $query = $config[$method]['query'];
 
             return $this->db->execute(array_merge(array($query), $args));
         } else {
@@ -152,9 +150,9 @@ class Table implements ArrayAccess, Countable
      */
     public function setConfig($config)
     {
-        $this->config = ($config instanceof ConfigInterface)
-            ? $config
-            : new Config($config);
+        $this->config = empty($config)
+            ? array()
+            : $config;
     }
 
     /**

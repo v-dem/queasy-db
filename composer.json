@@ -19,13 +19,13 @@
         "php": ">=5.3.0|>=7.0.0",
         "ext-pdo": "*",
         "psr/log": "~1.1",
-        "v-dem/queasy-helper": "dev-master",
-        "v-dem/queasy-config": "dev-master",
-        "v-dem/queasy-log": "dev-master"
+        "v-dem/queasy-helper": "dev-master"
     },
     "require-dev": {
         "php": ">=7.1.0",
-        "phpunit/phpunit": "~7"
+        "phpunit/phpunit": "~7",
+        "v-dem/queasy-config": "dev-master",
+        "v-dem/queasy-log": "dev-master"
     },
     "autoload":{
         "psr-4":{
@@ -38,4 +38,3 @@
         }
     }
 }
-

@@ -2,8 +2,6 @@
 
 namespace queasy\db\query;
 
-use queasy\config\ConfigInterface;
-
 use queasy\db\Db;
 use queasy\db\DbException;
 
@@ -11,7 +9,7 @@ class CustomQuery extends Query
 {
     private $config;
 
-    public function __construct(Db $pdo, ConfigInterface $config)
+    public function __construct(Db $pdo, $config)
     {
         $this->config = $config;
 
@@ -31,11 +29,13 @@ class CustomQuery extends Query
     {
         parent::run($params);
 
-        $returns = $this->config()->returns;
+        $config = $this->config();
+
+        $returns = isset($config['returns'])? $config['returns']: null;
 
         if ($returns) {
-            $fetchMode = $this->config()->fetchMode;
-            $fetchArg = $this->config()->fetchArg;
+            $fetchMode = isset($config['fetchMode'])? $config['fetchMode']: null;
+            $fetchArg = isset($config['fetchArg'])? $config['fetchArg']: null;
             switch ($returns) {
                 case Db::RETURN_ONE:
                     return (Db::FETCH_CLASS === $fetchMode)

@@ -10,8 +10,6 @@ use PDO;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
-use queasy\config\ConfigInterface;
-
 use queasy\db\query\CustomQuery;
 
 class Db extends PDO
@@ -53,31 +51,29 @@ class Db extends PDO
     private $statements = array();
 
     /**
-     * The config instance.
-     *
-     * @var ConfigInterface
+     * @var array|ArrayAccess Database config
      */
     protected $config;
 
     /**
-     * The logger instance.
-     *
-     * @var LoggerInterface
+     * @var LoggerInterface Logger instance
      */
     protected $logger;
 
-    public function __construct(ConfigInterface $config)
+    public function __construct($config)
     {
         $this->setConfig($config);
 
+        $config = $this->config();
+
         try {
-            $connection = $config->connection;
+            $connection = isset($config['connection'])? $config['connection']: null;
             $connectionString = new ConnectionString($connection);
             parent::__construct(
                 $connectionString->get(),
-                $connection->user,
-                $connection->password,
-                $connection->options
+                isset($connection['user'])? $connection['user']: null,
+                isset($connection['password'])? $connection['password']: null,
+                isset($connection['options'])? $connection['options']: null
             );
         } catch (Exception $e) {
             throw DbException::connectionFailed($e);
@@ -90,23 +86,18 @@ class Db extends PDO
         if (!$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION)) {
             throw DbException::errorModeNotSet();
         }
-
-        $fetchMode = $config('fetchMode', static::DEFAULT_FETCH_MODE);
-        if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
-            throw DbException::fetchModeNotSet();
-        }
     }
 
     /**
      * Sets a config.
      *
-     * @param array|ConfigInterface $config
+     * @param array|ArrayAccess $config
      */
     public function setConfig($config)
     {
-        $this->config = ($config instanceof ConfigInterface)
-            ? $config
-            : new Config($config);
+        $this->config = is_null($config)
+            ? array()
+            : $config;
     }
 
     /**
@@ -141,8 +132,9 @@ class Db extends PDO
     public function table($name)
     {
         if (!isset($this->tables[$name])) {
-            $queriesConfig = isset($this->config['queries'])
-                ? $this->config['queries']
+            $config = $this->config();
+            $queriesConfig = isset($config['queries'])
+                ? $config['queries']
                 : array();
 
             $config = isset($queriesConfig[$name])
@@ -157,8 +149,9 @@ class Db extends PDO
 
     protected function customQuery($name, array $args = array())
     {
-        if (isset($this->queries()->$name)) {
-            $query = new CustomQuery($this, $this->queries()->$name);
+        $queries = $this->queries();
+        if (isset($queries[$name])) {
+            $query = new CustomQuery($this, $queries[$name]);
             $query->setLogger($this->logger());
 
             return $query->run($args);
@@ -234,9 +227,10 @@ class Db extends PDO
     protected function tables()
     {
         if (!$this->tables) {
-            $this->tables = $this->config()->tables;
+            $config = $this->config();
+            $this->tables = $config['tables'];
             if (!$this->tables) {
-                $this->tables = new Config(array());
+                $this->tables = array();
             }
         }
 
@@ -246,9 +240,10 @@ class Db extends PDO
     protected function queries()
     {
         if (!$this->queries) {
-            $this->queries = $this->config()->queries;
+            $config = $this->config();
+            $this->queries = $config['queries'];
             if (!$this->queries) {
-                $this->queries = new Config(array());
+                $this->queries = array();
             }
         }
 
