@@ -27,7 +27,7 @@ class SelectInQuery extends SelectQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params)
+    public function run(array $params = array())
     {
         $db = $this->db();
 

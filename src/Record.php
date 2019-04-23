@@ -2,7 +2,7 @@
 
 namespace queasy\db;
 
-class Record implements \Iterator, \ArrayAccess, \Countable
+class Record // TODO: implements \Iterator, \ArrayAccess, \Countable
 {
     private $isLoaded = false;
 

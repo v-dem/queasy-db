@@ -200,10 +200,10 @@ class Db extends PDO
             $func($this);
 
             $this->commit();
-        } catch (Exception $ex) {
+        } catch (Exception $e) {
             $this->rollBack();
 
-            throw $ex;
+            throw $e;
         }
     }
 

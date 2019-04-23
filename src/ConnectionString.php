@@ -73,7 +73,7 @@ class ConnectionString
      */
     public function __invoke()
     {
-        return $this->get();
+        return $this->string;
     }
 }
 

@@ -25,7 +25,12 @@
         "php": ">=7.1.0",
         "phpunit/phpunit": "~7",
         "v-dem/queasy-config": "dev-master",
-        "v-dem/queasy-log": "dev-master"
+        "v-dem/queasy-log": "dev-master",
+        "ext-xdebug": "^2.6.0"
+    },
+    "suggest": {
+        "queasy/config": "Configuration provider package, supports PHP (and multifile configs in this case), INI, XML and JSON (and YAML in future) formats",
+        "queasy/log": "PSR-3 compatible logger package, supports file system log writer, console and email (using mail() function)"
     },
     "autoload":{
         "psr-4":{
@@ -36,5 +41,8 @@
         "psr-4":{
             "queasy\\db\\tests\\": "tests/"
         }
+    },
+    "scripts": {
+        "test": "phpunit --coverage-clover clover.xml"
     }
 }
