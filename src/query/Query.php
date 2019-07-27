@@ -14,30 +14,12 @@ class Query extends AbstractQuery
      *
      * @param array $params Query arguments
      *
-     * @return int Number of affected rows for UPDATE/INSERT/DELETE queries or queasy\db\Statement instance for SELECT queries
+     * @return int|Statement Number of affected rows for UPDATE/INSERT/DELETE queries or queasy\db\Statement instance for SELECT queries
      *
      * @throws DbException On error
      */
     public function run(array $params = array())
     {
-        /*
-        $args = array();
-        if (func_num_args() > 0) {
-            if (is_array(func_get_arg(0))) { // Check if params passed as an array (key-value pairs), other args are ignored in this case
-                $args = func_get_arg(0);
-            } else { // Params passed as a list of args
-                $args = func_get_args();
-            }
-        }
-
-        $argKeys = array_keys($args);
-        while ((1 == count($args)) && (is_array($args[$argKeys[0]]))) {
-            $args = $args[0];
-
-            $argKeys = array_keys($args);
-        }
-        */
-
         $counter = 1;
         foreach ($params as $paramKey => $paramValue) {
             // Detect parameter type
@@ -64,9 +46,9 @@ class Query extends AbstractQuery
             throw DbException::cannotExecuteQuery($this->query(), $sqlErrorCode, $errorMessage);
         }
 
-        return ($this->statement()->columnCount())
-            ? $this->statement()
-            : $this->statement()->rowCount();
+        return ($this->statement()->columnCount()) // Check if it was SELECT query
+            ? $this->statement() // And return Statement if yes
+            : $this->statement()->rowCount(); // Or return number of affected rows if no
     }
 
     protected function getParamType($value)

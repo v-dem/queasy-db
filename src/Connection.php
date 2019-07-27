@@ -4,7 +4,7 @@ namespace queasy\db;
 
 use ArrayAccess;
 
-class ConnectionString
+class Connection
 {
     const DEFAULT = 'sqlite::memory:';
     const DEFAULT_DRIVER = 'sqlite';

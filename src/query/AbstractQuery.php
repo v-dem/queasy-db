@@ -18,7 +18,7 @@ abstract class AbstractQuery implements QueryInterface
     private $statement;
 
     /**
-     * The logger instance.
+     * Logger instance.
      *
      * @var LoggerInterface
      */
@@ -27,6 +27,7 @@ abstract class AbstractQuery implements QueryInterface
     /**
      * Constructor.
      *
+     * @param PDO $db PDO instance
      * @param string $query Query string
      *
      * @throws DbException When query can't be prepared
@@ -39,17 +40,42 @@ abstract class AbstractQuery implements QueryInterface
 
     abstract public function run(array $params = array());
 
+    public function __invoke(array $params = array())
+    {
+        return $this->run(func_get_args());
+    }
+
     public function statement()
     {
         if (!$this->statement) {
             try {
                 $this->statement = $this->db()->prepare($this->query());
             } catch (Exception $e) {
-                throw DbException::cannotPrepareStatement($query, $e);
+                throw DbException::cannotPrepareStatement($this->query(), $e);
             }
         }
 
         return $this->statement;
+    }
+
+    /**
+     * Set a logger.
+     *
+     * @param LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+
+    }
+
+    protected function logger()
+    {
+        if (!$this->logger) {
+            $this->logger = new NullLogger();
+        }
+
+        return $this->logger;
     }
 
     protected function db()
@@ -69,26 +95,6 @@ abstract class AbstractQuery implements QueryInterface
     protected function setQuery($query)
     {
         $this->query = $query;
-    }
-
-    /**
-     * Sets a logger.
-     *
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-
-    }
-
-    protected function logger()
-    {
-        if (!$this->logger) {
-            $this->logger = new NullLogger();
-        }
-
-        return $this->logger;
     }
 }
 

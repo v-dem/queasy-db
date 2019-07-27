@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/v-dem/queasy-db.svg?branch=master)](https://travis-ci.com/v-dem/queasy-db) [![codecov](https://codecov.io/gh/v-dem/queasy-db/branch/master/graph/badge.svg)](https://codecov.io/gh/v-dem/queasy-db)
+
 # [Queasy PHP Framework](https://github.com/v-dem/queasy-app/) - Database
 
 ## Package `v-dem/queasy-db`

@@ -12,61 +12,61 @@ namespace queasy\db\tests;
 
 use PHPUnit\Framework\TestCase;
 
-use queasy\db\ConnectionString;
+use queasy\db\Connection;
 use queasy\db\DbException;
 
-class ConnectionStringTest extends TestCase
+class ConnectionTest extends TestCase
 {
     public function testDefault()
     {
-        $connectionString = new ConnectionString();
+        $connection = new Connection();
 
-        $this->assertEquals('sqlite::memory:', $connectionString());
+        $this->assertEquals('sqlite::memory:', $connection());
     }
 
     public function testMysql()
     {
-        $connectionString = new ConnectionString([
+        $connection = new Connection([
             'driver' => 'mysql',
             'host' => 'localhost',
             'port' => '9987',
             'name' => 'test'
         ]);
 
-        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test', $connectionString());
+        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test', $connection());
     }
 
     public function testMysqlGet()
     {
-        $connectionString = new ConnectionString([
+        $connection = new Connection([
             'driver' => 'mysql',
             'host' => 'localhost',
             'port' => '9987',
             'name' => 'test'
         ]);
 
-        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test', $connectionString->get());
+        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test', $connection->get());
     }
 
     public function testInvalid()
     {
         $this->expectException(DbException::class);
 
-        new ConnectionString(32167);
+        new Connection(32167);
     }
 
     public function testCustomString()
     {
-        $connectionString = new ConnectionString('Custom');
+        $connection = new Connection('Custom');
 
-        $this->assertEquals('Custom', $connectionString());
+        $this->assertEquals('Custom', $connection());
     }
 
     public function testCustomStringGet()
     {
-        $connectionString = new ConnectionString('Custom');
+        $connection = new Connection('Custom');
 
-        $this->assertEquals('Custom', $connectionString->get());
+        $this->assertEquals('Custom', $connection->get());
     }
 }
 

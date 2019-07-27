@@ -20,30 +20,6 @@ class Db extends PDO
     const RETURN_ONE = 1;
     const RETURN_ALL = 2;
 
-    /**
-     * Creates a key/value map by an array key or object field.
-     *
-     * @param string $field Field or key name
-     * @param array $rows Array of arrays or objects
-     *
-     * @return array Array containing $field as a key and responsive row as a value
-     */
-    public static function map($field, array $rows)
-    {
-        $result = array();
-        foreach ($rows as $row) {
-            if (is_object($row)) {
-                $result[$row[$field]] = $row;
-            } elseif (is_array($row)) {
-                $result[$row->$field] = $row;
-            } else {
-                throw InvalidArgumentException::rowsUnexpectedValue();
-            }
-        }
-
-        return $result;
-    }
-
     private $tables = array();
 
     private $queries = array();
@@ -60,20 +36,20 @@ class Db extends PDO
      */
     protected $logger;
 
-    public function __construct($config)
+    public function __construct($config = array())
     {
         $this->setConfig($config);
 
         $config = $this->config();
 
         try {
-            $connection = isset($config['connection'])? $config['connection']: null;
-            $connectionString = new ConnectionString($connection);
+            $connectionConfig = isset($config['connection'])? $config['connection']: null;
+            $connectionString = new Connection($connectionConfig);
             parent::__construct(
                 $connectionString(),
-                isset($connection['user'])? $connection['user']: null,
-                isset($connection['password'])? $connection['password']: null,
-                isset($connection['options'])? $connection['options']: null
+                isset($connectionConfig['user'])? $connectionConfig['user']: null,
+                isset($connectionConfig['password'])? $connectionConfig['password']: null,
+                isset($connectionConfig['options'])? $connectionConfig['options']: null
             );
         } catch (Exception $e) {
             throw DbException::connectionFailed($e);

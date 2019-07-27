@@ -10,11 +10,11 @@ use queasy\db\DbException;
 class BatchInsertQuery extends TableQuery
 {
     /**
-     * Build SQL query.
+     * Execute multiple rows INSERT query.
      *
-     * @param array $params Query parameters
+     * @param array $params Query parameters (array of arrays)
      *
-     * @return int Number of affected records (1 if row was inserted)
+     * @return int Number of inserted records
      *
      * @throws DbException On error
      */
