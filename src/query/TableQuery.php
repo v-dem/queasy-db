@@ -3,7 +3,6 @@
 namespace queasy\db\query;
 
 use queasy\db\Db;
-use queasy\db\DbException;
 
 abstract class TableQuery extends Query
 {

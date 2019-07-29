@@ -118,6 +118,7 @@ class Db extends PDO
                 : array();
 
             $this->tables[$name] = new Table($this, $name, $config);
+            $this->tables[$name]->setLogger($this->logger());
         }
 
         return $this->tables[$name];
