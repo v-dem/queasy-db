@@ -110,7 +110,7 @@ class Table implements ArrayAccess, Countable
     public function offsetGet($offset)
     {
         if (!isset($this->fields[$offset])) {
-            $this->fields[$offset] = new Field($this->db(), $this->name, $offset);
+            $this->fields[$offset] = new Field($this->db(), $this, $offset);
         }
 
         return $this->fields[$offset];
@@ -164,14 +164,14 @@ class Table implements ArrayAccess, Countable
             : $config;
     }
 
+    public function name()
+    {
+        return $this->name;
+    }
+
     protected function db()
     {
         return $this->db;
-    }
-
-    protected function name()
-    {
-        return $this->name;
     }
 
     /**
