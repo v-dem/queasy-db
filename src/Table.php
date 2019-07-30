@@ -144,9 +144,10 @@ class Table implements ArrayAccess, Countable
     {
         $config = $this->config();
         if (isset($config[$method])) {
-            $query = $config[$method]['query'];
+            $query = new CustomQuery($this->db(), $config[$method]);
+            $query->setLogger($this->logger());
 
-            return $this->db->execute(array_merge(array($query), $args));
+            return $query->run($args);
         } else {
             throw DbException::tableMethodNotImplemented($this->name(), $method);
         }
