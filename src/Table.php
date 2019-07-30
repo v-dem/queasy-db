@@ -9,6 +9,7 @@ use Countable;
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
+use queasy\db\query\CustomQuery;
 use queasy\db\query\CountQuery;
 use queasy\db\query\SingleInsertQuery;
 use queasy\db\query\SingleNamedInsertQuery;
