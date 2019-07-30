@@ -40,6 +40,8 @@ class Query extends AbstractQuery
             );
         }
 
+        $this->logger()->debug('Query::run(): QUERY: ' . $this->query, $params);
+
         if (!$this->statement()->execute()) {
             list($sqlErrorCode, $driverErrorCode, $errorMessage) = $this->statement()->errorInfo();
 
