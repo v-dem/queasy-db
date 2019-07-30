@@ -176,7 +176,7 @@ class Table implements ArrayAccess, Countable
 
     protected function config()
     {
-        return $this->config();
+        return $this->config;
     }
 
     /**
