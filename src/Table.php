@@ -148,7 +148,7 @@ class Table implements ArrayAccess, Countable
             $query = new CustomQuery($this->db(), $config[$method]);
             $query->setLogger($this->logger());
 
-            return $query->run($args);
+            return call_user_func_array(array($query, 'run'), $args);
         } else {
             throw DbException::tableMethodNotImplemented($this->name(), $method);
         }
