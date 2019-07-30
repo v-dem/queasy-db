@@ -54,7 +54,7 @@ class Table implements ArrayAccess, Countable
 
     public function count()
     {
-        $query = new CountQuery($this->db, $this->name);
+        $query = new CountQuery($this->db(), $this->name());
 
         return $query->run();
     }
@@ -74,18 +74,18 @@ class Table implements ArrayAccess, Countable
                         && (0 < count($params[1]))
                         && isset($params[1][0])
                         && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
-                    $query = new BatchSeparatelyNamedInsertQuery($this->db(), $this->name);
+                    $query = new BatchSeparatelyNamedInsertQuery($this->db(), $this->name());
                 } else {
                     $keys = array_keys($params[$keys[0]]);
 
                     $query = (!count($keys) || is_numeric($keys[0]))
-                        ? new BatchInsertQuery($this->db(), $this->name) // Batch insert
-                        : new BatchNamedInsertQuery($this->db(), $this->name); // Batch insert with field names
+                        ? new BatchInsertQuery($this->db(), $this->name()) // Batch insert
+                        : new BatchNamedInsertQuery($this->db(), $this->name()); // Batch insert with field names
                 }
             } else { // Single inserts
                 $query = (!count($keys) || is_numeric($keys[0]))
-                    ? new SingleInsertQuery($this->db(), $this->name) // By order, without field names
-                    : new SingleNamedInsertQuery($this->db(), $this->name); // By field names
+                    ? new SingleInsertQuery($this->db(), $this->name()) // By order, without field names
+                    : new SingleNamedInsertQuery($this->db(), $this->name()); // By field names
             }
         } else {
             throw new DbException('Invalid assignment type (must be array).');
@@ -96,7 +96,7 @@ class Table implements ArrayAccess, Countable
 
     public function update(array $params, array $keyParams = array())
     {
-        $query = new TableUpdateQuery($this->db, $this->name, $keyParams);
+        $query = new TableUpdateQuery($this->db, $this->name(), $keyParams);
         $query->setLogger($this->logger());
 
         return $query->run($params);
@@ -148,7 +148,7 @@ class Table implements ArrayAccess, Countable
 
             return $this->db->execute(array_merge(array($query), $args));
         } else {
-            throw DbException::tableMethodNotImplemented($this->name, $method);
+            throw DbException::tableMethodNotImplemented($this->name(), $method);
         }
     }
 
@@ -172,6 +172,11 @@ class Table implements ArrayAccess, Countable
     protected function db()
     {
         return $this->db;
+    }
+
+    protected function config()
+    {
+        return $this->config();
     }
 
     /**
