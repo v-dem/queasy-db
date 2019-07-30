@@ -109,12 +109,12 @@ class Db extends PDO
     {
         if (!isset($this->tables[$name])) {
             $config = $this->config();
-            $queriesConfig = isset($config['queries'])
-                ? $config['queries']
+            $tablesConfig = isset($config['tables'])
+                ? $config['tables']
                 : array();
 
-            $config = isset($queriesConfig[$name])
-                ? $queriesConfig[$name]
+            $config = isset($tablesConfig[$name])
+                ? $tablesConfig[$name]
                 : array();
 
             $this->tables[$name] = new Table($this, $name, $config);
