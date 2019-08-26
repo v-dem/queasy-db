@@ -8,9 +8,9 @@ class TableInQuery extends TableQuery
 {
     private $fieldName;
 
-    public function __construct(PDO $db, $fieldName)
+    public function __construct(PDO $db, $tableName, $fieldName)
     {
-        parent::__construct($db);
+        parent::__construct($db, $tableName);
 
         $this->fieldName = $fieldName;
     }
