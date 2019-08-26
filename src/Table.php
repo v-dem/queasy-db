@@ -27,14 +27,14 @@ class Table implements ArrayAccess, Countable
     private $fields;
 
     /**
-     * The config instance.
+     * Config instance.
      *
      * @var array|ArrayAccess
      */
     protected $config;
 
     /**
-     * The logger instance.
+     * Logger instance.
      *
      * @var LoggerInterface
      */

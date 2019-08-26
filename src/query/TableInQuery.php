@@ -4,17 +4,14 @@ namespace queasy\db\query;
 
 use PDO;
 
-class SelectInQuery extends SelectQuery
+class TableInQuery extends TableQuery
 {
-    private $tableName;
-
     private $fieldName;
 
-    public function __construct(PDO $db, $tableName, $fieldName)
+    public function __construct(PDO $db, $fieldName)
     {
         parent::__construct($db);
 
-        $this->tableName = $tableName;
         $this->fieldName = $fieldName;
     }
 
@@ -31,24 +28,25 @@ class SelectInQuery extends SelectQuery
     {
         $db = $this->db();
 
-        $quotedParams = array_map(function($item) use($db) {
-            return $db->quote($item, $this->getParamType($item));
-        }, $params);
-
-        $paramsStr = implode(', ', $quotedParams);
+        $inParams = array_map(
+            function($item) {
+                return ':val' . $item;
+            },
+            array_keys($params)
+        );
 
         $sql = sprintf('
             SELECT  *
             FROM    `%s`
             WHERE   `%s` IN (%s)',
-            $this->tableName,
+            $this->tableName(),
             $this->fieldName,
-            $paramsStr
+            implode(', ', $inParams)
         );
 
         $this->setQuery($sql);
 
-        parent::run();
+        parent::run(array_combine($inParams, $params));
 
         return $this->statement()->fetchAll();
     }
