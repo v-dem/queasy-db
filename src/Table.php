@@ -56,6 +56,7 @@ class Table implements ArrayAccess, Countable
     public function count()
     {
         $query = new CountQuery($this->db(), $this->name());
+        $query->setLogger($this->logger());
 
         return $query->run();
     }
@@ -92,6 +93,8 @@ class Table implements ArrayAccess, Countable
             throw new DbException('Invalid assignment type (must be array).');
         }
 
+        $query->setLogger($this->logger());
+
         return $query->run($params);
     }
 
@@ -111,7 +114,10 @@ class Table implements ArrayAccess, Countable
     public function offsetGet($offset)
     {
         if (!isset($this->fields[$offset])) {
-            $this->fields[$offset] = new Field($this->db(), $this, $offset);
+            $field = new Field($this->db(), $this, $offset);
+            $field->setLogger($this->logger());
+
+            $this->fields[$offset] = $field;
         }
 
         return $this->fields[$offset];

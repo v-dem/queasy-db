@@ -26,8 +26,6 @@ class TableInQuery extends TableQuery
      */
     public function run(array $params = array())
     {
-        $db = $this->db();
-
         $inParams = array_map(
             function($item) {
                 return ':val' . $item;
@@ -46,9 +44,7 @@ class TableInQuery extends TableQuery
 
         $this->setQuery($sql);
 
-        parent::run(array_combine($inParams, $params));
-
-        return $this->statement()->fetchAll();
+        return parent::run(array_combine($inParams, $params))->fetchAll();
     }
 }
 

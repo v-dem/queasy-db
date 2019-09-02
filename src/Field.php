@@ -5,8 +5,12 @@ namespace queasy\db;
 use PDO;
 use ArrayAccess;
 
+use Psr\Log\NullLogger;
+use Psr\Log\LoggerInterface;
+
 use queasy\db\query\CountQuery;
-use queasy\db\query\SelectInQuery;
+use queasy\db\query\TableGetQuery;
+use queasy\db\query\TableInQuery;
 
 class Field implements ArrayAccess
 {
@@ -15,6 +19,8 @@ class Field implements ArrayAccess
     private $table;
 
     private $name;
+
+    private $logger;
 
     public function __construct(PDO $db, Table $table, $name)
     {
@@ -26,6 +32,7 @@ class Field implements ArrayAccess
     public function offsetExists($offset)
     {
         $query = new CountQuery($this->db, $this->table->name());
+        $query->setLogger($this->logger());
 
         return $query->run(array($this->name => $offset)) > 0;
     }
@@ -33,12 +40,15 @@ class Field implements ArrayAccess
     public function offsetGet($offset)
     {
         if (is_array($offset)) {
-            $query = new SelectInQuery($this->db, $this->table->name(), $this->name);
+            $query = new TableInQuery($this->db, $this->table->name(), $this->name);
+            $query->setLogger($this->logger());
 
             return $query->run($offset);
         } else {
-            // $query = new GetQuery
-            // echo 'SELECT * FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '\' IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
+            $query = new TableGetQuery($this->db, $this->table->name(), $this->name);
+            $query->setLogger($this->logger());
+
+            return $query->run(array($offset));
         }
     }
 
@@ -50,6 +60,7 @@ class Field implements ArrayAccess
             // UPDATE ... WHERE $this->name IN (...)
         } else {
             $query = new TableUpdateQuery($this->db, $this->table->name(), [ $this->name => $offset ]);
+            $query->setLogger($this->logger());
             $query->run($value);
         }
     }
@@ -61,6 +72,20 @@ class Field implements ArrayAccess
         } else {
             // echo 'DELETE FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '` IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
         }
+    }
+
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    protected function logger()
+    {
+        if (is_null($this->logger)) {
+            $this->logger = new NullLogger();
+        }
+
+        return $this->logger;
     }
 }
 

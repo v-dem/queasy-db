@@ -12,7 +12,7 @@ class Record // TODO: implements \Iterator, \ArrayAccess, \Countable
 
     public function __construct()
     {
-        
+
     }
 
     public function save()

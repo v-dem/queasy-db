@@ -62,6 +62,12 @@ class Db extends PDO
         if (!$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION)) {
             throw DbException::errorModeNotSet();
         }
+
+        if (isset($config['fetchMode'])) {
+            if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $config['fetchMode'])) {
+                throw DbException::fetchModeNotSet();
+            }
+        }
     }
 
     /**
@@ -127,14 +133,14 @@ class Db extends PDO
     protected function customQuery($name, array $args = array())
     {
         $queries = $this->queries();
-        if (isset($queries[$name])) {
-            $query = new CustomQuery($this, $queries[$name]);
-            $query->setLogger($this->logger());
-
-            return $query->run($args);
-        } else {
+        if (!isset($queries[$name])) {
             throw DbException::queryNotDeclared($name);
         }
+
+        $query = new CustomQuery($this, $queries[$name]);
+        $query->setLogger($this->logger());
+
+        return $query->run($args);
     }
 
     public function run($queryClass)
@@ -143,21 +149,21 @@ class Db extends PDO
         if (!$interfaces
                 || !isset($interfaces['queasy\db\query\QueryInterface'])) {
             throw InvalidArgumentException::queryInterfaceNotImplemented($queryClass);
-        } else {
-            $args = func_get_args();
-
-            array_shift($args); // Remove $queryClass arg
-
-            $queryString = array_shift($args);
-            if (!$queryString || !is_string($queryString)) {
-                throw InvalidArgumentException::missingQueryString();
-            }
-
-            $query = new $queryClass($this, $queryString);
-            $query->setLogger($this->logger());
-
-            return $query->run($args);
         }
+
+        $args = func_get_args();
+
+        array_shift($args); // Remove $queryClass arg
+
+        $queryString = array_shift($args);
+        if (!$queryString || !is_string($queryString)) {
+            throw InvalidArgumentException::missingQueryString();
+        }
+
+        $query = new $queryClass($this, $queryString);
+        $query->setLogger($this->logger());
+
+        return $query->run($args);
     }
 
     public function id($sequence = null)
