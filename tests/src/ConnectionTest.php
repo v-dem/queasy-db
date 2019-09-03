@@ -24,6 +24,13 @@ class ConnectionTest extends TestCase
         $this->assertEquals('sqlite::memory:', $connection());
     }
 
+    public function testDefaultGet()
+    {
+        $connection = new Connection();
+
+        $this->assertEquals('sqlite::memory:', $connection->get());
+    }
+
     public function testMysql()
     {
         $connection = new Connection([
@@ -48,25 +55,46 @@ class ConnectionTest extends TestCase
         $this->assertEquals('mysql:host=localhost;port=9987;dbname=test', $connection->get());
     }
 
-    public function testInvalid()
-    {
-        $this->expectException(DbException::class);
-
-        new Connection(32167);
-    }
-
-    public function testCustomString()
+    public function testCustomDsn()
     {
         $connection = new Connection('Custom');
 
         $this->assertEquals('Custom', $connection());
     }
 
-    public function testCustomStringGet()
+    public function testCustomDsnGet()
     {
         $connection = new Connection('Custom');
 
         $this->assertEquals('Custom', $connection->get());
+    }
+
+    public function testInvalidDsn()
+    {
+        $this->expectException(DbException::class);
+
+        new Connection(32167);
+    }
+
+    public function testCustomDsnOption()
+    {
+        $connection = new Connection(['dsn' => 'Custom']);
+
+        $this->assertEquals('Custom', $connection());
+    }
+
+    public function testCustomDsnOptionGet()
+    {
+        $connection = new Connection(['dsn' => 'Custom']);
+
+        $this->assertEquals('Custom', $connection->get());
+    }
+
+    public function testInvalidDsnOption() // TODO:
+    {
+        $this->expectException(DbException::class);
+
+        new Connection(32167);
     }
 }
 

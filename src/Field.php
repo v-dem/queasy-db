@@ -54,6 +54,10 @@ class Field implements ArrayAccess
 
     public function offsetSet($offset, $value)
     {
+        $this->logger()->debug($offset);
+        $this->logger()->debug($value);
+        return;
+
         if (is_null($value)) { // Delete
             unset($this[$offset]);
         } elseif (is_array($offset)) {
