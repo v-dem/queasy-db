@@ -19,7 +19,7 @@ class TableTest extends TestCase
 {
     private $db;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->db = new Db(['fetchMode' => Db::FETCH_ASSOC]);
         $this->db->query('
@@ -31,7 +31,7 @@ class TableTest extends TestCase
         ');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->db = null;
     }
