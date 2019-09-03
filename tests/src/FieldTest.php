@@ -48,11 +48,20 @@ class FieldTest extends TestCase
         $this->db = null;
     }
 
-    public function testDefault()
+    public function testGetRecord()
     {
         $user = $this->db->users->id[7];
 
         $this->assertEquals('mary', $user['name']);
+    }
+
+    public function testGetRecords()
+    {
+        $users = $this->db->users->id[[1, 7]];
+
+        $this->assertCount(2, $users);
+        $this->assertEquals('vitaly', $users[0]['name']);
+        $this->assertEquals('mary', $users[1]['name']);
     }
 }
 

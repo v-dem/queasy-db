@@ -99,6 +99,22 @@ class TableTest extends TestCase
         $this->assertEquals('mary', $user['name']);
     }
 
+    public function testUpdateOne()
+    {
+        $this->db->users[] = [
+            [15, 'john', 'john.doe@example.com'],
+            [22, 'mary', 'mary.doe@example.com']
+        ];
+
+        $this->db->users->update(['name' => 'vitaly'], ['id' => 15]);
+
+        $user = $this->db->users->id[15];
+        $this->assertEquals('vitaly', $user['name']);
+
+        $user = $this->db->users->id[22];
+        $this->assertEquals('mary', $user['name']);
+    }
+
     public function testCount()
     {
         $this->db->users[] = [
