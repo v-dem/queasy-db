@@ -5,6 +5,8 @@ namespace queasy\db;
 use Exception;
 use InvalidArgumentException;
 
+use ArrayAccess;
+
 use PDO;
 
 use Psr\Log\NullLogger;
@@ -12,7 +14,7 @@ use Psr\Log\LoggerInterface;
 
 use queasy\db\query\CustomQuery;
 
-class Db extends PDO
+class Db extends PDO implements ArrayAccess
 {
     const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
 
@@ -39,8 +41,6 @@ class Db extends PDO
     public function __construct($config = array())
     {
         $this->setConfig($config);
-
-        $config = $this->config();
 
         try {
             $connectionConfig = isset($config['connection'])? $config['connection']: null;
@@ -101,6 +101,26 @@ class Db extends PDO
     public function __call($name, array $args = array())
     {
         return $this->customQuery($name, $args);
+    }
+
+    public function offsetGet($name)
+    {
+        return $this->table($name);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        throw DbException::notImplementedException(__CLASS__, __METHOD__);
+    }
+
+    public function offsetExists($offset)
+    {
+        throw DbException::notImplementedException(__CLASS__, __METHOD__);
+    }
+
+    public function offsetUnset($offset)
+    {
+        throw DbException::notImplementedException(__CLASS__, __METHOD__);
     }
 
     public function prepare($query, $options = null)

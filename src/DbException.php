@@ -55,5 +55,10 @@ class DbException extends Exception
     {
         return new DbException(sprintf('No value was selected by query: %s', $query));
     }
+
+    public static function notImplementedException($class, $method)
+    {
+        return new DbException(sprintf('Method "%s" not implemented in "%s" class.', $method, $class));
+    }
 }
 
