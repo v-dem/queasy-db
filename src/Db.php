@@ -77,7 +77,7 @@ class Db extends PDO implements ArrayAccess
      */
     public function setConfig($config)
     {
-        $this->config = is_null($config)
+        $this->config = (null === $config)
             ? array()
             : $config;
     }
@@ -222,7 +222,7 @@ class Db extends PDO implements ArrayAccess
             }
         }
 
-        $this->statements[$query] = parent::prepare($query, is_null($options)? array(): $options);
+        $this->statements[$query] = parent::prepare($query, (null === $options)? array(): $options);
 
         return $this->statements[$query];
     }
@@ -260,7 +260,7 @@ class Db extends PDO implements ArrayAccess
 
     protected function logger()
     {
-        if (is_null($this->logger)) {
+        if (null === $this->logger) {
             $this->logger = new NullLogger();
         }
 

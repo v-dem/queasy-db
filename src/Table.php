@@ -5,6 +5,7 @@ namespace queasy\db;
 use PDO;
 use ArrayAccess;
 use Countable;
+use Iterator;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
@@ -17,14 +18,17 @@ use queasy\db\query\BatchInsertQuery;
 use queasy\db\query\BatchNamedInsertQuery;
 use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 use queasy\db\query\TableUpdateQuery;
+use queasy\db\query\TableSelectAllQuery;
 
-class Table implements ArrayAccess, Countable
+class Table implements ArrayAccess, Countable, Iterator
 {
     private $db;
 
     private $name;
 
     private $fields;
+
+    private $rows;
 
     /**
      * Config instance.
@@ -45,6 +49,7 @@ class Table implements ArrayAccess, Countable
         $this->db = $db;
         $this->name = $name;
         $this->fields = array();
+        $this->rows = null;
         $this->setConfig($config);
     }
 
@@ -61,12 +66,44 @@ class Table implements ArrayAccess, Countable
         return $query->run();
     }
 
+    public function current()
+    {
+        $this->logger()->debug('Table::current() called.');
+        return current($this->rows);
+    }
+
+    public function key()
+    {
+        $this->logger()->debug('Table::key() called.');
+        return key($this->rows);
+    }
+
+    public function next()
+    {
+        $this->logger()->debug('Table::next() called.');
+        return next($this->rows);
+    }
+
+    public function rewind()
+    {
+        $this->logger()->debug('Table::rewind() called.');
+
+        $query = new TableSelectAllQuery($this->db(), $this->name());
+        $this->rows = $query->run();
+    }
+
+    public function valid()
+    {
+        $this->logger()->debug('Table::valid() called.');
+        return isset($this->rows[$this->key()]);
+    }
+
     public function insert()
     {
         // TODO: Be careful!!!
         $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
 
-        if (is_null($params)) {
+        if (null === $params) {
             throw new DbException('Cannot assign null to table field.');
         } elseif (is_array($params)) {
             $keys = array_keys($params);
@@ -125,7 +162,7 @@ class Table implements ArrayAccess, Countable
 
     public function offsetSet($offset, $value)
     {
-        if (is_null($offset)) {
+        if (null === $offset) {
             $this->insert($value);
         } else {
             throw new DbException('Not implemented. Use Field instead of Table to update record.');
@@ -199,7 +236,7 @@ class Table implements ArrayAccess, Countable
 
     protected function logger()
     {
-        if (is_null($this->logger)) {
+        if (null === $this->logger) {
             $this->logger = new NullLogger();
         }
 

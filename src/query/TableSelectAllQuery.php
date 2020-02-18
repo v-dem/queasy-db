@@ -4,14 +4,15 @@ namespace queasy\db\query;
 
 use PDO;
 
-class TableGetQuery extends TableQuery
+class TableSelectAllQuery extends TableQuery
 {
-    public function __construct(PDO $db, $tableName, $fieldName)
+    public function __construct(PDO $db, $tableName)
     {
         parent::__construct($db, $tableName, sprintf('
             SELECT  *
-            FROM    `%s`
-            WHERE   `%s` = :%s', $tableName, $fieldName, $fieldName));
+            FROM    `%s`',
+            $tableName
+        ));
     }
 
     /**
@@ -25,7 +26,7 @@ class TableGetQuery extends TableQuery
      */
     public function run(array $params = array())
     {
-        return parent::run($params)->fetch();
+        return parent::run($params)->fetchAll();
     }
 }
 

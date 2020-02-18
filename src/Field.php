@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use queasy\db\query\CountQuery;
 use queasy\db\query\TableGetQuery;
 use queasy\db\query\TableInQuery;
+use queasy\db\query\TableRemoveQuery;
 
 class Field implements ArrayAccess
 {
@@ -54,18 +55,14 @@ class Field implements ArrayAccess
 
     public function offsetSet($offset, $value)
     {
-        $this->logger()->debug($offset);
-        $this->logger()->debug($value);
-        return;
-
-        if (is_null($value)) { // Delete
+        if (null === $value) { // Delete
             unset($this[$offset]);
         } elseif (is_array($offset)) {
             // UPDATE ... WHERE $this->name IN (...)
         } else {
-            $query = new TableUpdateQuery($this->db, $this->table->name(), [ $this->name => $offset ]);
+            $query = new TableUpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
             $query->setLogger($this->logger());
-            $query->run($value);
+            $query->run(array($value));
         }
     }
 
@@ -75,6 +72,9 @@ class Field implements ArrayAccess
             // DELETE FROM ... WHERE $this->name IN (...)
         } else {
             // echo 'DELETE FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '` IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
+            $query = new TableRemoveQuery($this->db, $this->table->name(), $this->name);
+            $query->setLogger($this->logger());
+            $query->run(array($this->name => $offset));
         }
     }
 
@@ -85,7 +85,7 @@ class Field implements ArrayAccess
 
     protected function logger()
     {
-        if (is_null($this->logger)) {
+        if (null === $this->logger) {
             $this->logger = new NullLogger();
         }
 

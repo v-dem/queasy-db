@@ -4,14 +4,21 @@ namespace queasy\db\query;
 
 use PDO;
 
-class TableGetQuery extends TableQuery
+class TableRemoveQuery extends TableQuery
 {
     public function __construct(PDO $db, $tableName, $fieldName)
     {
-        parent::__construct($db, $tableName, sprintf('
-            SELECT  *
-            FROM    `%s`
-            WHERE   `%s` = :%s', $tableName, $fieldName, $fieldName));
+        parent::__construct(
+            $db,
+            $tableName,
+            sprintf('
+                DELETE  FROM    `%s`
+                WHERE   `%s` = :%s',
+                $tableName,
+                $fieldName,
+                $fieldName
+            )
+        );
     }
 
     /**
@@ -25,7 +32,7 @@ class TableGetQuery extends TableQuery
      */
     public function run(array $params = array())
     {
-        return parent::run($params)->fetch();
+        return parent::run($params);
     }
 }
 

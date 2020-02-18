@@ -21,7 +21,7 @@ class Statement extends PDOStatement /*implements Countable, ArrayAccess, Iterat
 
     public function all()
     {
-        if (is_null($this->rows)) {
+        if (null === $this->rows) {
             $this->rows = $this->rowsCache = call_user_func_array(array($this, 'fetchAll'), func_get_args());
         }
 
@@ -30,7 +30,7 @@ class Statement extends PDOStatement /*implements Countable, ArrayAccess, Iterat
 
     public function count()
     {
-        if (is_null($this->rows)) {
+        if (null === $this->rows) {
             $this->all();
         }
 

@@ -55,7 +55,7 @@ class Query extends AbstractQuery
 
     protected function getParamType($value)
     {
-        if (is_null($value)) {
+        if (null === $value) {
             $paramType = Db::PARAM_NULL;
         } elseif (is_int($value)) {
             $paramType = Db::PARAM_INT;
