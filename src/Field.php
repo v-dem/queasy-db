@@ -49,7 +49,7 @@ class Field implements ArrayAccess
             $query = new TableGetQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
 
-            return $query->run(array($offset));
+            return $query->run(array($this->name => $offset));
         }
     }
 
@@ -58,6 +58,8 @@ class Field implements ArrayAccess
         if (null === $value) { // Delete
             unset($this[$offset]);
         } elseif (is_array($offset)) {
+            $this->logger()->debug('------------------');
+            $this->logger()->debug($offset);
             // UPDATE ... WHERE $this->name IN (...)
         } else {
             $query = new TableUpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
@@ -76,6 +78,11 @@ class Field implements ArrayAccess
             $query->setLogger($this->logger());
             $query->run(array($this->name => $offset));
         }
+    }
+
+    public function in(array $values)
+    {
+        
     }
 
     public function setLogger(LoggerInterface $logger)
