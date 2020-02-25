@@ -18,6 +18,7 @@ use queasy\db\query\BatchInsertQuery;
 use queasy\db\query\BatchNamedInsertQuery;
 use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 use queasy\db\query\TableUpdateQuery;
+use queasy\db\query\TableSelectQuery;
 use queasy\db\query\TableSelectAllQuery;
 
 class Table implements ArrayAccess, Countable, Iterator
@@ -68,33 +69,27 @@ class Table implements ArrayAccess, Countable, Iterator
 
     public function current()
     {
-        $this->logger()->debug('Table::current() called.');
         return current($this->rows);
     }
 
     public function key()
     {
-        $this->logger()->debug('Table::key() called.');
         return key($this->rows);
     }
 
     public function next()
     {
-        $this->logger()->debug('Table::next() called.');
         return next($this->rows);
     }
 
     public function rewind()
     {
-        $this->logger()->debug('Table::rewind() called.');
-
         $query = new TableSelectAllQuery($this->db(), $this->name());
         $this->rows = $query->run();
     }
 
     public function valid()
     {
-        $this->logger()->debug('Table::valid() called.');
         return isset($this->rows[$this->key()]);
     }
 
