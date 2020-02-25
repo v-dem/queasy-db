@@ -9,6 +9,7 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 
 use queasy\db\query\CountQuery;
+use queasy\db\query\TableSelectQuery;
 use queasy\db\query\TableGetQuery;
 use queasy\db\query\TableInQuery;
 use queasy\db\query\TableRemoveQuery;

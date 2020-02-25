@@ -18,7 +18,6 @@ use queasy\db\query\BatchInsertQuery;
 use queasy\db\query\BatchNamedInsertQuery;
 use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 use queasy\db\query\TableUpdateQuery;
-use queasy\db\query\TableSelectQuery;
 use queasy\db\query\TableSelectAllQuery;
 
 class Table implements ArrayAccess, Countable, Iterator
