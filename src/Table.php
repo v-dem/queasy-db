@@ -193,7 +193,10 @@ class Table implements ArrayAccess, Countable, Iterator
 
             return call_user_func_array(array($query, 'run'), $args);
         } else {
-            throw DbException::tableMethodNotImplemented($this->name(), $method);
+            $field = $this[$method];
+
+            return $field($args[0]);
+            // throw DbException::tableMethodNotImplemented($this->name(), $method);
         }
     }
 

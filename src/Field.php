@@ -80,12 +80,12 @@ class Field implements ArrayAccess
         }
     }
 
-    public function __invoke()
+    public function __invoke($id)
     {
         $query = new TableSelectQuery($this->db, $this->table->name(), $this->name);
         $query->setLogger($this->logger());
 
-        return $query->run(array($this->name => $offset));
+        return $query->run(array($this->name => $id));
     }
 
     public function in(array $values)
