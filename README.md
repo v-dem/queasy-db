@@ -26,4 +26,55 @@ See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 
 ### Usage
 
+#### Initialization
+
+Sample:
+```php
+$db = new queasy\db\Db([
+    'connection' => [
+        'driver' => 'mysql',
+        'host' => 'localhost',
+        'name' => 'test',
+        'user' => 'test_user',
+        'password' => 'test_password'
+    ],
+    'fetchMode' => PDO::FETCH_ASSOC
+]);
+```
+
+#### Getting a single record from `users` table by `id` key:
+
+```php
+$user = $db->users->id[$id];
+```
+
+#### Inserting a record into `users` table:
+
+```php
+$db->users[] = [
+    'email' => 'john.doe@example.com',
+    'password_hash' => sha1('myverystrongpassword')
+];
+```
+
+#### Getting last insert id:
+
+```php
+$newUserId = $db->id();
+```
+
+#### Updating a record in `users` table by `id` key:
+
+```php
+$db->users->id[$id] = [
+    'password_hash' => sha1('mynewverystrongpassword')
+]
+```
+
+#### Deleting a record in `users` table by `id` key:
+
+```php
+unset($db->users->id[$id]);
+```
+
 
