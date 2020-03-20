@@ -54,6 +54,14 @@ $db = new queasy\db\Db([
 $user = $db->users->id[$userId];
 ```
 
+It will generate the following query:
+
+```sql
+SELECT  *
+FROM    `users`
+WHERE   `id` = :id
+```
+
 #### Inserting a record into `users` table using associative array:
 
 ```php
@@ -61,6 +69,13 @@ $db->users[] = [
     'email' => 'john.doe@example.com',
     'password_hash' => sha1('myverystrongpassword')
 ];
+```
+
+It will generate the following query:
+
+```sql
+INSERT  INTO `users` (`email`, `password_hash`)
+VALUES  (:email, :password_hash)
 ```
 
 #### Inserting a record into `users` table by order (not recommended, keep in mind fields order):
