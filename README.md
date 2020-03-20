@@ -119,7 +119,7 @@ $db->users[] = [
 ];
 ```
 
-#### Getting last insert id:
+#### Getting last insert id (alias of `lastInsertId()` method):
 
 ```php
 $newUserId = $db->id();
