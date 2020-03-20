@@ -30,6 +30,7 @@ See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 
 * `queasy\db\Db` class inherits `PDO` class, so any `PDO` methods can be called with it
 * For some reasons original `PDOStatement` class is replaced by its implementation `queasy\db\Statement`
+* You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries
 
 #### Initialization
 
@@ -43,22 +44,78 @@ $db = new queasy\db\Db([
         'user' => 'test_user',
         'password' => 'test_password'
     ],
-    'fetchMode' => PDO::FETCH_ASSOC
+    'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
 ]);
 ```
 
 #### Getting a single record from `users` table by `id` key:
 
 ```php
-$user = $db->users->id[$id];
+$user = $db->users->id[$userId];
 ```
 
-#### Inserting a record into `users` table:
+#### Inserting a record into `users` table using associative array:
 
 ```php
 $db->users[] = [
     'email' => 'john.doe@example.com',
     'password_hash' => sha1('myverystrongpassword')
+];
+```
+
+#### Inserting a record into `users` table by order (not recommended, keep in mind fields order):
+
+```php
+$db->users[] = [
+    'john.doe@example.com',
+    sha1('myverystrongpassword')
+];
+```
+
+#### Inserting many records into `users` table using associative array (it will generate single `INSERT` statement):
+
+```php
+$db->users[] = [
+    [
+        'email' => 'john.doe@example.com',
+        'password_hash' => sha1('myverystrongpassword')
+    ], [
+        'email' => 'mary.joe@example.com',
+        'password_hash' => sha1('herverystrongpassword')
+    ]
+];
+```
+
+#### Inserting many records into `users` table by order (not recommended; it will generate single `INSERT` statement):
+
+```php
+$db->users[] = [
+    [
+        'john.doe@example.com',
+        sha1('myverystrongpassword')
+    ], [
+        'mary.joe@example.com',
+        sha1('herverystrongpassword')
+    ]
+];
+```
+
+#### Inserting many records into `users` table with field names denoted separately (it will generate single `INSERT` statement):
+
+```php
+$db->users[] = [
+    [
+        'email',
+        'password_hash'
+    ], [
+        [
+            'john.doe@example.com',
+            sha1('myverystrongpassword')
+        ], [
+            'mary.joe@example.com',
+            sha1('herverystrongpassword')
+        ]
+    ]
 ];
 ```
 
@@ -71,7 +128,7 @@ $newUserId = $db->id();
 #### Updating a record in `users` table by `id` key:
 
 ```php
-$db->users->id[$id] = [
+$db->users->id[$userId] = [
     'password_hash' => sha1('mynewverystrongpassword')
 ]
 ```
@@ -79,7 +136,29 @@ $db->users->id[$id] = [
 #### Deleting a record in `users` table by `id` key:
 
 ```php
-unset($db->users->id[$id]);
+unset($db->users->id[$userId]);
+```
+
+#### Get count of all records in `users` table *(I know this function is not very useful)*:
+
+```php
+$usersCount = count($db->users);
+```
+
+#### Using transactions:
+
+```php
+$db->trans(function() use($db) {
+    // Run queries inside a transaction
+});
+```
+
+#### Using `foreach` with a `users` table (obviously it will get all table records first):
+
+```php
+foreach($db->users as $user) {
+    // Do something
+}
 ```
 
 
