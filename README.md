@@ -26,6 +26,11 @@ See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 
 ### Usage
 
+#### Notes
+
+* `queasy\db\Db` class inherits `PDO` class, so any `PDO` methods can be called with it
+* For some reasons original `PDOStatement` class is replaced by its implementation `queasy\db\Statement`
+
 #### Initialization
 
 Sample:
