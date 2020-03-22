@@ -11,6 +11,11 @@ class DbException extends Exception
         return new DbException('Invalid connection DSN.');
     }
 
+    public static function invalidConstructorArguments()
+    {
+        return new DbException('Invalid arguments passed to constructor.');
+    }
+
     public static function connectionFailed($e = null)
     {
         return new DbException('Cannot connect to database.', 0, $e);

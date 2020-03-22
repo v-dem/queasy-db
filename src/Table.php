@@ -9,6 +9,7 @@ use Iterator;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\query\CustomQuery;
 use queasy\db\query\CountQuery;
@@ -20,7 +21,7 @@ use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 use queasy\db\query\TableUpdateQuery;
 use queasy\db\query\TableSelectAllQuery;
 
-class Table implements ArrayAccess, Countable, Iterator
+class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 {
     private $db;
 

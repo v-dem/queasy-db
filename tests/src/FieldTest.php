@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * Queasy PHP Framework - Database - Tests
  *
  * (c) Vitaly Demyanenko <vitaly_demyanenko@yahoo.com>

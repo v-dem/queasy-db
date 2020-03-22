@@ -7,6 +7,7 @@ use ArrayAccess;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\query\CountQuery;
 use queasy\db\query\TableSelectQuery;
@@ -14,7 +15,7 @@ use queasy\db\query\TableGetQuery;
 use queasy\db\query\TableInQuery;
 use queasy\db\query\TableRemoveQuery;
 
-class Field implements ArrayAccess
+class Field implements ArrayAccess, LoggerAwareInterface
 {
     private $db;
 

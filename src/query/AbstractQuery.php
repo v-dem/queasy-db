@@ -6,10 +6,11 @@ use PDO;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\DbException;
 
-abstract class AbstractQuery implements QueryInterface
+abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
 {
     private $db;
 
@@ -66,7 +67,6 @@ abstract class AbstractQuery implements QueryInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
-
     }
 
     protected function logger()

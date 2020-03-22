@@ -12,6 +12,8 @@ namespace queasy\db\tests;
 
 use PHPUnit\Framework\TestCase;
 
+use PDO;
+
 use queasy\db\Db;
 use queasy\db\DbException;
 
@@ -19,32 +21,37 @@ class TableTest extends TestCase
 {
     private $db;
 
+    private $pdo;
+
     public function setUp(): void
     {
-        $this->db = new Db(['fetchMode' => Db::FETCH_ASSOC]);
-        $this->db->query('
-            CREATE  TABLE `users` (
-                    `id`        integer     not null primary key asc,
-                    `name`      text        not null,
-                    `email`     text        not null unique
-            )
-        ');
+        $this->db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => Db::FETCH_ASSOC]);
+
+        $this->pdo = new PDO('sqlite:tests/resources/test.sqlite');
     }
 
     public function tearDown(): void
     {
-        $this->db = null;
+        $this->pdo->exec('
+            DELETE  FROM `users`');
     }
 
     public function testInsert()
     {
-        $this->db->users[] = [15, 'john', 'john.doe@example.com'];
+        $this->db->users[] = [15, 'john.doe@example.com', sha1('gfhjkm')];
 
-        $user = $this->db->users->id[15];
+        $statement = $this->pdo->query('
+            SELECT  *
+            FROM    `users`
+            WHERE   `id` = 15');
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
 
-        $this->assertEquals('john', $user['name']);
+        $this->assertNotNull($row);
+        $this->assertEquals(15, $row['id']);
+        $this->assertEquals('john.doe@example.com', $row['email']);
+        $this->assertEquals(sha1('gfhjkm'), $row['password_hash']);
     }
-
+/*
     public function testInsertNamed()
     {
         $this->db->users[] = ['id' => 15, 'name' => 'john', 'email' => 'john.doe@example.com'];
@@ -124,5 +131,6 @@ class TableTest extends TestCase
 
         $this->assertCount(2, $this->db->users);
     }
+*/
 }
 

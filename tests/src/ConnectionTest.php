@@ -31,6 +31,13 @@ class ConnectionTest extends TestCase
         $this->assertEquals('sqlite::memory:', $connection->get());
     }
 
+    public function testDefaultWithPath()
+    {
+        $connection = new Connection(['path' => '../resources/test.sqlite']);
+
+        $this->assertEquals('sqlite:../resources/test.sqlite', $connection());
+    }
+
     public function testMysql()
     {
         $connection = new Connection([
@@ -88,13 +95,6 @@ class ConnectionTest extends TestCase
         $connection = new Connection(['dsn' => 'Custom']);
 
         $this->assertEquals('Custom', $connection->get());
-    }
-
-    public function testInvalidDsnOption() // TODO:
-    {
-        $this->expectException(DbException::class);
-
-        new Connection(32167);
     }
 }
 

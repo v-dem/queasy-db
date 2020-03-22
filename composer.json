@@ -23,6 +23,7 @@
     },
     "require-dev": {
         "php": ">=7.1.0",
+        "ext-sqlite3": "*",
         "phpunit/phpunit": "~7",
         "v-dem/queasy-config": "dev-master",
         "v-dem/queasy-log": "dev-master",

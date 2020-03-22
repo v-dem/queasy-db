@@ -11,10 +11,12 @@ use PDO;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LoggerAwareInterface;
 
+use queasy\db\query\Query;
 use queasy\db\query\CustomQuery;
 
-class Db extends PDO implements ArrayAccess
+class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 {
     const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
 
@@ -38,13 +40,39 @@ class Db extends PDO implements ArrayAccess
      */
     protected $logger;
 
-    public function __construct($config = array())
+    /**
+     * Create Db instance
+     *
+     * @param string|array|ArrayAccess $configOrDsn DSN string or config array
+     * @param string $user Database user name
+     * @param string $password Database user password
+     * @param array $options Key-value array of driver-specific options
+     * 
+     */
+    public function __construct($configOrDsn = null, $user = null, $password = null, array $options = null)
     {
-        $this->setConfig($config);
+        $config = array();
+        if (null === $configOrDsn) {
+            $connectionConfig = null;
+        } elseif (is_string($configOrDsn)) {
+            $connectionConfig = array(
+                'dsn' => $configOrDsn,
+                'user' => $user,
+                'password' => $password,
+                'options' => $options
+            );
+        } elseif (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+            $config = $configOrDsn;
+            $connectionConfig = isset($config['connection'])? $config['connection']: null;
+        } else {
+            throw DbException::invalidConstructorArguments();
+        }
+
+        $this->config = $config;
 
         try {
-            $connectionConfig = isset($config['connection'])? $config['connection']: null;
             $connectionString = new Connection($connectionConfig);
+
             parent::__construct(
                 $connectionString(),
                 isset($connectionConfig['user'])? $connectionConfig['user']: null,
@@ -71,18 +99,6 @@ class Db extends PDO implements ArrayAccess
     }
 
     /**
-     * Sets a config.
-     *
-     * @param array|ArrayAccess $config
-     */
-    public function setConfig($config)
-    {
-        $this->config = (null === $config)
-            ? array()
-            : $config;
-    }
-
-    /**
      * Sets a logger.
      *
      * @param LoggerInterface $logger
@@ -101,6 +117,11 @@ class Db extends PDO implements ArrayAccess
     public function __call($name, array $args = array())
     {
         return $this->customQuery($name, $args);
+    }
+
+    public function __invoke($sql, array $params = array())
+    {
+        return $this->run($sql, $params);
     }
 
     public function offsetGet($name)
@@ -163,27 +184,12 @@ class Db extends PDO implements ArrayAccess
         return $query->run($args);
     }
 
-    public function run($queryClass)
+    public function run($sql, array $params = array())
     {
-        $interfaces = class_implements($queryClass);
-        if (!$interfaces
-                || !isset($interfaces['queasy\db\query\QueryInterface'])) {
-            throw InvalidArgumentException::queryInterfaceNotImplemented($queryClass);
-        }
-
-        $args = func_get_args();
-
-        array_shift($args); // Remove $queryClass arg
-
-        $queryString = array_shift($args);
-        if (!$queryString || !is_string($queryString)) {
-            throw InvalidArgumentException::missingQueryString();
-        }
-
-        $query = new $queryClass($this, $queryString);
+        $query = new Query($this, $sql);
         $query->setLogger($this->logger());
 
-        return $query->run($args);
+        return $query->run($params);
     }
 
     public function id($sequence = null)
