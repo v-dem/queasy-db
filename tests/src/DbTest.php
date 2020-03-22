@@ -21,17 +21,17 @@ class DbTest extends TestCase
 {
     private $pdo;
 
-    public function setUp(): void
+    public function setUp()
     {
-        // $this->db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => Db::FETCH_ASSOC]);
-
         $this->pdo = new PDO('sqlite:tests/resources/test.sqlite');
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         $this->pdo->exec('
             DELETE  FROM `users`');
+
+        $this->pdo = null;
     }
 
     public function testConstructorWithoutParameters()
@@ -112,19 +112,20 @@ class DbTest extends TestCase
         $this->assertInstanceOf('queasy\db\Table', $table);
         $this->assertEquals('users', $table->name());
     }
-/*
-    public function testRun()
+
+    public function testRunSelect()
     {
         $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
 
         $statement = $db->run('
             SELECT  count(*)
-            FROM    `users`');
+            FROM    `user_roles`');
+
+        $this->assertInstanceOf('PDOStatement', $statement);
 
         $row = $statement->fetch();
 
-        $this->assertEquals
+        $this->assertEquals(3, $row[0]);
     }
-*/
 }
 

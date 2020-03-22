@@ -228,9 +228,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             }
         }
 
-        $this->statements[$query] = parent::prepare($query, (null === $options)? array(): $options);
+        // FIXME: Issue #32
 
-        return $this->statements[$query];
+        return parent::prepare($query, (null === $options)? array(): $options);
+
+        // return $this->statements[$query];
     }
 
     protected function tables()
