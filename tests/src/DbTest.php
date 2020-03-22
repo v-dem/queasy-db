@@ -21,12 +21,12 @@ class DbTest extends TestCase
 {
     private $pdo;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->pdo = new PDO('sqlite:tests/resources/test.sqlite');
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->pdo->exec('
             DELETE  FROM `users`');
