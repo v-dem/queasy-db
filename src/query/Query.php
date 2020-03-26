@@ -14,7 +14,7 @@ class Query extends AbstractQuery
      *
      * @param array $params Query arguments
      *
-     * @return int|Statement Number of affected rows for UPDATE/INSERT/DELETE queries or queasy\db\Statement instance for SELECT queries
+     * @return PDOStatement PDOStatement instance used to run query
      *
      * @throws DbException On error
      */

@@ -180,12 +180,12 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         return $this->tables[$name];
     }
 
-    public function run($sql, array $params = array())
+    public function run($sql, array $params = array(), array $options = array())
     {
         $query = new Query($this, $sql);
         $query->setLogger($this->logger());
 
-        return $query->run($params);
+        return $query->run($params, $options);
     }
 
     public function id($sequence = null)
