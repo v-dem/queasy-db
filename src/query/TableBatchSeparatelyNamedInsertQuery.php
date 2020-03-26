@@ -5,7 +5,7 @@ namespace queasy\db\query;
 use queasy\db\Db;
 use queasy\db\DbException;
 
-class BatchSeparatelyNamedInsertQuery extends BatchNamedInsertQuery
+class TableBatchSeparatelyNamedInsertQuery extends TableBatchNamedInsertQuery
 {
     /**
      * Execute INSERT query with column names array as the first $params item and rows as the second.

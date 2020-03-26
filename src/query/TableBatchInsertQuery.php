@@ -7,7 +7,7 @@ use queasy\helper\Arrays;
 use queasy\db\Db;
 use queasy\db\DbException;
 
-class BatchInsertQuery extends TableQuery
+class TableBatchInsertQuery extends TableQuery
 {
     /**
      * Execute multiple rows INSERT query.

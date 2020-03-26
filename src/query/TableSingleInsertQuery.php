@@ -5,7 +5,7 @@ namespace queasy\db\query;
 use queasy\db\Db;
 use queasy\db\DbException;
 
-class SingleInsertQuery extends TableQuery
+class TableSingleInsertQuery extends TableQuery
 {
     /**
      * Execute INSERT query.
