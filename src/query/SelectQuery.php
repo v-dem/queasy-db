@@ -13,9 +13,9 @@ class SelectQuery extends Query
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
-        parent::run($params);
+        parent::run($params, $options);
 
         return $this->statement()->fetchAll();
     }

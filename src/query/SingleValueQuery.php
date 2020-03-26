@@ -13,9 +13,9 @@ class SingleValueQuery extends GetQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
-        $row = parent::run($params);
+        $row = parent::run($params, $options);
 
         if (empty($row)) {
             throw DbException::noValueSelected($query);

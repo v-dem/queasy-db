@@ -16,7 +16,7 @@ class BatchSeparatelyNamedInsertQuery extends BatchNamedInsertQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         $keys = array_shift($params);
         $rows = array_shift($params);
@@ -26,7 +26,7 @@ class BatchSeparatelyNamedInsertQuery extends BatchNamedInsertQuery
             $paramsPrepared[] = array_combine($keys, $row);
         }
 
-        return parent::run($paramsPrepared);
+        return parent::run($paramsPrepared, $options);
     }
 }
 

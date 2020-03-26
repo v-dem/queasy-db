@@ -16,7 +16,7 @@ class SingleInsertQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         $query = sprintf('
             INSERT  INTO `%s`
@@ -27,7 +27,7 @@ class SingleInsertQuery extends TableQuery
 
         $this->setQuery($query);
 
-        parent::run($params);
+        parent::run($params, $options);
 
         return $this->db()->id();
     }

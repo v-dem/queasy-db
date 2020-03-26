@@ -31,7 +31,7 @@ class CountQuery extends SingleValueQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         if (count($params)) {
             $this->setQuery(sprintf('SELECT count(*) FROM `%s` WHERE `%s` = :%2$s', $this->tableName, key($params)));
@@ -39,7 +39,7 @@ class CountQuery extends SingleValueQuery
             $this->setQuery(sprintf('SELECT count(*) FROM `%s`', $this->tableName));
         }
 
-        $row = parent::run($params);
+        $row = parent::run($params, $options);
 
         if (empty($row)) {
             throw DbException::noValueSelected($this->query());

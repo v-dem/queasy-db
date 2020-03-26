@@ -30,9 +30,9 @@ class TableRemoveQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
-        return parent::run($params);
+        return parent::run($params, $options);
     }
 }
 

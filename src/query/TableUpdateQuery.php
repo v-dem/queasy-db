@@ -26,7 +26,7 @@ class TableUpdateQuery extends TableQuery
         );
     }
 
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         $fixedParams = array();
         foreach ($params as $column => $value) {
@@ -58,7 +58,7 @@ class TableUpdateQuery extends TableQuery
 
         $this->setQuery($query);
 
-        return parent::run(array_merge($fixedParams, $this->keyParams));
+        return parent::run(array_merge($fixedParams, $this->keyParams), $options);
     }
 }
 

@@ -9,7 +9,7 @@ class CustomQuery extends Query
 {
     private $config;
 
-    public function __construct(Db $pdo, $config)
+    public function __construct(Db $pdo, array $config)
     {
         $this->config = $config;
 
@@ -25,39 +25,39 @@ class CustomQuery extends Query
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
-        parent::run($params);
+        $config = $this->config;
+        if (is_object($config) && method_exists($config, 'toArray')) {
+            $config = $config->toArray();
+        }
 
-        $config = $this->config();
+        $options = $options + (isset($config['options'])? $config['options']: array());
 
-        $returns = isset($config['returns'])? $config['returns']: null;
+        $statement = parent::run($params, $options);
+
+        $returns = isset($this->config['returns'])? $this->config['returns']: null;
 
         if ($returns) {
-            $fetchMode = isset($config['fetchMode'])? $config['fetchMode']: null;
-            $fetchArg = isset($config['fetchArg'])? $config['fetchArg']: null;
+            $fetchMode = isset($this->config['fetchMode'])? $this->config['fetchMode']: null;
+            $fetchArg = isset($this->config['fetchArg'])? $this->config['fetchArg']: null;
             switch ($returns) {
                 case Db::RETURN_ONE:
                     return (Db::FETCH_CLASS === $fetchMode)
-                        ? $this->statement()->fetchObject($fetchArg? $fetchArg: 'stdClass')
-                        : $this->statement()->fetch($fetchMode);
+                        ? $statement->fetchObject($fetchArg? $fetchArg: 'stdClass')
+                        : $statement->fetch($fetchMode);
 
                 case Db::RETURN_ALL:
 
                 default:
                     $fetchMethod = 'fetchAll';
                     return (Db::FETCH_CLASS === $fetchMode)
-                        ? $this->statement()->fetchAll($fetchMode, $fetchArg)
-                        : $this->statement()->fetchAll($fetchMode);
+                        ? $statement->fetchAll($fetchMode, $fetchArg)
+                        : $statement->fetchAll($fetchMode);
             }
         } else {
-            return $this->statement();
+            return $statement;
         }
-    }
-
-    protected function config()
-    {
-        return $this->config;
     }
 }
 

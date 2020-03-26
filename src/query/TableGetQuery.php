@@ -15,9 +15,9 @@ class TableGetQuery extends TableSelectQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
-        $result = parent::run($params);
+        $result = parent::run($params, $options);
 
         return array_shift($result);
     }

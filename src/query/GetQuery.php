@@ -13,9 +13,9 @@ class GetQuery extends SelectQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
-        $rows = parent::run($params);
+        $rows = parent::run($params, $options);
 
         return array_shift($rows);
     }

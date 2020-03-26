@@ -18,7 +18,7 @@ class BatchInsertQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         $values = Arrays::flatten($params);
 
@@ -37,7 +37,7 @@ class BatchInsertQuery extends TableQuery
 
         $this->setQuery($query);
 
-        return parent::run($values);
+        return parent::run($values, $options);
     }
 }
 

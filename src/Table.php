@@ -95,9 +95,8 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function insert()
     {
-        // TODO: Be careful!!!
+        $this->logger()->debug('INSERT params: ' . print_r(func_get_args(), true));
         $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
-
         if (null === $params) {
             throw new DbException('Cannot assign null to table field.');
         } elseif (is_array($params)) {

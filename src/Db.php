@@ -20,9 +20,9 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 {
     const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
 
-    const RETURN_STATEMENT = 0;
-    const RETURN_ONE = 1;
-    const RETURN_ALL = 2;
+    const RETURN_STATEMENT = 1;
+    const RETURN_ONE = 2;
+    const RETURN_ALL = 3;
 
     private $tables = array();
 
@@ -81,6 +81,10 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             throw DbException::connectionFailed($e);
         }
 
+        if (isset($config['queries'])) {
+            $this->queries = $config['queries'];
+        }
+
         if (isset($config['statement'])) {
             if (!$this->setAttribute(self::ATTR_STATEMENT_CLASS, array($config['statement'], array($this)))) {
                 throw DbException::statementClassNotSet();
@@ -117,7 +121,20 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     public function __call($name, array $args = array())
     {
-        return $this->customQuery($name, $args);
+        if (!isset($this->queries[$name])) {
+            throw DbException::queryNotDeclared($name);
+        }
+
+        $query = new CustomQuery($this, $this->queries[$name]);
+        $query->setLogger($this->logger());
+
+        $params = array_shift($args);
+        $options = array_shift($args);
+
+        return $query->run(
+            empty($params)? array(): $params,
+            empty($options)? array(): $options
+        );
     }
 
     public function __invoke($sql, array $params = array())
@@ -148,8 +165,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function table($name)
     {
         if (!isset($this->tables[$name])) {
-            $config = $this->config();
-            $tablesConfig = isset($config['tables'])
+            $tablesConfig = isset($this->config['tables'])
                 ? $config['tables']
                 : array();
 
@@ -162,19 +178,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         }
 
         return $this->tables[$name];
-    }
-
-    protected function customQuery($name, array $args = array())
-    {
-        $queries = $this->queries();
-        if (!isset($queries[$name])) {
-            throw DbException::queryNotDeclared($name);
-        }
-
-        $query = new CustomQuery($this, $queries[$name]);
-        $query->setLogger($this->logger());
-
-        return $query->run($args);
     }
 
     public function run($sql, array $params = array())
@@ -207,37 +210,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
             throw $e;
         }
-    }
-
-    protected function tables()
-    {
-        if (!$this->tables) {
-            $config = $this->config();
-            $this->tables = $config['tables'];
-            if (!$this->tables) {
-                $this->tables = array();
-            }
-        }
-
-        return $this->tables;
-    }
-
-    protected function queries()
-    {
-        if (!$this->queries) {
-            $config = $this->config();
-            $this->queries = $config['queries'];
-            if (!$this->queries) {
-                $this->queries = array();
-            }
-        }
-
-        return $this->queries;
-    }
-
-    protected function config()
-    {
-        return $this->config;
     }
 
     protected function logger()

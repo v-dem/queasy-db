@@ -16,7 +16,7 @@ class BatchNamedInsertQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         if (!count($params)) {
             throw new DbException('Query parameters are empty.');
@@ -53,7 +53,7 @@ class BatchNamedInsertQuery extends TableQuery
 
         $this->setQuery($query);
 
-        return parent::run($values);
+        return parent::run($values, $options);
     }
 }
 

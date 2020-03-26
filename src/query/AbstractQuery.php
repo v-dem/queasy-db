@@ -36,14 +36,14 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
     public function __construct(PDO $db, $query = null)
     {
         $this->db = $db;
-        $this->query = $query;
+        $this->setQuery($query);
     }
 
-    abstract public function run(array $params = array());
+    abstract public function run(array $params = array(), array $options = array());
 
-    public function __invoke(array $params = array())
+    public function __invoke(array $params = array(), array $options = array())
     {
-        return $this->run(func_get_args());
+        return $this->run($params, $options);
     }
 
     public function statement()

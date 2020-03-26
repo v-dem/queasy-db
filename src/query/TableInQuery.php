@@ -24,7 +24,7 @@ class TableInQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         $inParams = array_map(
             function($item) {
@@ -44,7 +44,7 @@ class TableInQuery extends TableQuery
 
         $this->setQuery($sql);
 
-        return parent::run(array_combine($inParams, $params))->fetchAll();
+        return parent::run(array_combine($inParams, $params), $options)->fetchAll();
     }
 }
 

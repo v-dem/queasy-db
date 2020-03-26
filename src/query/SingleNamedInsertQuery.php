@@ -16,13 +16,13 @@ class SingleNamedInsertQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
         // Workaround for empty $params (for example when a record is inserted just to get an id and other columns can be NULL)
         if (empty($params)) {
             $query = new SingleInsertQuery($this->db(), $this->tableName());
 
-            return $query->run();
+            return $query->run(array(), $options);
         }
 
         $query = sprintf('
@@ -43,7 +43,7 @@ class SingleNamedInsertQuery extends TableQuery
 
         $this->setQuery($query);
 
-        parent::run($params);
+        parent::run($params, $options);
 
         return $this->db()->id();
     }

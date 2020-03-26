@@ -187,12 +187,12 @@ class DbTest extends TestCase
     {
         $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
 
-        $count = $db->run('
+        $statement = $db->run('
             INSERT  INTO `users` (`id`, `email`, `password_hash`)
             VALUES  (1, \'john.doe@example.com\', \'34896830491683096\'),
                     (45, \'mary.jones@example.com\', \'9387460918340139684\')');
 
-        $this->assertEquals(2, $count);
+        $this->assertEquals(2, $statement->rowCount());
     }
 
     public function testRunCustomQuery()

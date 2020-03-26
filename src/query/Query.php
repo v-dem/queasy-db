@@ -18,8 +18,15 @@ class Query extends AbstractQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array())
+    public function run(array $params = array(), array $options = array())
     {
+        try {
+            $statement = $this->db()->prepare($this->query(), $options);
+            $statement->closeCursor(); // Avoid error with not closed recordset
+        } catch (Exception $e) {
+            throw DbException::cannotPrepareStatement($this->query(), $e);
+        }
+
         $counter = 1;
         foreach ($params as $paramKey => $paramValue) {
             // Detect parameter type
@@ -33,7 +40,7 @@ class Query extends AbstractQuery
                 $bindKey = Strings::startsWith($paramKey, ':')? $paramKey: ':' . $paramKey;
             }
 
-            $this->statement()->bindValue(
+            $statement->bindValue(
                 $bindKey,
                 $paramValue,
                 $paramType
@@ -42,15 +49,13 @@ class Query extends AbstractQuery
 
         $this->logger()->debug('Query::run(): QUERY: ' . $this->query(), $params);
 
-        if (!$this->statement()->execute()) {
+        if (!$statement->execute()) {
             list($sqlErrorCode, $driverErrorCode, $errorMessage) = $this->statement()->errorInfo();
 
             throw DbException::cannotExecuteQuery($this->query(), $sqlErrorCode, $errorMessage);
         }
 
-        return ($this->statement()->columnCount()) // Check if it was SELECT query
-            ? $this->statement() // And return Statement if yes
-            : $this->statement()->rowCount(); // Or return number of affected rows if no
+        return $statement;
     }
 
     protected function getParamType($value)
