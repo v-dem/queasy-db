@@ -13,7 +13,7 @@ class CustomQuery extends Query
     {
         $this->config = $config;
 
-        parent::__construct($pdo, $config->query);
+        parent::__construct($pdo, $config['sql']);
     }
 
     /**

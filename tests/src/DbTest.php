@@ -127,5 +127,98 @@ class DbTest extends TestCase
 
         $this->assertEquals(3, $row[0]);
     }
+
+    public function testInvokeSelect()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
+
+        $statement = $db('
+            SELECT  count(*)
+            FROM    `user_roles`');
+
+        $this->assertInstanceOf('PDOStatement', $statement);
+
+        $row = $statement->fetch();
+
+        $this->assertEquals(3, $row[0]);
+    }
+
+    public function testInvokeSelectWithParameters()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => PDO::FETCH_ASSOC]);
+
+        $statement = $db('
+            SELECT  *
+            FROM    `user_roles`
+            WHERE   `id` = ?', [
+                2
+            ]
+        );
+
+        $this->assertInstanceOf('PDOStatement', $statement);
+
+        $row = $statement->fetch();
+
+        $this->assertEquals(2, $row['id']);
+        $this->assertEquals('Manager', $row['name']);
+    }
+
+    public function testInvokeSelectWithNamedParameters()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => PDO::FETCH_ASSOC]);
+
+        $statement = $db('
+            SELECT  *
+            FROM    `user_roles`
+            WHERE   `id` = :id', [
+                'id' => 2
+            ]
+        );
+
+        $this->assertInstanceOf('PDOStatement', $statement);
+
+        $row = $statement->fetch();
+
+        $this->assertEquals(2, $row['id']);
+        $this->assertEquals('Manager', $row['name']);
+    }
+
+    public function testRunInsert()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
+
+        $count = $db->run('
+            INSERT  INTO `users` (`id`, `email`, `password_hash`)
+            VALUES  (1, \'john.doe@example.com\', \'34896830491683096\'),
+                    (45, \'mary.jones@example.com\', \'9387460918340139684\')');
+
+        $this->assertEquals(2, $count);
+    }
+
+    public function testRunCustomQuery()
+    {
+        $db = new Db([
+            'connection' => [
+                'path' => 'tests/resources/test.sqlite'
+            ],
+            'queries' => [
+                'selectUserRoleByName' => [
+                    'sql' => '
+                        SELECT  *
+                        FROM    `user_roles`
+                        WHERE   `name` = :name'
+                ]
+            ],
+            'fetchMode' => PDO::FETCH_ASSOC
+        ]);
+
+        $statement = $db->selectUserRoleByName(['name' => 'Manager']);
+
+        $row = $statement->fetch();
+
+        $this->assertEquals(2, $row['id']);
+        $this->assertEquals('Manager', $row['name']);
+    }
+
 }
 

@@ -28,8 +28,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     private $queries = array();
 
-    private $statements = array();
-
     /**
      * @var array|ArrayAccess Database config
      */
@@ -83,11 +81,14 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             throw DbException::connectionFailed($e);
         }
 
-        if (!$this->setAttribute(self::ATTR_STATEMENT_CLASS, array('\queasy\db\Statement', array($this)))) {
-            throw DbException::statementClassNotSet();
+        if (isset($config['statement'])) {
+            if (!$this->setAttribute(self::ATTR_STATEMENT_CLASS, array($config['statement'], array($this)))) {
+                throw DbException::statementClassNotSet();
+            }
         }
 
-        if (!$this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION)) {
+        $errorMode = isset($config['errorMode'])? $config['errorMode']: self::ERRMODE_EXCEPTION;
+        if (!$this->setAttribute(self::ATTR_ERRMODE, $errorMode)) {
             throw DbException::errorModeNotSet();
         }
 
@@ -142,14 +143,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function offsetUnset($offset)
     {
         throw DbException::notImplementedException(__CLASS__, __METHOD__);
-    }
-
-    public function prepare($query, $options = null)
-    {
-        $statement = $this->statement($query, $options);
-        $statement->closeCursor();
-
-        return $statement;
     }
 
     public function table($name)
@@ -214,25 +207,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
             throw $e;
         }
-    }
-
-    protected function statement($query, $options = null)
-    {
-        $statement = null;
-        if (isset($this->statements[$query])) {
-            $statement = $this->statements[$query];
-
-            // Check if it is NOT a SELECT statement, we do not cache them
-            if (0 === $statement->columnCount()) {
-                return $statement;
-            }
-        }
-
-        // FIXME: Issue #32
-
-        return parent::prepare($query, (null === $options)? array(): $options);
-
-        // return $this->statements[$query];
     }
 
     protected function tables()
