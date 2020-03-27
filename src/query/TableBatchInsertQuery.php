@@ -4,9 +4,6 @@ namespace queasy\db\query;
 
 use queasy\helper\Arrays;
 
-use queasy\db\Db;
-use queasy\db\DbException;
-
 class TableBatchInsertQuery extends TableQuery
 {
     /**

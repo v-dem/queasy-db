@@ -2,16 +2,17 @@
 
 namespace queasy\db\query;
 
-use queasy\db\Db;
+use PDO;
 
 class TableUpdateQuery extends TableQuery
 {
     private $conditionsString;
+
     private $keyParams;
 
-    public function __construct(Db $pdo, $tableName, array $keyParams = array())
+    public function __construct(PDO $db, $tableName, array $keyParams = array())
     {
-        parent::__construct($pdo, $tableName);
+        parent::__construct($db, $tableName);
 
         $this->keyParams = $keyParams;
 

@@ -2,17 +2,17 @@
 
 namespace queasy\db\query;
 
-use queasy\db\Db;
+use PDO;
 
 abstract class TableQuery extends Query
 {
     private $tableName;
 
-    public function __construct(Db $pdo, $tableName, $sql = '')
+    public function __construct(PDO $db, $tableName, $sql = '')
     {
         $this->tableName = $tableName;
 
-        parent::__construct($pdo, $sql);
+        parent::__construct($db, $sql);
     }
 
     protected function tableName()

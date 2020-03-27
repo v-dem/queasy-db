@@ -2,9 +2,6 @@
 
 namespace queasy\db\query;
 
-use queasy\db\Db;
-use queasy\db\DbException;
-
 class TableBatchSeparatelyNamedInsertQuery extends TableBatchNamedInsertQuery
 {
     /**

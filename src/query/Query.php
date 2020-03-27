@@ -2,9 +2,10 @@
 
 namespace queasy\db\query;
 
+use PDO;
+
 use queasy\helper\Strings;
 
-use queasy\db\Db;
 use queasy\db\DbException;
 
 class Query extends AbstractQuery
@@ -61,17 +62,17 @@ class Query extends AbstractQuery
     protected function getParamType($value)
     {
         if (null === $value) {
-            $paramType = Db::PARAM_NULL;
+            $paramType = PDO::PARAM_NULL;
         } elseif (is_int($value)) {
-            $paramType = Db::PARAM_INT;
+            $paramType = PDO::PARAM_INT;
         } elseif (is_bool($value)) {
-            $paramType = Db::PARAM_BOOL;
+            $paramType = PDO::PARAM_BOOL;
         } else {
             if (is_float($value)) {
                 $value = strval($value);
             }
 
-            $paramType = Db::PARAM_STR;
+            $paramType = PDO::PARAM_STR;
         }
 
         return $paramType;

@@ -2,18 +2,17 @@
 
 namespace queasy\db\query;
 
-use queasy\db\Db;
-use queasy\db\DbException;
+use PDO;
 
 class CustomQuery extends Query
 {
     private $config;
 
-    public function __construct(Db $pdo, array $config)
+    public function __construct(PDO $db, array $config)
     {
         $this->config = $config;
 
-        parent::__construct($pdo, $config['sql']);
+        parent::__construct($db, $config['sql']);
     }
 
     /**

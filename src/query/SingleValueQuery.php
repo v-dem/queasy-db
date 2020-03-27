@@ -2,6 +2,8 @@
 
 namespace queasy\db\query;
 
+use queasy\db\DbException;
+
 class SingleValueQuery extends GetQuery
 {
     /**

@@ -2,7 +2,9 @@
 
 namespace queasy\db\query;
 
-use queasy\db\Db;
+use PDO;
+
+use queasy\db\DbException;
 
 class CountQuery extends SingleValueQuery
 {
@@ -15,7 +17,7 @@ class CountQuery extends SingleValueQuery
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(Db $db, $tableName)
+    public function __construct(PDO $db, $tableName)
     {
         parent::__construct($db);
 
