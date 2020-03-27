@@ -12,7 +12,7 @@ use Psr\Log\LoggerAwareInterface;
 use queasy\db\query\CountQuery;
 use queasy\db\query\TableSelectQuery;
 use queasy\db\query\TableGetQuery;
-use queasy\db\query\TableInQuery;
+use queasy\db\query\TableSelectInQuery;
 use queasy\db\query\TableRemoveQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
@@ -43,7 +43,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function offsetGet($offset)
     {
         if (is_array($offset)) {
-            $query = new TableInQuery($this->db, $this->table->name(), $this->name);
+            $query = new TableSelectInQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
 
             return $query->run($offset);
