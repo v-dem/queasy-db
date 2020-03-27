@@ -15,9 +15,9 @@ class SelectQuery extends Query
      */
     public function run(array $params = array(), array $options = array())
     {
-        parent::run($params, $options);
+        $statement = parent::run($params, $options);
 
-        return $this->statement()->fetchAll();
+        return $statement->fetchAll();
     }
 }
 

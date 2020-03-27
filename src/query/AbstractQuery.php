@@ -46,19 +46,6 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
         return $this->run($params, $options);
     }
 
-    public function statement()
-    {
-        if (!$this->statement) {
-            try {
-                $this->statement = $this->db()->prepare($this->query());
-            } catch (Exception $e) {
-                throw DbException::cannotPrepareStatement($this->query(), $e);
-            }
-        }
-
-        return $this->statement;
-    }
-
     /**
      * Set a logger.
      *

@@ -23,6 +23,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
+    const RETURN_VALUE = 4;
 
     private $tables = array();
 
