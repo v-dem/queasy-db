@@ -4,7 +4,7 @@ namespace queasy\db\query;
 
 use PDO;
 
-class TableSelectInQuery extends TableQuery
+class SelectInQuery extends TableQuery
 {
     private $fieldName;
 

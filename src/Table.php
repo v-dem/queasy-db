@@ -13,13 +13,13 @@ use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\query\CustomQuery;
 use queasy\db\query\CountQuery;
-use queasy\db\query\TableSingleInsertQuery;
-use queasy\db\query\TableSingleNamedInsertQuery;
-use queasy\db\query\TableBatchInsertQuery;
-use queasy\db\query\TableBatchNamedInsertQuery;
-use queasy\db\query\TableBatchSeparatelyNamedInsertQuery;
-use queasy\db\query\TableUpdateQuery;
-use queasy\db\query\TableSelectAllQuery;
+use queasy\db\query\SingleInsertQuery;
+use queasy\db\query\SingleNamedInsertQuery;
+use queasy\db\query\BatchInsertQuery;
+use queasy\db\query\BatchNamedInsertQuery;
+use queasy\db\query\BatchSeparatelyNamedInsertQuery;
+use queasy\db\query\UpdateQuery;
+use queasy\db\query\SelectAllQuery;
 
 class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 {
@@ -64,7 +64,11 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $query = new CountQuery($this->db(), $this->name());
         $query->setLogger($this->logger());
 
-        return $query->run();
+        $statement = $query->run();
+
+        $row = $statement->fetch();
+
+        return array_shift($row);
     }
 
     public function current()
@@ -84,7 +88,8 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function rewind()
     {
-        $query = new TableSelectAllQuery($this->db(), $this->name());
+        $query = new SelectAllQuery($this->db(), $this->name());
+
         $this->rows = $query->run();
     }
 
@@ -107,18 +112,18 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                         && (0 < count($params[1]))
                         && isset($params[1][0])
                         && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
-                    $query = new TableBatchSeparatelyNamedInsertQuery($this->db(), $this->name());
+                    $query = new BatchSeparatelyNamedInsertQuery($this->db(), $this->name());
                 } else {
                     $keys = array_keys($params[$keys[0]]);
 
                     $query = (!count($keys) || is_numeric($keys[0]))
-                        ? new TableBatchInsertQuery($this->db(), $this->name()) // Batch insert
-                        : new TableBatchNamedInsertQuery($this->db(), $this->name()); // Batch insert with field names
+                        ? new BatchInsertQuery($this->db(), $this->name()) // Batch insert
+                        : new BatchNamedInsertQuery($this->db(), $this->name()); // Batch insert with field names
                 }
             } else { // Single inserts
                 $query = (!count($keys) || is_numeric($keys[0]))
-                    ? new TableSingleInsertQuery($this->db(), $this->name()) // By order, without field names
-                    : new TableSingleNamedInsertQuery($this->db(), $this->name()); // By field names
+                    ? new SingleInsertQuery($this->db(), $this->name()) // By order, without field names
+                    : new SingleNamedInsertQuery($this->db(), $this->name()); // By field names
             }
         } else {
             throw new DbException('Invalid assignment type (must be array).');
@@ -131,7 +136,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function update(array $params, array $keyParams = array())
     {
-        $query = new TableUpdateQuery($this->db, $this->name(), $keyParams);
+        $query = new UpdateQuery($this->db, $this->name(), $keyParams);
         $query->setLogger($this->logger());
 
         return $query->run($params);

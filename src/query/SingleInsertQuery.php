@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-class TableSingleInsertQuery extends TableQuery
+class SingleInsertQuery extends TableQuery
 {
     /**
      * Execute INSERT query.

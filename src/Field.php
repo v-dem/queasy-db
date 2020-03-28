@@ -10,10 +10,10 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\query\CountQuery;
-use queasy\db\query\TableSelectQuery;
-use queasy\db\query\TableGetQuery;
-use queasy\db\query\TableSelectInQuery;
-use queasy\db\query\TableRemoveQuery;
+use queasy\db\query\SelectQuery;
+use queasy\db\query\GetQuery;
+use queasy\db\query\SelectInQuery;
+use queasy\db\query\RemoveQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
 {
@@ -37,18 +37,24 @@ class Field implements ArrayAccess, LoggerAwareInterface
         $query = new CountQuery($this->db, $this->table->name());
         $query->setLogger($this->logger());
 
-        return $query->run(array($this->name => $offset)) > 0;
+        $statement = $query->run(array($this->name => $offset));
+
+        $row = $statement->fetch();
+
+        $count = array_shift($row);
+
+        return $count > 0;
     }
 
     public function offsetGet($offset)
     {
         if (is_array($offset)) {
-            $query = new TableSelectInQuery($this->db, $this->table->name(), $this->name);
+            $query = new SelectInQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
 
             return $query->run($offset);
         } else {
-            $query = new TableGetQuery($this->db, $this->table->name(), $this->name);
+            $query = new GetQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
 
             return $query->run(array($this->name => $offset));
@@ -64,7 +70,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
             $this->logger()->debug($offset);
             // UPDATE ... WHERE $this->name IN (...)
         } else {
-            $query = new TableUpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
+            $query = new UpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
             $query->setLogger($this->logger());
             $query->run(array($value));
         }
@@ -76,7 +82,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
             // DELETE FROM ... WHERE $this->name IN (...)
         } else {
             // echo 'DELETE FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '` IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
-            $query = new TableRemoveQuery($this->db, $this->table->name(), $this->name);
+            $query = new RemoveQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
             $query->run(array($this->name => $offset));
         }
@@ -84,7 +90,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function __invoke($id)
     {
-        $query = new TableSelectQuery($this->db, $this->table->name(), $this->name);
+        $query = new SelectQuery($this->db, $this->table->name(), $this->name);
         $query->setLogger($this->logger());
 
         return $query->run(array($this->name => $id));

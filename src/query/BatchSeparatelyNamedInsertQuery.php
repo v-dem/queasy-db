@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-class TableBatchSeparatelyNamedInsertQuery extends TableBatchNamedInsertQuery
+class BatchSeparatelyNamedInsertQuery extends BatchNamedInsertQuery
 {
     /**
      * Execute INSERT query with column names array as the first $params item and rows as the second.

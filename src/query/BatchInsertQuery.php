@@ -4,7 +4,7 @@ namespace queasy\db\query;
 
 use queasy\helper\Arrays;
 
-class TableBatchInsertQuery extends TableQuery
+class BatchInsertQuery extends TableQuery
 {
     /**
      * Execute multiple rows INSERT query.

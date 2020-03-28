@@ -4,7 +4,7 @@ namespace queasy\db\query;
 
 use queasy\db\DbException;
 
-class TableBatchNamedInsertQuery extends TableQuery
+class BatchNamedInsertQuery extends TableQuery
 {
     /**
      * Execute multiple rows INSERT query using key-value arrays or objects.

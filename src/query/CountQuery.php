@@ -4,26 +4,8 @@ namespace queasy\db\query;
 
 use PDO;
 
-use queasy\db\DbException;
-
-class CountQuery extends SingleValueQuery
+class CountQuery extends TableQuery
 {
-    private $tableName;
-
-    /**
-     * Constructor.
-     *
-     * @param string $query Query string
-     *
-     * @throws DbException When query can't be prepared
-     */
-    public function __construct(PDO $db, $tableName)
-    {
-        parent::__construct($db);
-
-        $this->tableName = $tableName;
-    }
-
     /**
      * Executes SQL query and returns all selected rows.
      *
@@ -36,18 +18,12 @@ class CountQuery extends SingleValueQuery
     public function run(array $params = array(), array $options = array())
     {
         if (count($params)) {
-            $this->setQuery(sprintf('SELECT count(*) FROM `%s` WHERE `%s` = :%2$s', $this->tableName, key($params)));
+            $this->setQuery(sprintf('SELECT count(*) FROM `%s` WHERE `%s` = :%2$s', $this->tableName(), key($params)));
         } else {
-            $this->setQuery(sprintf('SELECT count(*) FROM `%s`', $this->tableName));
+            $this->setQuery(sprintf('SELECT count(*) FROM `%s`', $this->tableName()));
         }
 
-        $row = parent::run($params, $options);
-
-        if (empty($row)) {
-            throw DbException::noValueSelected($this->query());
-        } else {
-            return (int) $row;
-        }
+        return parent::run($params, $options);
     }
 }
 

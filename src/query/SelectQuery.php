@@ -2,22 +2,30 @@
 
 namespace queasy\db\query;
 
-class SelectQuery extends Query
+use PDO;
+
+class SelectQuery extends TableQuery
 {
+    public function __construct(PDO $db, $tableName, $fieldName)
+    {
+        parent::__construct($db, $tableName, sprintf('
+            SELECT  *
+            FROM    `%s`
+            WHERE   `%s` = :%s', $tableName, $fieldName, $fieldName));
+    }
+
     /**
-     * Executes SQL query and returns all selected rows.
+     * Execute SQL query and return selected row or null.
      *
      * @param array $params Query parameters
      *
-     * @return array Returned data depends on query, usually it is an array (empty array for queries like INSERT, DELETE or UPDATE)
+     * @return array|null Row or null if row does not exist
      *
      * @throws DbException On error
      */
     public function run(array $params = array(), array $options = array())
     {
-        $statement = parent::run($params, $options);
-
-        return $statement->fetchAll();
+        return parent::run($params, $options)->fetchAll();
     }
 }
 

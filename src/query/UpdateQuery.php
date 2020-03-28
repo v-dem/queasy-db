@@ -4,7 +4,7 @@ namespace queasy\db\query;
 
 use PDO;
 
-class TableUpdateQuery extends TableQuery
+class UpdateQuery extends TableQuery
 {
     private $conditionsString;
 

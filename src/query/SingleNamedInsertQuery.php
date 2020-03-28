@@ -2,7 +2,7 @@
 
 namespace queasy\db\query;
 
-class TableSingleNamedInsertQuery extends TableQuery
+class SingleNamedInsertQuery extends TableQuery
 {
     /**
      * Execute INSERT query with named parameters.
@@ -17,7 +17,7 @@ class TableSingleNamedInsertQuery extends TableQuery
     {
         // Workaround for empty $params (for example when a record is inserted just to get an id and other columns can be NULL)
         if (empty($params)) {
-            $query = new TableSingleInsertQuery($this->db(), $this->tableName());
+            $query = new SingleInsertQuery($this->db(), $this->tableName());
 
             return $query->run(array(), $options);
         }

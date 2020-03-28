@@ -2,8 +2,19 @@
 
 namespace queasy\db\query;
 
-class TableGetQuery extends TableSelectQuery
+use PDO;
+
+class SelectAllQuery extends TableQuery
 {
+    public function __construct(PDO $db, $tableName)
+    {
+        parent::__construct($db, $tableName, sprintf('
+            SELECT  *
+            FROM    `%s`',
+            $tableName
+        ));
+    }
+
     /**
      * Execute SQL query and return selected row or null.
      *
@@ -15,9 +26,7 @@ class TableGetQuery extends TableSelectQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        $result = parent::run($params, $options);
-
-        return array_shift($result);
+        return parent::run($params, $options)->fetchAll();
     }
 }
 
