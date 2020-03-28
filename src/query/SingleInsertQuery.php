@@ -24,9 +24,7 @@ class SingleInsertQuery extends TableQuery
 
         $this->setQuery($query);
 
-        parent::run($params, $options);
-
-        return $this->db()->id();
+        return parent::run($params, $options);
     }
 }
 

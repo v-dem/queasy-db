@@ -6,14 +6,6 @@ use PDO;
 
 class SelectQuery extends TableQuery
 {
-    public function __construct(PDO $db, $tableName, $fieldName)
-    {
-        parent::__construct($db, $tableName, sprintf('
-            SELECT  *
-            FROM    `%s`
-            WHERE   `%s` = :%s', $tableName, $fieldName, $fieldName));
-    }
-
     /**
      * Execute SQL query and return selected row or null.
      *
@@ -25,7 +17,43 @@ class SelectQuery extends TableQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        return parent::run($params, $options)->fetchAll();
+        $sql = sprintf('
+            SELECT  *
+            FROM    `%s`',
+            $tableName
+        );
+
+        $paramKeys = array_keys($params);
+        $paramValues = array_values($params);
+
+        if (count($paramKeys)) {
+            if (is_array($paramValues[0])) {
+                $values = $paramValues[0];
+
+                $params = [];
+                for ($i = 1; $i <= count($values); $i++) {
+                    $params[':' . $paramKeys[0] . '_' . $i] = $values[$i - 1];
+                }
+
+                $sql = sprintf('
+                    %s
+                    WHERE   `%s` IN (%s)',
+                    $sql,
+                    $paramKeys[0],
+                    implode(', ', array_keys($params))
+                );
+            } else {
+                $sql = sprintf('
+                    %s
+                    WHERE   `%s` = :%s',
+                    $sql,
+                    $paramKeys[0],
+                    $paramKeys[0]
+                );
+            }
+        }
+
+        return parent::run($params, $options);
     }
 }
 
