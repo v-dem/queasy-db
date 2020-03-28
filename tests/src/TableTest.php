@@ -25,9 +25,9 @@ class TableTest extends TestCase
 
     public function setUp(): void
     {
-        $this->db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => Db::FETCH_ASSOC]);
+        $this->db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => Db::FETCH_ASSOC]);
 
-        $this->pdo = new PDO('sqlite:tests/resources/test.sqlite');
+        $this->pdo = new PDO('sqlite:tests/resources/test.sqlite.temp');
     }
 
     public function tearDown(): void

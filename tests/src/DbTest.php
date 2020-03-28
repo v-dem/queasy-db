@@ -23,7 +23,7 @@ class DbTest extends TestCase
 
     public function setUp(): void
     {
-        $this->pdo = new PDO('sqlite:tests/resources/test.sqlite');
+        $this->pdo = new PDO('sqlite:tests/resources/test.sqlite.temp');
     }
 
     public function tearDown(): void
@@ -115,7 +115,7 @@ class DbTest extends TestCase
 
     public function testRunSelect()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
         $statement = $db->run('
             SELECT  count(*)
@@ -130,7 +130,7 @@ class DbTest extends TestCase
 
     public function testInvokeSelect()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
         $statement = $db('
             SELECT  count(*)
@@ -145,7 +145,7 @@ class DbTest extends TestCase
 
     public function testInvokeSelectWithParameters()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => PDO::FETCH_ASSOC]);
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => PDO::FETCH_ASSOC]);
 
         $statement = $db('
             SELECT  *
@@ -165,7 +165,7 @@ class DbTest extends TestCase
 
     public function testInvokeSelectWithNamedParameters()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite'], 'fetchMode' => PDO::FETCH_ASSOC]);
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => PDO::FETCH_ASSOC]);
 
         $statement = $db('
             SELECT  *
@@ -185,7 +185,7 @@ class DbTest extends TestCase
 
     public function testRunInsert()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite']]);
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
         $statement = $db->run('
             INSERT  INTO `users` (`id`, `email`, `password_hash`)
@@ -199,7 +199,7 @@ class DbTest extends TestCase
     {
         $db = new Db([
             'connection' => [
-                'path' => 'tests/resources/test.sqlite'
+                'path' => 'tests/resources/test.sqlite.temp'
             ],
             'queries' => [
                 'selectUserRoleByName' => [

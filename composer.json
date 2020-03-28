@@ -44,6 +44,9 @@
         }
     },
     "scripts": {
-        "test": "phpunit --coverage-clover coverage.xml"
+        "test": [
+            "php -r \"copy('tests/resources/test.sqlite', 'tests/resources/test.sqlite.temp');\"",
+            "phpunit --coverage-clover coverage.xml"
+        ]
     }
 }

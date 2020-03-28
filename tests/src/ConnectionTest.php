@@ -33,9 +33,9 @@ class ConnectionTest extends TestCase
 
     public function testDefaultWithPath()
     {
-        $connection = new Connection(['path' => '../resources/test.sqlite']);
+        $connection = new Connection(['path' => '../resources/test.sqlite.temp']);
 
-        $this->assertEquals('sqlite:../resources/test.sqlite', $connection());
+        $this->assertEquals('sqlite:../resources/test.sqlite.temp', $connection());
     }
 
     public function testMysql()
