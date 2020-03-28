@@ -49,10 +49,12 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function offsetGet($offset)
     {
         if (is_array($offset)) {
-            $query = new SelectInQuery($this->db, $this->table->name(), $this->name);
+            $query = new SelectQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
 
-            return $query->run($offset);
+            $statement = $query->run(array($this->name => $offset));
+
+            return $statement->fetchAll();
         } else {
             $query = new SelectQuery($this->db, $this->table->name());
             $query->setLogger($this->logger());
