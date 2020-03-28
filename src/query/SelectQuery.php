@@ -20,7 +20,7 @@ class SelectQuery extends TableQuery
         $sql = sprintf('
             SELECT  *
             FROM    `%s`',
-            $tableName
+            $this->tableName()
         );
 
         $paramKeys = array_keys($params);
@@ -52,6 +52,8 @@ class SelectQuery extends TableQuery
                 );
             }
         }
+
+        $this->setQuery($sql);
 
         return parent::run($params, $options);
     }

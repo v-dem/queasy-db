@@ -54,10 +54,12 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
             return $query->run($offset);
         } else {
-            $query = new GetQuery($this->db, $this->table->name(), $this->name);
+            $query = new SelectQuery($this->db, $this->table->name());
             $query->setLogger($this->logger());
 
-            return $query->run(array($this->name => $offset));
+            $statement = $query->run(array($this->name => $offset));
+
+            return $statement->fetch();
         }
     }
 
