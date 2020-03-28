@@ -1,4 +1,3 @@
 composer.lock
 vendor
 coverage.xml
-tests/resources/test.sqlite
