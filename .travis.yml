@@ -5,6 +5,7 @@ php:
 
 before_script:
     - composer install
+    - cp tests/resources/test.sqlite tests/resources/test.sqlite.temp
 
 script: phpunit
 
