@@ -72,11 +72,13 @@ class Field implements ArrayAccess, LoggerAwareInterface
         } elseif (is_array($offset)) {
             $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
             $query->setLogger($this->logger());
+
             $query->run($value);
 
         } else {
             $query = new UpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
             $query->setLogger($this->logger());
+
             $query->run(array($value));
         }
     }
@@ -84,12 +86,15 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function offsetUnset($offset)
     {
         if (is_array($offset)) {
-            // DELETE FROM ... WHERE $this->name IN (...)
-        } else {
-            // echo 'DELETE FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '` IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
-            $query = new DeleteQuery($this->db, $this->table->name(), $this->name);
+            $query = new DeleteQuery($this->db, $this->table->name(), $this->name, $offset);
             $query->setLogger($this->logger());
-            $query->run(array($this->name => $offset));
+
+            $query->run();
+        } else {
+            $query = new DeleteQuery($this->db, $this->table->name(), $this->name, $offset);
+            $query->setLogger($this->logger());
+
+            $query->run();
         }
     }
 

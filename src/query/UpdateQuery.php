@@ -59,7 +59,7 @@ class UpdateQuery extends TableQuery
             }
         }
 
-        $query = sprintf('
+        $sql = sprintf('
             UPDATE  `%s`
             SET     %s
             %s',
@@ -70,7 +70,7 @@ class UpdateQuery extends TableQuery
                 : 'WHERE   ' . $conditionString
         );
 
-        $this->setQuery($query);
+        $this->setQuery($sql);
 
         return parent::run($params, $options);
     }
