@@ -21,6 +21,8 @@ class Query extends AbstractQuery
      */
     public function run(array $params = array(), array $options = array())
     {
+        $this->logger()->debug('Query::run(): SQL: ' . $this->sql(), $params);
+
         try {
             $statement = $this->db()->prepare($this->sql(), $options);
             $statement->closeCursor(); // Avoid error with not closed recordset
@@ -47,8 +49,6 @@ class Query extends AbstractQuery
                 $paramType
             );
         }
-
-        $this->logger()->debug('Query::run(): SQL: ' . $this->sql(), $params);
 
         if (!$statement->execute()) {
             list($sqlErrorCode, $driverErrorCode, $errorMessage) = $statement->errorInfo();

@@ -76,10 +76,10 @@ class Field implements ArrayAccess, LoggerAwareInterface
             $query->run($value);
 
         } else {
-            $query = new UpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
+            $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
             $query->setLogger($this->logger());
 
-            $query->run(array($value));
+            $query->run($value);
         }
     }
 
