@@ -6,60 +6,73 @@ use PDO;
 
 class UpdateQuery extends TableQuery
 {
-    private $conditionsString;
+    private $fieldName;
 
-    private $keyParams;
+    private $fieldValue;
 
-    public function __construct(PDO $db, $tableName, array $keyParams = array())
+    public function __construct(PDO $db, $tableName, $fieldName = null, $fieldValue = null)
     {
         parent::__construct($db, $tableName);
 
-        $this->keyParams = $keyParams;
+        $this->fieldName = $fieldName;
 
-        $this->conditionsString = implode(
-            ' AND ',
-            array_map(
-                function($paramName) {
-                    return sprintf('`%s` = :%s', $paramName, $paramName);
-                },
-                array_keys($keyParams)
-            )
-        );
+        $this->fieldValue = is_array($fieldValue)
+            ? array_unique($fieldValue)
+            : $fieldValue;
     }
 
     public function run(array $params = array(), array $options = array())
     {
-        $fixedParams = array();
-        foreach ($params as $column => $value) {
-            while (isset($this->keyParams[$column])) {
-                $column .= '_t';
-            }
-
-            $fixedParams[$column] = $value;
-        }
-
         $paramsString = implode(
             ', ',
             array_map(
                 function($paramName) {
                     return sprintf('`%s` = :%s', $paramName, $paramName);
                 },
-                array_keys($fixedParams)
+                array_keys($params)
             )
         );
 
-        $query = sprintf(
-            'UPDATE `%s` SET %s %s',
+        $conditionString = '';
+        if (null !== $this->fieldName) {
+            if (is_array($this->fieldValue)) {
+                $fieldValueParams = array();
+                for ($i = 1; $i <= count($this->fieldValue); $i++) {
+                    $fieldValueParams[':' . $this->fieldName . '_queasydb_' . $i] = $this->fieldValue[$i - 1];
+                }
+
+                $conditionString = sprintf(
+                    '`%s` IN (%s)',
+                    $this->fieldName,
+                    implode(', ', array_keys($fieldValueParams))
+                );
+
+                $params = array_merge($params, $fieldValueParams);
+            } else {
+                $conditionString = sprintf(
+                    '`%s` = :%s',
+                    $this->fieldName,
+                    $this->fieldName . '_queasydb' // Add a suffix to avoid collision with parameters passed to SET clause
+                );
+
+                $params[':' . $this->fieldName . '_queasydb'] = $this->fieldValue;
+            }
+        }
+
+        $query = sprintf('
+            UPDATE  `%s`
+            SET     %s
+            %s',
             $this->tableName(),
             $paramsString,
-            empty($this->conditionsString)
+            empty($conditionString)
                 ? ''
-                : ' WHERE ' . $this->conditionsString
+                : 'WHERE   ' . $conditionString
         );
 
         $this->setQuery($query);
 
-        return parent::run(array_merge($fixedParams, $this->keyParams), $options);
+        return parent::run($params, $options);
     }
 }
 

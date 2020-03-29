@@ -19,7 +19,7 @@ use queasy\db\query\BatchInsertQuery;
 use queasy\db\query\BatchNamedInsertQuery;
 use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 use queasy\db\query\UpdateQuery;
-use queasy\db\query\SelectAllQuery;
+use queasy\db\query\SelectQuery;
 
 class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 {
@@ -88,9 +88,11 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function rewind()
     {
-        $query = new SelectAllQuery($this->db(), $this->name());
+        $query = new SelectQuery($this->db(), $this->name());
 
-        $this->rows = $query->run();
+        $statement = $query->run();
+
+        $this->rows = $statement->fetchAll();
     }
 
     public function valid()

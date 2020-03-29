@@ -12,6 +12,7 @@ use Psr\Log\LoggerAwareInterface;
 use queasy\db\query\CountQuery;
 use queasy\db\query\GetQuery;
 use queasy\db\query\SelectQuery;
+use queasy\db\query\UpdateQuery;
 use queasy\db\query\DeleteQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
@@ -69,9 +70,10 @@ class Field implements ArrayAccess, LoggerAwareInterface
         if (null === $value) { // Delete
             unset($this[$offset]);
         } elseif (is_array($offset)) {
-            $this->logger()->debug('------------------');
-            $this->logger()->debug($offset);
-            // UPDATE ... WHERE $this->name IN (...)
+            $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
+            $query->setLogger($this->logger());
+            $query->run($value);
+
         } else {
             $query = new UpdateQuery($this->db, $this->table->name(), array($this->name => $offset));
             $query->setLogger($this->logger());
