@@ -52,6 +52,23 @@ class FieldTest extends TestCase
         $this->assertEquals('User', $roles[1]['name']);
     }
 
+    public function testGetRecordInvoke()
+    {
+        $role = $this->db->user_roles->id(2);
+
+        $this->assertEquals('Manager', $role['name']);
+    }
+
+    public function testGetRecordsInvoke()
+    {
+        $roles = $this->db->user_roles->id([2, 3]);
+
+        $this->assertCount(2, $roles);
+
+        $this->assertEquals('Manager', $roles[0]['name']);
+        $this->assertEquals('User', $roles[1]['name']);
+    }
+
     public function testDeleteAssignNull()
     {
         $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
@@ -154,6 +171,14 @@ class FieldTest extends TestCase
         $this->assertEquals(12, $row['id']);
         $this->assertEquals('mary.jones@example.com', $row['email']);
         $this->assertEquals('2341341421', $row['password_hash']);
+    }
+
+    public function testIsset()
+    {
+        $this->assertTrue(isset($this->db->user_roles->id[1]));
+        $this->assertTrue(isset($this->db->user_roles->id[2]));
+        $this->assertTrue(isset($this->db->user_roles->id[2]));
+        $this->assertFalse(isset($this->db->user_roles->id[7]));
     }
 }
 

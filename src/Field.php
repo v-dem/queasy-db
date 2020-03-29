@@ -48,19 +48,14 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetGet($offset)
     {
+        $query = new SelectQuery($this->db, $this->table->name());
+        $query->setLogger($this->logger());
+
+        $statement = $query->run(array($this->name => $offset));
+
         if (is_array($offset)) {
-            $query = new SelectQuery($this->db, $this->table->name(), $this->name);
-            $query->setLogger($this->logger());
-
-            $statement = $query->run(array($this->name => $offset));
-
             return $statement->fetchAll();
         } else {
-            $query = new SelectQuery($this->db, $this->table->name());
-            $query->setLogger($this->logger());
-
-            $statement = $query->run(array($this->name => $offset));
-
             return $statement->fetch();
         }
     }
@@ -98,17 +93,9 @@ class Field implements ArrayAccess, LoggerAwareInterface
         }
     }
 
-    public function __invoke($id)
+    public function __invoke($value)
     {
-        $query = new SelectQuery($this->db, $this->table->name(), $this->name);
-        $query->setLogger($this->logger());
-
-        return $query->run(array($this->name => $id));
-    }
-
-    public function in(array $values)
-    {
-        
+        return $this[$value];
     }
 
     public function setLogger(LoggerInterface $logger)
