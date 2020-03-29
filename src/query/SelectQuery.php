@@ -43,15 +43,14 @@ class SelectQuery extends TableQuery
             } else {
                 $sql = sprintf('
                     %s
-                    WHERE   `%s` = :%s',
+                    WHERE   `%s` = :%2$s',
                     $sql,
-                    $paramKeys[0],
                     $paramKeys[0]
                 );
             }
         }
 
-        $this->setQuery($sql);
+        $this->setSql($sql);
 
         return parent::run($params, $options);
     }

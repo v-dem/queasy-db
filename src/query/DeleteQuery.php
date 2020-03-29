@@ -38,8 +38,7 @@ class DeleteQuery extends TableQuery
                 );
             } else {
                 $conditionString = sprintf(
-                    'WHERE `%s` = :%s',
-                    $this->fieldName,
+                    'WHERE `%s` = :%1$s',
                     $this->fieldName
                 );
 
@@ -54,7 +53,7 @@ class DeleteQuery extends TableQuery
             $conditionString
         );
 
-        $this->setQuery($sql);
+        $this->setSql($sql);
 
         return parent::run($params, $options);
     }

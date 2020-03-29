@@ -22,7 +22,7 @@ class SingleNamedInsertQuery extends TableQuery
             return $query->run(array(), $options);
         }
 
-        $query = sprintf('
+        $sql = sprintf('
             INSERT  INTO `%s` (%s)
             VALUES  (%s)',
             $this->tableName(),
@@ -38,7 +38,7 @@ class SingleNamedInsertQuery extends TableQuery
             )
         );
 
-        $this->setQuery($query);
+        $this->setSql($sql);
 
         return parent::run($params, $options);
     }

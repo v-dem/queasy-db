@@ -70,7 +70,7 @@ class UpdateQuery extends TableQuery
                 : 'WHERE   ' . $conditionString
         );
 
-        $this->setQuery($sql);
+        $this->setSql($sql);
 
         return parent::run($params, $options);
     }

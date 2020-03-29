@@ -42,7 +42,7 @@ class BatchNamedInsertQuery extends TableQuery
         }
         $paramsString = rtrim($paramsString, ', ');
 
-        $query = sprintf('
+        $sql = sprintf('
             INSERT  INTO `%s` (%s)
             VALUES  %s',
             $this->tableName(),
@@ -50,7 +50,7 @@ class BatchNamedInsertQuery extends TableQuery
             $paramsString
         );
 
-        $this->setQuery($query);
+        $this->setSql($sql);
 
         return parent::run($values, $options);
     }

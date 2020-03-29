@@ -25,14 +25,14 @@ class BatchInsertQuery extends TableQuery
         $rowsString = rtrim(str_repeat('(%1$s), ', $rowsCount), ', ');
         $rowString = rtrim(str_repeat('?, ', $colsCount), ', ');
 
-        $query = sprintf('
+        $sql = sprintf('
             INSERT  INTO `%s`
             VALUES  %s',
             $this->tableName(),
             sprintf($rowsString, $rowString)
         );
 
-        $this->setQuery($query);
+        $this->setSql($sql);
 
         return parent::run($values, $options);
     }

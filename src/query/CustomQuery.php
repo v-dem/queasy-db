@@ -47,12 +47,17 @@ class CustomQuery extends Query
                         : $statement->fetch($fetchMode);
 
                 case Db::RETURN_ALL:
-
-                default:
-                    $fetchMethod = 'fetchAll';
                     return (Db::FETCH_CLASS === $fetchMode)
                         ? $statement->fetchAll($fetchMode, $fetchArg)
                         : $statement->fetchAll($fetchMode);
+
+                case Db::RETURN_VALUE:
+                    $row = $statement->fetch();
+                    $value = array_shift($row);
+                    return $value;
+
+                default:
+                    return $statement;
             }
         } else {
             return $statement;

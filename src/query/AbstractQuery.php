@@ -14,7 +14,7 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
 {
     private $db;
 
-    private $query;
+    private $sql;
 
     private $statement;
 
@@ -33,10 +33,10 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(PDO $db, $query = null)
+    public function __construct(PDO $db, $sql = null)
     {
         $this->db = $db;
-        $this->setQuery($query);
+        $this->setSql($sql);
     }
 
     abstract public function run(array $params = array(), array $options = array());
@@ -70,18 +70,18 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
         return $this->db;
     }
 
-    protected function query()
+    protected function sql()
     {
-        if (empty($this->query)) {
-            throw new DbException('Query is empty.');
+        if (empty($this->sql)) {
+            throw new DbException('SQL is empty.');
         }
 
-        return $this->query;
+        return $this->sql;
     }
 
-    protected function setQuery($query)
+    protected function setSql($sql)
     {
-        $this->query = $query;
+        $this->sql = $sql;
     }
 }
 

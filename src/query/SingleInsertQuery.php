@@ -15,14 +15,14 @@ class SingleInsertQuery extends TableQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        $query = sprintf('
+        $sql = sprintf('
             INSERT  INTO `%s`
             VALUES  (%s)',
             $this->tableName(),
             rtrim(str_repeat('?, ', count($params)), ', ')
         );
 
-        $this->setQuery($query);
+        $this->setSql($sql);
 
         return parent::run($params, $options);
     }

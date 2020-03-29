@@ -22,7 +22,7 @@ class Query extends AbstractQuery
     public function run(array $params = array(), array $options = array())
     {
         try {
-            $statement = $this->db()->prepare($this->query(), $options);
+            $statement = $this->db()->prepare($this->sql(), $options);
             $statement->closeCursor(); // Avoid error with not closed recordset
         } catch (Exception $e) {
             throw DbException::cannotPrepareStatement($this->query(), $e);
@@ -48,12 +48,12 @@ class Query extends AbstractQuery
             );
         }
 
-        $this->logger()->debug('Query::run(): QUERY: ' . $this->query(), $params);
+        $this->logger()->debug('Query::run(): SQL: ' . $this->sql(), $params);
 
         if (!$statement->execute()) {
             list($sqlErrorCode, $driverErrorCode, $errorMessage) = $statement->errorInfo();
 
-            throw DbException::cannotExecuteQuery($this->query(), $sqlErrorCode, $errorMessage);
+            throw DbException::cannotExecuteQuery($this->sql(), $sqlErrorCode, $errorMessage);
         }
 
         return $statement;
