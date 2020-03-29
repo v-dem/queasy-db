@@ -167,16 +167,7 @@ class TableTest extends TestCase
 
     public function testCount()
     {
-        $this->db->users[] = [
-            [15, 'john.doe@example.com', sha1('gfhjkm')],
-            [22, 'mary.doe@example.com', sha1('321654')]
-        ];
-
-         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
-
-         $count = array_shift($row);
-
-        $this->assertEquals(2, $count);
+        $this->assertEquals(3, count($this->db->user_roles));
     }
 }
 
