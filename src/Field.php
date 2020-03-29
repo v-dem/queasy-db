@@ -10,7 +10,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\query\CountQuery;
-use queasy\db\query\SelectQuery;
 use queasy\db\query\GetQuery;
 use queasy\db\query\SelectQuery;
 use queasy\db\query\DeleteQuery;
