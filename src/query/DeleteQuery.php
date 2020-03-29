@@ -4,7 +4,7 @@ namespace queasy\db\query;
 
 use PDO;
 
-class RemoveQuery extends TableQuery
+class DeleteQuery extends TableQuery
 {
     public function __construct(PDO $db, $tableName, $fieldName)
     {

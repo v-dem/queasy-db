@@ -12,8 +12,8 @@ use Psr\Log\LoggerAwareInterface;
 use queasy\db\query\CountQuery;
 use queasy\db\query\SelectQuery;
 use queasy\db\query\GetQuery;
-use queasy\db\query\SelectInQuery;
-use queasy\db\query\RemoveQuery;
+use queasy\db\query\SelectQuery;
+use queasy\db\query\DeleteQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
 {
@@ -86,7 +86,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
             // DELETE FROM ... WHERE $this->name IN (...)
         } else {
             // echo 'DELETE FROM `' . $this->tableName . '` WHERE `' . $this->name . (is_null($offset)? '` IS NULL': '` = \'' . $offset . '\'') . PHP_EOL;
-            $query = new RemoveQuery($this->db, $this->table->name(), $this->name);
+            $query = new DeleteQuery($this->db, $this->table->name(), $this->name);
             $query->setLogger($this->logger());
             $query->run(array($this->name => $offset));
         }
