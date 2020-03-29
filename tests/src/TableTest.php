@@ -32,105 +32,151 @@ class TableTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->pdo->exec('
-            DELETE  FROM `users`');
+        $this->pdo->exec('DELETE  FROM `users`');
     }
 
     public function testInsert()
     {
         $this->db->users[] = [15, 'john.doe@example.com', sha1('gfhjkm')];
 
-        $statement = $this->pdo->query('
-            SELECT  *
-            FROM    `users`
-            WHERE   `id` = 15');
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
 
         $this->assertNotNull($row);
         $this->assertEquals(15, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
         $this->assertEquals(sha1('gfhjkm'), $row['password_hash']);
     }
-/*
+
     public function testInsertNamed()
     {
-        $this->db->users[] = ['id' => 15, 'name' => 'john', 'email' => 'john.doe@example.com'];
+        $this->db->users[] = ['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')];
 
-        $user = $this->db->users->id[15];
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
 
-        $this->assertEquals('john', $user['name']);
+        $this->assertNotNull($user);
+        $this->assertEquals('john.doe@example.com', $user['email']);
+        $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
     }
 
     public function testBatchInsert()
     {
         $this->db->users[] = [
-            [15, 'john', 'john.doe@example.com'],
-            [22, 'mary', 'mary.doe@example.com']
+            [15, 'john.doe@example.com', sha1('gfhjkm')],
+            [22, 'mary.jones@example.com', sha1('321654')]
         ];
 
-        $user = $this->db->users->id[15];
-        $this->assertEquals('john', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(15, $user['id']);
+        $this->assertEquals('john.doe@example.com', $user['email']);
+        $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->db->users->id[22];
-        $this->assertEquals('mary', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(22, $user['id']);
+        $this->assertEquals('mary.jones@example.com', $user['email']);
+        $this->assertEquals(sha1('321654'), $user['password_hash']);
     }
 
     public function testBatchInsertNamed()
     {
         $this->db->users[] = [
-            ['id', 'name', 'email'],
+            ['id', 'email', 'password_hash'],
             [
-                [15, 'john', 'john.doe@example.com'],
-                [22, 'mary', 'mary.doe@example.com']
+                [15, 'john.doe@example.com', sha1('gfhjkm')],
+                [22, 'mary.jones@example.com', sha1('321654')]
             ]
         ];
 
-        $user = $this->db->users->id[15];
-        $this->assertEquals('john', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(15, $user['id']);
+        $this->assertEquals('john.doe@example.com', $user['email']);
+        $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->db->users->id[22];
-        $this->assertEquals('mary', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(22, $user['id']);
+        $this->assertEquals('mary.jones@example.com', $user['email']);
+        $this->assertEquals(sha1('321654'), $user['password_hash']);
     }
 
     public function testBatchInsertSeparatelyNamed()
     {
         $this->db->users[] = [
-            ['id' => 15, 'name' => 'john', 'email' => 'john.doe@example.com'],
-            ['id' => 22, 'name' => 'mary', 'email' => 'mary.doe@example.com']
+            ['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')],
+            ['id' => 22, 'email' => 'mary.jones@example.com', 'password_hash' => sha1('321654')]
         ];
 
-        $user = $this->db->users->id[15];
-        $this->assertEquals('john', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(15, $user['id']);
+        $this->assertEquals('john.doe@example.com', $user['email']);
+        $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->db->users->id[22];
-        $this->assertEquals('mary', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(22, $user['id']);
+        $this->assertEquals('mary.jones@example.com', $user['email']);
+        $this->assertEquals(sha1('321654'), $user['password_hash']);
     }
 
     public function testUpdateOne()
     {
         $this->db->users[] = [
-            [15, 'john', 'john.doe@example.com'],
-            [22, 'mary', 'mary.doe@example.com']
+            [15, 'john.doe@example.com', sha1('gfhjkm')],
+            [22, 'mary.jones@example.com', sha1('321654')]
         ];
 
-        $this->db->users->update(['name' => 'vitaly'], ['id' => 15]);
+        $this->db->users->update(['email' => 'vitaly.d@example.com'], 'id', 15);
 
-        $user = $this->db->users->id[15];
-        $this->assertEquals('vitaly', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(15, $user['id']);
+        $this->assertEquals('vitaly.d@example.com', $user['email']);
+        $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->db->users->id[22];
-        $this->assertEquals('mary', $user['name']);
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(22, $user['id']);
+        $this->assertEquals('mary.jones@example.com', $user['email']);
+        $this->assertEquals(sha1('321654'), $user['password_hash']);
+    }
+
+    public function testUpdateAll()
+    {
+        $this->db->users[] = [
+            [15, 'john.doe@example.com', sha1('gfhjkm')],
+            [22, 'mary.jones@example.com', sha1('321654')]
+        ];
+
+        $this->db->users->update(['password_hash' => sha1('secret')]);
+
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(15, $user['id']);
+        $this->assertEquals('john.doe@example.com', $user['email']);
+        $this->assertEquals(sha1('secret'), $user['password_hash']);
+
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+        $this->assertEquals(22, $user['id']);
+        $this->assertEquals('mary.jones@example.com', $user['email']);
+        $this->assertEquals(sha1('secret'), $user['password_hash']);
     }
 
     public function testCount()
     {
         $this->db->users[] = [
-            [15, 'john', 'john.doe@example.com'],
-            [22, 'mary', 'mary.doe@example.com']
+            [15, 'john.doe@example.com', sha1('gfhjkm')],
+            [22, 'mary.doe@example.com', sha1('321654')]
         ];
 
-        $this->assertCount(2, $this->db->users);
+         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+
+         $count = array_shift($row);
+
+        $this->assertEquals(2, $count);
     }
-*/
 }
 

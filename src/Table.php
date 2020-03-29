@@ -136,12 +136,14 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $query->run($params);
     }
 
-    public function update(array $params, array $keyParams = array())
+    public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new UpdateQuery($this->db, $this->name(), $keyParams);
+        $query = new UpdateQuery($this->db, $this->name(), $fieldName, $fieldValue);
         $query->setLogger($this->logger());
 
-        return $query->run($params);
+        $statement = $query->run($params, $options);
+
+        return $statement->rowCount();
     }
 
     public function offsetExists($offset)

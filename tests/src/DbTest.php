@@ -218,7 +218,8 @@ class DbTest extends TestCase
 
         $this->assertEquals(2, $row['id']);
         $this->assertEquals('Manager', $row['name']);
-    }
 
+        $this->assertFalse($statement->fetch());
+    }
 }
 
