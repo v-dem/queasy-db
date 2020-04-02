@@ -28,8 +28,8 @@ class DbTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->pdo->exec('
-            DELETE  FROM `users`');
+        $this->pdo->exec('DELETE FROM `users`');
+        $this->pdo->exec('DELETE FROM `ids`');
 
         $this->pdo = null;
     }

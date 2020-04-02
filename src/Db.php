@@ -167,7 +167,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     {
         if (!isset($this->tables[$name])) {
             $tablesConfig = isset($this->config['tables'])
-                ? $config['tables']
+                ? $this->config['tables']
                 : array();
 
             $config = isset($tablesConfig[$name])

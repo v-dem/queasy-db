@@ -32,7 +32,10 @@ class TableTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->pdo->exec('DELETE  FROM `users`');
+        $this->pdo->exec('DELETE FROM `users`');
+        $this->pdo->exec('DELETE FROM `ids`');
+
+        $this->pdo = null;
     }
 
     public function testInsert()
@@ -119,6 +122,17 @@ class TableTest extends TestCase
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
         $this->assertEquals(sha1('321654'), $user['password_hash']);
+    }
+
+    public function testInsertEmpty()
+    {
+        $id = $this->db->ids->insert();
+
+        $this->assertTrue(is_numeric($id));
+
+        $id = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $id)->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertNotNull($id);
     }
 
     public function testUpdateOne()

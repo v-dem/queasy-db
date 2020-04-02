@@ -103,12 +103,15 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     public function insert()
     {
         $this->logger()->debug('INSERT params: ' . print_r(func_get_args(), true));
+
+        $isSingleInsert = true;
         $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
         if (null === $params) {
             throw new DbException('Cannot assign null to table field.');
         } elseif (is_array($params)) {
             $keys = array_keys($params);
             if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
+                $isSingleInsert = false;
                 if ((2 === count($params))
                         && is_array($params[1])
                         && (0 < count($params[1]))
@@ -133,7 +136,11 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
         $query->setLogger($this->logger());
 
-        return $query->run($params);
+        $statement = $query->run($params);
+
+        return $isSingleInsert
+            ? $this->db()->id()
+            : $statement->rowCount();
     }
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
