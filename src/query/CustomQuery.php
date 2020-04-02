@@ -4,6 +4,8 @@ namespace queasy\db\query;
 
 use PDO;
 
+use queasy\db\Db;
+
 class CustomQuery extends Query
 {
     private $config;
