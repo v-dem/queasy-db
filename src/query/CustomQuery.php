@@ -8,7 +8,7 @@ class CustomQuery extends Query
 {
     private $config;
 
-    public function __construct(PDO $db, array $config)
+    public function __construct(PDO $db, $config)
     {
         $this->config = $config;
 
