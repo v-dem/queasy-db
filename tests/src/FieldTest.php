@@ -85,6 +85,20 @@ class FieldTest extends TestCase
         $this->assertEquals(0, array_shift($row));
     }
 
+    public function testDeleteFunction()
+    {
+        $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
+
+        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $this->assertEquals(1, array_shift($row));
+
+        $rowsCount = $this->db->users->id->delete(7);
+        $this->assertEquals(1, $rowsCount);
+
+        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $this->assertEquals(0, array_shift($row));
+    }
+
     public function testDeleteUnset()
     {
         $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
@@ -110,6 +124,36 @@ class FieldTest extends TestCase
         $this->assertEquals(12, $rows[0]['id']);
         $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
         $this->assertEquals('2341341421', $rows[0]['password_hash']);
+    }
+
+    public function testDeleteSomeFunction()
+    {
+        $this->pdo->exec('
+            INSERT  INTO `users`
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $rowsCount = $this->db->users->id->delete([7, 123]);
+        $this->assertEquals(2, $rowsCount);
+
+        $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
+        $this->assertCount(1, $rows);
+        $this->assertEquals(12, $rows[0]['id']);
+        $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
+        $this->assertEquals('2341341421', $rows[0]['password_hash']);
+    }
+
+    public function testDeleteSomeFunctionWithNotExistentRecord()
+    {
+        $this->pdo->exec('
+            INSERT  INTO `users`
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $rowsCount = $this->db->users->id->delete([7, 123, 256]);
+        $this->assertEquals(2, $rowsCount);
     }
 
     public function testDeleteSomeUnset()

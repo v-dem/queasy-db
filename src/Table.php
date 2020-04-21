@@ -47,6 +47,8 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function __construct(PDO $db, $name, $config = array())
     {
+        $this->logger = new NullLogger();
+
         $this->db = $db;
         $this->name = $name;
         $this->fields = array();
@@ -153,6 +155,16 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $statement->rowCount();
     }
 
+    public function delete($fieldName = null, $fieldValue = null, array $options = array())
+    {
+        $query = new DeleteQuery($this->db, $this->name(), $fieldName, $fieldValue);
+        $query->setLogger($this->logger());
+
+        $statement = $query->run(array(), $options);
+
+        return $statement->rowCount();
+    }
+
     public function offsetExists($offset)
     {
         return true;
@@ -249,10 +261,6 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     protected function logger()
     {
-        if (null === $this->logger) {
-            $this->logger = new NullLogger();
-        }
-
         return $this->logger;
     }
 }

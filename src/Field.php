@@ -27,9 +27,35 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function __construct(PDO $db, Table $table, $name)
     {
+        $this->logger = new NullLogger();
+
         $this->db = $db;
         $this->table = $table;
         $this->name = $name;
+    }
+
+    public function update($offset, $value, array $options = array())
+    {
+        if (null === $value) {
+            return $this->delete($offset);
+        } else {
+            $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
+            $query->setLogger($this->logger());
+
+            $statement = $query->run($value, $options);
+
+            return $statement->rowCount();
+        }
+    }
+
+    public function delete($offset, array $options = array())
+    {
+        $query = new DeleteQuery($this->db, $this->table->name(), $this->name, $offset);
+        $query->setLogger($this->logger());
+
+        $statement = $query->run(array(), $options);
+
+        return $statement->rowCount();
     }
 
     public function offsetExists($offset)
@@ -62,35 +88,12 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetSet($offset, $value)
     {
-        if (null === $value) { // Delete
-            unset($this[$offset]);
-        } elseif (is_array($offset)) {
-            $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
-            $query->setLogger($this->logger());
-
-            $query->run($value);
-
-        } else {
-            $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
-            $query->setLogger($this->logger());
-
-            $query->run($value);
-        }
+        $this->update($offset, $value);
     }
 
     public function offsetUnset($offset)
     {
-        if (is_array($offset)) {
-            $query = new DeleteQuery($this->db, $this->table->name(), $this->name, $offset);
-            $query->setLogger($this->logger());
-
-            $query->run();
-        } else {
-            $query = new DeleteQuery($this->db, $this->table->name(), $this->name, $offset);
-            $query->setLogger($this->logger());
-
-            $query->run();
-        }
+        $this->delete($offset);
     }
 
     public function __invoke($value)
@@ -105,10 +108,6 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     protected function logger()
     {
-        if (null === $this->logger) {
-            $this->logger = new NullLogger();
-        }
-
         return $this->logger;
     }
 }
