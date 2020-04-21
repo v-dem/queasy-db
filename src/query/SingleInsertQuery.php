@@ -16,11 +16,21 @@ class SingleInsertQuery extends TableQuery
     public function run(array $params = array(), array $options = array())
     {
         $sql = sprintf('
-            INSERT  INTO `%s`
-            VALUES  (%s)',
-            $this->tableName(),
-            rtrim(str_repeat('?, ', count($params)), ', ')
+            INSERT  INTO `%s`',
+            $this->tableName()
         );
+
+        if (count($params)) {
+            $sql = sprintf('
+                %s
+                VALUES  (%s)',
+                $sql,
+                rtrim(str_repeat('?, ', count($params)), ', ')
+            );
+        } else {
+            // TIP: Seems like this will work in at least SQLite, MySQL, PostgreSQL. Not sure about others.
+            $sql .= ' DEFAULT VALUES';
+        }
 
         $this->setSql($sql);
 
