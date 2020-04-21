@@ -12,8 +12,6 @@ use Psr\Log\LoggerAwareInterface;
 use queasy\db\query\CountQuery;
 use queasy\db\query\GetQuery;
 use queasy\db\query\SelectQuery;
-use queasy\db\query\UpdateQuery;
-use queasy\db\query\DeleteQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
 {
@@ -39,23 +37,13 @@ class Field implements ArrayAccess, LoggerAwareInterface
         if (null === $value) {
             return $this->delete($offset);
         } else {
-            $query = new UpdateQuery($this->db, $this->table->name(), $this->name, $offset);
-            $query->setLogger($this->logger());
-
-            $statement = $query->run($value, $options);
-
-            return $statement->rowCount();
+            return $this->table->update($value, $this->name, $offset, $options);
         }
     }
 
     public function delete($offset, array $options = array())
     {
-        $query = new DeleteQuery($this->db, $this->table->name(), $this->name, $offset);
-        $query->setLogger($this->logger());
-
-        $statement = $query->run(array(), $options);
-
-        return $statement->rowCount();
+        return $this->table->delete($this->name, $offset, $options);
     }
 
     public function offsetExists($offset)
