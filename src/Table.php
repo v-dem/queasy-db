@@ -64,8 +64,8 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function count()
     {
-        $query = new CountQuery($this->db(), $this->name());
-        $query->setLogger($this->logger());
+        $query = new CountQuery($this->db, $this->name);
+        $query->setLogger($this->logger);
 
         $statement = $query->run();
 
@@ -91,7 +91,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function rewind()
     {
-        $query = new SelectQuery($this->db(), $this->name());
+        $query = new SelectQuery($this->db, $this->name);
 
         $statement = $query->run();
 
@@ -105,8 +105,6 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function insert()
     {
-        $this->logger()->debug('INSERT params: ' . print_r(func_get_args(), true));
-
         $isSingleInsert = true;
         $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
         if (null === $params) {
@@ -120,36 +118,36 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                         && (0 < count($params[1]))
                         && isset($params[1][0])
                         && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
-                    $query = new BatchSeparatelyNamedInsertQuery($this->db(), $this->name());
+                    $query = new BatchSeparatelyNamedInsertQuery($this->db, $this->name);
                 } else {
                     $keys = array_keys($params[$keys[0]]);
 
                     $query = (!count($keys) || is_numeric($keys[0]))
-                        ? new BatchInsertQuery($this->db(), $this->name()) // Batch insert
-                        : new BatchNamedInsertQuery($this->db(), $this->name()); // Batch insert with field names
+                        ? new BatchInsertQuery($this->db, $this->name) // Batch insert
+                        : new BatchNamedInsertQuery($this->db, $this->name); // Batch insert with field names
                 }
             } else { // Single inserts
                 $query = (!count($keys) || is_numeric($keys[0]))
-                    ? new SingleInsertQuery($this->db(), $this->name()) // By order, without field names
-                    : new SingleNamedInsertQuery($this->db(), $this->name()); // By field names
+                    ? new SingleInsertQuery($this->db, $this->name) // By order, without field names
+                    : new SingleNamedInsertQuery($this->db, $this->name); // By field names
             }
         } else {
             throw new DbException('Invalid assignment type (must be array).');
         }
 
-        $query->setLogger($this->logger());
+        $query->setLogger($this->logger);
 
         $statement = $query->run($params);
 
         return $isSingleInsert
-            ? $this->db()->id()
+            ? $this->db->id()
             : $statement->rowCount();
     }
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new UpdateQuery($this->db, $this->name(), $fieldName, $fieldValue);
-        $query->setLogger($this->logger());
+        $query = new UpdateQuery($this->db, $this->name, $fieldName, $fieldValue);
+        $query->setLogger($this->logger);
 
         $statement = $query->run($params, $options);
 
@@ -158,8 +156,8 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function delete($fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new DeleteQuery($this->db, $this->name(), $fieldName, $fieldValue);
-        $query->setLogger($this->logger());
+        $query = new DeleteQuery($this->db, $this->name, $fieldName, $fieldValue);
+        $query->setLogger($this->logger);
 
         $statement = $query->run(array(), $options);
 
@@ -174,8 +172,8 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     public function offsetGet($offset)
     {
         if (!isset($this->fields[$offset])) {
-            $field = new Field($this->db(), $this, $offset);
-            $field->setLogger($this->logger());
+            $field = new Field($this->db, $this, $offset);
+            $field->setLogger($this->logger);
 
             $this->fields[$offset] = $field;
         }
@@ -209,10 +207,9 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
      */
     public function __call($method, array $args)
     {
-        $config = $this->config();
-        if (isset($config[$method])) {
-            $query = new CustomQuery($this->db(), $config[$method]);
-            $query->setLogger($this->logger());
+        if (isset($this->config[$method])) {
+            $query = new CustomQuery($this->db, $this->config[$method]);
+            $query->setLogger($this->logger);
 
             return call_user_func_array(array($query, 'run'), $args);
         } else {

@@ -47,8 +47,8 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetExists($offset)
     {
-        $query = new CountQuery($this->db, $this->table->name());
-        $query->setLogger($this->logger());
+        $query = new CountQuery($this->db, $this->table->name);
+        $query->setLogger($this->logger);
 
         $statement = $query->run(array($this->name => $offset));
 
@@ -61,8 +61,8 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetGet($offset)
     {
-        $query = new SelectQuery($this->db, $this->table->name());
-        $query->setLogger($this->logger());
+        $query = new SelectQuery($this->db, $this->table->name);
+        $query->setLogger($this->logger);
 
         $statement = $query->run(array($this->name => $offset));
 

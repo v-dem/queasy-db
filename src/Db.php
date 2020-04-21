@@ -129,7 +129,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         }
 
         $query = new CustomQuery($this, $this->queries[$name]);
-        $query->setLogger($this->logger());
+        $query->setLogger($this->logger);
 
         $params = array_shift($args);
         $options = array_shift($args);
@@ -172,12 +172,12 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
                 ? $this->config['tables']
                 : array();
 
-            $config = isset($tablesConfig[$name])
+            $tableConfig = isset($tablesConfig[$name])
                 ? $tablesConfig[$name]
                 : array();
 
-            $this->tables[$name] = new Table($this, $name, $config);
-            $this->tables[$name]->setLogger($this->logger());
+            $this->tables[$name] = new Table($this, $name, $tableConfig);
+            $this->tables[$name]->setLogger($this->logger);
         }
 
         return $this->tables[$name];
@@ -186,7 +186,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function run($sql, array $params = array(), array $options = array())
     {
         $query = new Query($this, $sql);
-        $query->setLogger($this->logger());
+        $query->setLogger($this->logger);
 
         return $query->run($params, $options);
     }

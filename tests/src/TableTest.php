@@ -25,7 +25,29 @@ class TableTest extends TestCase
 
     public function setUp(): void
     {
-        $this->db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => Db::FETCH_ASSOC]);
+        $this->db = new Db([
+            'connection' => [
+                'path' => 'tests/resources/test.sqlite.temp'
+            ],
+            'fetchMode' => Db::FETCH_ASSOC,
+            'tables' => [
+                'users' => [
+                    'deleteWithSubstringInEmail' => [
+                        'sql' => '
+                            DELETE  FROM `users`
+                            WHERE   `email` LIKE (\'%\' || :substring || \'%\')'
+                    ],
+                    'selectWithSubstringInEmailBackOrdered' => [
+                        'sql' => '
+                            SELECT  *
+                            FROM    `users`
+                            WHERE   `email` LIKE (\'%\' || :substring || \'%\')
+                            ORDER   BY `id` DESC',
+                        'returns' => Db::RETURN_ALL
+                    ]
+                ]
+            ]
+        ]);
 
         $this->pdo = new PDO('sqlite:tests/resources/test.sqlite.temp');
     }
@@ -272,6 +294,43 @@ class TableTest extends TestCase
             $rowsCount++;
         }
         $this->assertEquals(3, $rowsCount);
+    }
+
+    public function testCustomRemoveMethod()
+    {
+        $this->pdo->exec('
+            INSERT  INTO `users`
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $this->db->users->deleteWithSubstringInEmail(['substring' => 'jo']);
+
+        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotNull($user);
+
+        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_NUM);
+        $this->assertEquals(1, $row[0]);
+    }
+
+    public function testCustomSelectMethod()
+    {
+        $this->pdo->exec('
+            INSERT  INTO `users`
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $users = $this->db->users->selectWithSubstringInEmailBackOrdered(['substring' => 'jo']);
+        $this->assertCount(2, $users);
+
+        $this->assertEquals(12, $users[0]['id']);
+        $this->assertEquals('mary.jones@example.com', $users[0]['email']);
+        $this->assertEquals('2341341421', $users[0]['password_hash']);
+
+        $this->assertEquals(7, $users[1]['id']);
+        $this->assertEquals('john.doe@example.com', $users[1]['email']);
+        $this->assertEquals('7346598173659873', $users[1]['password_hash']);
     }
 }
 
