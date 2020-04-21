@@ -2,8 +2,6 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
 class CountQuery extends TableQuery
 {
     /**

@@ -240,16 +240,6 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $this->name;
     }
 
-    protected function db()
-    {
-        return $this->db;
-    }
-
-    protected function config()
-    {
-        return $this->config;
-    }
-
     /**
      * Sets a logger.
      *
@@ -258,6 +248,16 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+    }
+
+    protected function db()
+    {
+        return $this->db;
+    }
+
+    protected function config()
+    {
+        return $this->config;
     }
 
     protected function logger()

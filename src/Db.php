@@ -3,11 +3,11 @@
 namespace queasy\db;
 
 use Exception;
-use InvalidArgumentException;
-
-use ArrayAccess;
 
 use PDO;
+use PDOException;
+
+use ArrayAccess;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
@@ -50,6 +50,8 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
      */
     public function __construct($configOrDsn = null, $user = null, $password = null, array $options = null)
     {
+        $this->logger = new NullLogger();
+
         $config = array();
         if (null === $configOrDsn) {
             $connectionConfig = null;
@@ -78,7 +80,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
                 isset($connectionConfig['password'])? $connectionConfig['password']: null,
                 isset($connectionConfig['options'])? $connectionConfig['options']: null
             );
-        } catch (Exception $e) {
+        } catch (PDOException $e) {
             throw DbException::connectionFailed($e);
         }
 
@@ -215,10 +217,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     protected function logger()
     {
-        if (null === $this->logger) {
-            $this->logger = new NullLogger();
-        }
-
         return $this->logger;
     }
 }

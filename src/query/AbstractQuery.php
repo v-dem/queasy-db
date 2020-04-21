@@ -35,6 +35,8 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
      */
     public function __construct(PDO $db, $sql = null)
     {
+        $this->logger = new NullLogger();
+
         $this->db = $db;
         $this->setSql($sql);
     }
@@ -58,10 +60,6 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
 
     protected function logger()
     {
-        if (!$this->logger) {
-            $this->logger = new NullLogger();
-        }
-
         return $this->logger;
     }
 
