@@ -28,7 +28,7 @@ class SingleInsertQuery extends TableQuery
                 rtrim(str_repeat('?, ', count($params)), ', ')
             );
         } else {
-            // TIP: Seems like this will work in at least SQLite, MySQL, PostgreSQL. Not sure about others.
+            // TIP: Seems like this will work with at least SQLite, MySQL, PostgreSQL. Not sure about others.
             $sql .= ' DEFAULT VALUES';
         }
 

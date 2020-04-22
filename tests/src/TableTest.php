@@ -44,6 +44,22 @@ class TableTest extends TestCase
                             WHERE   `email` LIKE (\'%\' || :substring || \'%\')
                             ORDER   BY `id` DESC',
                         'returns' => Db::RETURN_ALL
+                    ],
+                    'getLatestById' => [
+                        'sql' => '
+                            SELECT  *
+                            FROM    `users`
+                            ORDER   BY `id` DESC
+                            LIMIT   1',
+                        'returns' => Db::RETURN_ONE
+                    ]
+                ],
+                'user_roles' => [
+                    'getRolesCount' => [
+                        'sql' => '
+                            SELECT  count(*)
+                            FROM    `user_roles`',
+                        'returns' => Db::RETURN_VALUE
                     ]
                 ]
             ]
@@ -217,9 +233,10 @@ class TableTest extends TestCase
 
         $this->assertTrue(is_numeric($id));
 
-        $id = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $id)->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $id)->fetch(PDO::FETCH_ASSOC);
 
         $this->assertNotNull($id);
+        $this->assertEquals($id, $row['id']);
     }
 
     public function testUpdateOne()
@@ -313,7 +330,7 @@ class TableTest extends TestCase
         $this->assertEquals(1, $row[0]);
     }
 
-    public function testCustomSelectMethod()
+    public function testCustomSelectMethodReturningAll()
     {
         $this->pdo->exec('
             INSERT  INTO `users`
@@ -331,6 +348,36 @@ class TableTest extends TestCase
         $this->assertEquals(7, $users[1]['id']);
         $this->assertEquals('john.doe@example.com', $users[1]['email']);
         $this->assertEquals('7346598173659873', $users[1]['password_hash']);
+    }
+
+    public function testCustomSelectMethodReturningOne()
+    {
+        $this->pdo->exec('
+            INSERT  INTO `users`
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $user = $this->db->users->getLatestById();
+
+        $this->assertNotNull($user);
+
+        $this->assertEquals(123, $user['id']);
+        $this->assertEquals('vitaly.d@example.com', $user['email']);
+        $this->assertEquals('75647454', $user['password_hash']);
+    }
+
+    public function testCustomSelectMethodReturningValue()
+    {
+        $this->pdo->exec('
+            INSERT  INTO `users`
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $rolesCount = $this->db->user_roles->getRolesCount();
+
+        $this->assertEquals(3, $rolesCount);
     }
 }
 

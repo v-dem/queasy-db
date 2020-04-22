@@ -76,9 +76,9 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
             parent::__construct(
                 $connectionString(),
-                isset($connectionConfig['user'])? $connectionConfig['user']: null,
-                isset($connectionConfig['password'])? $connectionConfig['password']: null,
-                isset($connectionConfig['options'])? $connectionConfig['options']: null
+                isset($connectionConfig['user'])? $connectionConfig['user']: $user,
+                isset($connectionConfig['password'])? $connectionConfig['password']: $password,
+                isset($connectionConfig['options'])? $connectionConfig['options']: $options
             );
         } catch (PDOException $e) {
             throw DbException::connectionFailed($e);
@@ -134,7 +134,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $params = array_shift($args);
         $options = array_shift($args);
 
-        return $query->run(
+        return $query(
             empty($params)? array(): $params,
             empty($options)? array(): $options
         );
@@ -188,7 +188,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $query = new Query($this, $sql);
         $query->setLogger($this->logger);
 
-        return $query->run($params, $options);
+        return $query($params, $options);
     }
 
     public function id($sequence = null)

@@ -15,13 +15,6 @@ class SingleNamedInsertQuery extends TableQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        // Workaround for empty $params (for example when a record is inserted just to get an id and other columns can be NULL)
-        if (empty($params)) {
-            $query = new SingleInsertQuery($this->db(), $this->tableName());
-
-            return $query->run(array(), $options);
-        }
-
         $sql = sprintf('
             INSERT  INTO `%s` (%s)
             VALUES  (%s)',

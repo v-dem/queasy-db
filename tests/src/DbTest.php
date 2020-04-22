@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 
 use PDO;
 
+use Exception;
+
 use queasy\db\Db;
 use queasy\db\DbException;
 
@@ -73,13 +75,48 @@ class DbTest extends TestCase
         $this->assertEquals('7328576391847569', $row['password_hash']);
     }
 
+    public function testConstructorWithPDOParameters()
+    {
+        $db = new Db('sqlite:tests/resources/test.sqlite.temp');
+
+        $this->assertCount(3, $db->user_roles);
+    }
+
+    public function testConstructorWithWrongDSN()
+    {
+        $this->expectException(DbException::class);
+
+        $db = new Db('wrong dsn');
+    }
+
+    public function testConstructorWithWrongDSNNumeric()
+    {
+        $this->expectException(DbException::class);
+
+        $db = new Db(32167);
+    }
+
+    public function testConstructorWithStatementClass()
+    {
+        $db = new Db([
+            'connection' => [
+                'path' => 'tests/resources/test.sqlite.temp'
+            ],
+            'statement' => FakeStatement::class
+        ]);
+
+        $statement = $db('SELECT * FROM `user_roles`');
+
+        $this->assertInstanceOf(FakeStatement::class, $statement);
+    }
+
     public function testGetTable()
     {
         $db = new Db();
 
         $table = $db->table('users');
 
-        $this->assertInstanceOf('queasy\db\Table', $table);
+        $this->assertInstanceOf(\queasy\db\Table::class, $table);
         $this->assertEquals('users', $table->name());
     }
 
@@ -209,7 +246,7 @@ class DbTest extends TestCase
                         WHERE   `name` = :name'
                 ]
             ],
-            'fetchMode' => PDO::FETCH_ASSOC
+            'fetchMode' => PDO::FETCH_ASSOC,
         ]);
 
         $statement = $db->selectUserRoleByName(['name' => 'Manager']);
@@ -220,6 +257,59 @@ class DbTest extends TestCase
         $this->assertEquals('Manager', $row['name']);
 
         $this->assertFalse($statement->fetch());
+    }
+
+    public function testId()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+
+        $db->run('
+            INSERT  INTO `users` (`id`, `email`, `password_hash`)
+            VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
+
+        $this->assertEquals(45, $db->id());
+    }
+
+    public function testTrans()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+
+        $db->trans(function() use($db) {
+            $db->run('
+                INSERT  INTO `users` (`id`, `email`, `password_hash`)
+                VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
+        });
+
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 45')->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertNotNull($row);
+        $this->assertEquals(45, $row['id']);
+        $this->assertEquals('mary.jones@example.com', $row['email']);
+    }
+
+    public function testTransFailed()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+
+        $this->expectException(Exception::class);
+
+        $db->trans(function() use($db) {
+            $db->run('
+                INSERT  INTO `users` (`id`, `email`, `password_hash`)
+                VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
+
+            throw new Exception();
+
+            $db->run('
+                INSERT  INTO `users` (`id`, `email`, `password_hash`)
+                VALUES  (7, \'john.doe@example.com\', \'124284\')');
+        });
+
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNull($row);
+
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 45')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNull($row);
     }
 }
 

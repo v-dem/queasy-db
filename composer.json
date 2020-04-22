@@ -2,7 +2,7 @@
     "name": "v-dem/queasy-db",
     "description": "Database access classes, part of Queasy PHP framework",
     "homepage": "https://github.com/v-dem/queasy-db/",
-    "keywords": ["database", "pdo", "mysql", "postgresql"],
+    "keywords": ["database", "pdo", "mysql", "postgresql", "sqlite", "pdo wrapper"],
     "license": "LGPL-3.0-only",
     "version": "1.0.0",
     "minimum-stability": "dev",
@@ -40,7 +40,7 @@
     },
     "autoload-dev":{
         "psr-4":{
-            "queasy\\db\\tests\\": "tests/"
+            "queasy\\db\\tests\\": "tests/src/"
         }
     },
     "scripts": {

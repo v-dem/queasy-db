@@ -50,7 +50,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
         $query = new CountQuery($this->db, $this->table->name());
         $query->setLogger($this->logger);
 
-        $statement = $query->run(array($this->name => $offset));
+        $statement = $query(array($this->name => $offset));
 
         $row = $statement->fetch();
 
@@ -64,7 +64,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
         $query = new SelectQuery($this->db, $this->table->name());
         $query->setLogger($this->logger);
 
-        $statement = $query->run(array($this->name => $offset));
+        $statement = $query(array($this->name => $offset));
 
         if (is_array($offset)) {
             return $statement->fetchAll();

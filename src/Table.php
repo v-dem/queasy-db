@@ -67,7 +67,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $query = new CountQuery($this->db, $this->name);
         $query->setLogger($this->logger);
 
-        $statement = $query->run();
+        $statement = $query();
 
         $row = $statement->fetch();
 
@@ -93,7 +93,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     {
         $query = new SelectQuery($this->db, $this->name);
 
-        $statement = $query->run();
+        $statement = $query();
 
         $this->rows = $statement->fetchAll();
     }
@@ -137,7 +137,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
         $query->setLogger($this->logger);
 
-        $statement = $query->run($params);
+        $statement = $query($params);
 
         return $isSingleInsert
             ? $this->db->id()
@@ -149,7 +149,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $query = new UpdateQuery($this->db, $this->name, $fieldName, $fieldValue);
         $query->setLogger($this->logger);
 
-        $statement = $query->run($params, $options);
+        $statement = $query($params, $options);
 
         return $statement->rowCount();
     }
@@ -159,7 +159,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $query = new DeleteQuery($this->db, $this->name, $fieldName, $fieldValue);
         $query->setLogger($this->logger);
 
-        $statement = $query->run(array(), $options);
+        $statement = $query(array(), $options);
 
         return $statement->rowCount();
     }

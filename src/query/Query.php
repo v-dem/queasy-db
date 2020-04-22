@@ -21,7 +21,7 @@ class Query extends AbstractQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        $this->logger()->debug('Query::run(): SQL: ' . $this->sql(), $params);
+        $this->logger()->debug(sprintf('%s::run(): SQL: %s', get_class($this), $this->sql()), $params);
 
         try {
             $statement = $this->db()->prepare($this->sql(), $options);
