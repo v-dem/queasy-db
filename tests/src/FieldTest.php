@@ -57,19 +57,10 @@ class FieldTest extends TestCase
 
     public function testGetRecordInvoke()
     {
-        $role = $this->db->user_roles->id(2);
+        $roles = $this->db->user_roles->id(2);
 
-        $this->assertEquals('Manager', $role['name']);
-    }
-
-    public function testGetRecordsInvoke()
-    {
-        $roles = $this->db->user_roles->id([2, 3]);
-
-        $this->assertCount(2, $roles);
-
+        $this->assertTrue(is_array($roles));
         $this->assertEquals('Manager', $roles[0]['name']);
-        $this->assertEquals('User', $roles[1]['name']);
     }
 
     public function testDeleteAssignNull()

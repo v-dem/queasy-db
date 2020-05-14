@@ -25,7 +25,7 @@ class SelectQuery extends TableQuery
         $paramValues = array_values($params);
 
         if (count($paramKeys)) {
-            if (is_array($paramValues[0])) {
+            if (is_array($paramValues[0]) && (1 < count($paramValues[0]))) {
                 $values = $paramValues[0];
 
                 $params = [];
@@ -41,6 +41,10 @@ class SelectQuery extends TableQuery
                     implode(', ', array_keys($params))
                 );
             } else {
+                if (is_array($paramValues[0])) {
+                    $params[$paramKeys[0]] = array_shift($paramValues[0]);
+                }
+
                 $sql = sprintf('
                     %s
                     WHERE   `%s` = :%2$s',

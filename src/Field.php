@@ -85,7 +85,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function __invoke($value)
     {
-        return $this[$value];
+        return $this[[$value]];
     }
 
     public function setLogger(LoggerInterface $logger)
