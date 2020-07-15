@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use PDO;
 
 use Exception;
+use InvalidArgumentException;
 
 use queasy\db\Db;
 use queasy\db\DbException;
@@ -353,6 +354,15 @@ class DbTest extends TestCase
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 45')->fetch(PDO::FETCH_ASSOC);
         $this->assertNull($row);
+    }
+
+    public function testTransNotCallable()
+    {
+        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        $db->trans(123);
     }
 }
 

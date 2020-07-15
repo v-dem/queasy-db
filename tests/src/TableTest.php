@@ -216,6 +216,13 @@ class TableTest extends TestCase
         $this->assertEquals(1, $row[0]);
     }
 
+    public function testInsertByOffset()
+    {
+        $this->expectException(DbException::class);
+
+        $this->db->ids[12] = [22];
+    }
+
     // Such usage can't be implemented without very dirty tricks
     /*
     public function testInsertTwoEmpty()
