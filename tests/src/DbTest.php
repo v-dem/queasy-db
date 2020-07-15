@@ -150,6 +150,33 @@ class DbTest extends TestCase
         $this->assertEquals('users', $table->name());
     }
 
+    public function testSetTableAsArrayItem()
+    {
+        $db = new Db();
+
+        $this->expectException(DbException::class);
+
+        $db['users'] = true;
+    }
+
+    public function testIssetTableAsArrayItem()
+    {
+        $db = new Db();
+
+        $this->expectException(DbException::class);
+
+        isset($db['users']);
+    }
+
+    public function testUnsetTableAsArrayItem()
+    {
+        $db = new Db();
+
+        $this->expectException(DbException::class);
+
+        unset($db['users']);
+    }
+
     public function testRunSelect()
     {
         $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
@@ -257,6 +284,22 @@ class DbTest extends TestCase
         $this->assertEquals('Manager', $row['name']);
 
         $this->assertFalse($statement->fetch());
+    }
+
+    public function testRunCustomQueryNotDeclared()
+    {
+        $db = new Db([
+            'connection' => [
+                'path' => 'tests/resources/test.sqlite.temp'
+            ],
+            'queries' => [
+            ],
+            'fetchMode' => PDO::FETCH_ASSOC,
+        ]);
+
+        $this->expectException(DbException::class);
+
+        $statement = $db->selectUserRoleByName(['name' => 'Manager']);
     }
 
     public function testId()

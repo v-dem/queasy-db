@@ -276,7 +276,7 @@ class FieldTest extends TestCase
     {
         $this->assertTrue(isset($this->db->user_roles->id[1]));
         $this->assertTrue(isset($this->db->user_roles->id[2]));
-        $this->assertTrue(isset($this->db->user_roles->id[2]));
+        $this->assertTrue(isset($this->db->user_roles->id[3]));
         $this->assertFalse(isset($this->db->user_roles->id[7]));
     }
 }
