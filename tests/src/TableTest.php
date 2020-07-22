@@ -21,13 +21,13 @@ use queasy\db\DbException;
 
 class TableTest extends TestCase
 {
-    private $db;
+    private $qdb;
 
     private $pdo;
 
     public function setUp(): void
     {
-        $this->db = new Db([
+        $this->qdb = new Db([
             'connection' => [
                 'path' => 'tests/resources/test.sqlite.temp'
             ],
@@ -80,7 +80,7 @@ class TableTest extends TestCase
 
     public function testInsert()
     {
-        $this->db->users[] = [15, 'john.doe@example.com', sha1('gfhjkm')];
+        $this->qdb->users[] = [15, 'john.doe@example.com', sha1('gfhjkm')];
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
 
@@ -92,7 +92,7 @@ class TableTest extends TestCase
 
     public function testFunctionInsert()
     {
-        $id = $this->db->users->insert([15, 'john.doe@example.com', sha1('gfhjkm')]);
+        $id = $this->qdb->users->insert([15, 'john.doe@example.com', sha1('gfhjkm')]);
         $this->assertEquals(15, $id);
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
@@ -105,7 +105,7 @@ class TableTest extends TestCase
 
     public function testInsertNamed()
     {
-        $this->db->users[] = ['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')];
+        $this->qdb->users[] = ['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')];
 
         $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
 
@@ -116,7 +116,7 @@ class TableTest extends TestCase
 
     public function testFunctionInsertNamed()
     {
-        $id = $this->db->users->insert(['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')]);
+        $id = $this->qdb->users->insert(['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')]);
         $this->assertEquals(15, $id);
 
         $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
@@ -128,7 +128,7 @@ class TableTest extends TestCase
 
     public function testBatchInsert()
     {
-        $this->db->users[] = [
+        $this->qdb->users[] = [
             [15, 'john.doe@example.com', sha1('gfhjkm')],
             [22, 'mary.jones@example.com', sha1('321654')]
         ];
@@ -148,7 +148,7 @@ class TableTest extends TestCase
 
     public function testFunctionBatchInsert()
     {
-        $rowsCount = $this->db->users->insert([
+        $rowsCount = $this->qdb->users->insert([
             [15, 'john.doe@example.com', sha1('gfhjkm')],
             [22, 'mary.jones@example.com', sha1('321654')]
         ]);
@@ -169,7 +169,7 @@ class TableTest extends TestCase
 
     public function testBatchInsertNamed()
     {
-        $this->db->users[] = [
+        $this->qdb->users[] = [
             ['id', 'email', 'password_hash'],
             [
                 [15, 'john.doe@example.com', sha1('gfhjkm')],
@@ -192,7 +192,7 @@ class TableTest extends TestCase
 
     public function testBatchInsertSeparatelyNamed()
     {
-        $this->db->users[] = [
+        $this->qdb->users[] = [
             ['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')],
             ['id' => 22, 'email' => 'mary.jones@example.com', 'password_hash' => sha1('321654')]
         ];
@@ -212,7 +212,7 @@ class TableTest extends TestCase
 
     public function testInsertEmpty()
     {
-        $this->db->ids[] = [];
+        $this->qdb->ids[] = [];
 
         $row = $this->pdo->query('SELECT count(*) FROM `ids`')->fetch(PDO::FETCH_NUM);
         $this->assertEquals(1, $row[0]);
@@ -222,14 +222,14 @@ class TableTest extends TestCase
     {
         $this->expectException(BadMethodCallException::class);
 
-        $this->db->ids[12] = [22];
+        $this->qdb->ids[12] = [22];
     }
 
     // Such usage can't be implemented without very dirty tricks
     /*
     public function testInsertTwoEmpty()
     {
-        $this->db->ids[] = [[], []];
+        $this->qdb->ids[] = [[], []];
 
         $row = $this->pdo->query('SELECT count(*) FROM `ids`')->fetch(PDO::FETCH_NUM);
         $this->assertEquals(2, $row[0]);
@@ -238,7 +238,7 @@ class TableTest extends TestCase
 
     public function testFunctionInsertEmpty()
     {
-        $id = $this->db->ids->insert();
+        $id = $this->qdb->ids->insert();
 
         $this->assertTrue(is_numeric($id));
 
@@ -250,12 +250,12 @@ class TableTest extends TestCase
 
     public function testUpdateOne()
     {
-        $this->db->users[] = [
+        $this->qdb->users[] = [
             [15, 'john.doe@example.com', sha1('gfhjkm')],
             [22, 'mary.jones@example.com', sha1('321654')]
         ];
 
-        $rowsCount = $this->db->users->update(['email' => 'vitaly.d@example.com'], 'id', 15);
+        $rowsCount = $this->qdb->users->update(['email' => 'vitaly.d@example.com'], 'id', 15);
         $this->assertEquals(1, $rowsCount);
 
         $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
@@ -273,12 +273,12 @@ class TableTest extends TestCase
 
     public function testUpdateAll()
     {
-        $this->db->users[] = [
+        $this->qdb->users[] = [
             [15, 'john.doe@example.com', sha1('gfhjkm')],
             [22, 'mary.jones@example.com', sha1('321654')]
         ];
 
-        $rowsCount = $this->db->users->update(['password_hash' => sha1('secret')]);
+        $rowsCount = $this->qdb->users->update(['password_hash' => sha1('secret')]);
         $this->assertEquals(2, $rowsCount);
 
         $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
@@ -296,7 +296,7 @@ class TableTest extends TestCase
 
     public function testCount()
     {
-        $this->assertEquals(3, count($this->db->user_roles));
+        $this->assertEquals(3, count($this->qdb->user_roles));
     }
 
     public function testForeach()
@@ -311,7 +311,7 @@ class TableTest extends TestCase
         $expectedEmails = ['john.doe@example.com', 'mary.jones@example.com', 'vitaly.d@example.com'];
         $expectedPasswordHashes = ['7346598173659873', '2341341421', '75647454'];
         $rowsCount = 0;
-        foreach ($this->db->users as $user) {
+        foreach ($this->qdb->users as $user) {
             $offset = array_search($user['id'], $expectedIds);
             $this->assertTrue(is_numeric($offset));
             $this->assertEquals($expectedIds[$offset], $user['id']);
@@ -330,7 +330,7 @@ class TableTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $this->db->users->deleteWithSubstringInEmail(['substring' => 'jo']);
+        $this->qdb->users->deleteWithSubstringInEmail(['substring' => 'jo']);
 
         $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
         $this->assertNotNull($user);
@@ -347,7 +347,7 @@ class TableTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $users = $this->db->users->selectWithSubstringInEmailBackOrdered(['substring' => 'jo']);
+        $users = $this->qdb->users->selectWithSubstringInEmailBackOrdered(['substring' => 'jo']);
         $this->assertCount(2, $users);
 
         $this->assertEquals(12, $users[0]['id']);
@@ -367,7 +367,7 @@ class TableTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $user = $this->db->users->getLatestById();
+        $user = $this->qdb->users->getLatestById();
 
         $this->assertNotNull($user);
 
@@ -384,7 +384,7 @@ class TableTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rolesCount = $this->db->user_roles->getRolesCount();
+        $rolesCount = $this->qdb->user_roles->getRolesCount();
 
         $this->assertEquals(3, $rolesCount);
     }

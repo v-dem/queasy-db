@@ -41,27 +41,27 @@ class DbTest extends TestCase
 
     public function testConstructorWithoutParameters()
     {
-        $db = new Db();
+        $qdb = new Db();
 
-        $this->assertInstanceOf('PDO', $db);
+        $this->assertInstanceOf('PDO', $qdb);
     }
 
     public function testConstructorWithoutParametersAndExec()
     {
-        $db = new Db();
+        $qdb = new Db();
 
-        $db->exec('
+        $qdb->exec('
             CREATE  TABLE `users` (
                     `id`            integer primary key,
                     `email`         text not null unique,
                     `password_hash` text not null
             )');
 
-        $db->exec('
+        $qdb->exec('
             INSERT  INTO `users` (`id`, `email`, `password_hash`)
             VALUES  (12, \'john.doe@example.com\', \'7328576391847569\')');
 
-        $statement = $db->query('
+        $statement = $qdb->query('
             SELECT  *
             FROM    `users`');
 
@@ -80,9 +80,9 @@ class DbTest extends TestCase
 
     public function testConstructorWithPDOParameters()
     {
-        $db = new Db('sqlite:tests/resources/test.sqlite.temp');
+        $qdb = new Db('sqlite:tests/resources/test.sqlite.temp');
 
-        $this->assertCount(3, $db->user_roles);
+        $this->assertCount(3, $qdb->user_roles);
     }
 
     public function testConstructorWithWrongDSN()
@@ -101,9 +101,9 @@ class DbTest extends TestCase
 
     public function testGetTable()
     {
-        $db = new Db();
+        $qdb = new Db();
 
-        $table = $db->table('users');
+        $table = $qdb->table('users');
 
         $this->assertInstanceOf(\queasy\db\Table::class, $table);
         $this->assertEquals('users', $table->name());
@@ -111,19 +111,19 @@ class DbTest extends TestCase
 
     public function testGetTableTwice()
     {
-        $db = new Db();
+        $qdb = new Db();
 
-        $table = $db->table('users');
-        $table2 = $db->table('users');
+        $table = $qdb->table('users');
+        $table2 = $qdb->table('users');
 
         $this->assertSame($table, $table2);
     }
 
     public function testGetTableAsProperty()
     {
-        $db = new Db();
+        $qdb = new Db();
 
-        $table = $db->users;
+        $table = $qdb->users;
 
         $this->assertInstanceOf('queasy\db\Table', $table);
         $this->assertEquals('users', $table->name());
@@ -131,9 +131,9 @@ class DbTest extends TestCase
 
     public function testGetTableAsArrayItem()
     {
-        $db = new Db();
+        $qdb = new Db();
 
-        $table = $db['users'];
+        $table = $qdb['users'];
 
         $this->assertInstanceOf('queasy\db\Table', $table);
         $this->assertEquals('users', $table->name());
@@ -141,36 +141,36 @@ class DbTest extends TestCase
 
     public function testSetTableAsArrayItem()
     {
-        $db = new Db();
+        $qdb = new Db();
 
         $this->expectException(BadMethodCallException::class);
 
-        $db['users'] = true;
+        $qdb['users'] = true;
     }
 
     public function testIssetTableAsArrayItem()
     {
-        $db = new Db();
+        $qdb = new Db();
 
         $this->expectException(BadMethodCallException::class);
 
-        isset($db['users']);
+        isset($qdb['users']);
     }
 
     public function testUnsetTableAsArrayItem()
     {
-        $db = new Db();
+        $qdb = new Db();
 
         $this->expectException(BadMethodCallException::class);
 
-        unset($db['users']);
+        unset($qdb['users']);
     }
 
     public function testRunSelect()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
-        $statement = $db->run('
+        $statement = $qdb->run('
             SELECT  count(*)
             FROM    `user_roles`');
 
@@ -183,9 +183,9 @@ class DbTest extends TestCase
 
     public function testInvokeSelect()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
-        $statement = $db('
+        $statement = $qdb('
             SELECT  count(*)
             FROM    `user_roles`');
 
@@ -198,9 +198,9 @@ class DbTest extends TestCase
 
     public function testInvokeSelectWithParameters()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => PDO::FETCH_ASSOC]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => PDO::FETCH_ASSOC]);
 
-        $statement = $db('
+        $statement = $qdb('
             SELECT  *
             FROM    `user_roles`
             WHERE   `id` = ?', [
@@ -218,9 +218,9 @@ class DbTest extends TestCase
 
     public function testInvokeSelectWithNamedParameters()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => PDO::FETCH_ASSOC]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => PDO::FETCH_ASSOC]);
 
-        $statement = $db('
+        $statement = $qdb('
             SELECT  *
             FROM    `user_roles`
             WHERE   `id` = :id', [
@@ -238,9 +238,9 @@ class DbTest extends TestCase
 
     public function testRunInsert()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
-        $statement = $db->run('
+        $statement = $qdb->run('
             INSERT  INTO `users` (`id`, `email`, `password_hash`)
             VALUES  (1, \'john.doe@example.com\', \'34896830491683096\'),
                     (45, \'mary.jones@example.com\', \'9387460918340139684\')');
@@ -250,7 +250,7 @@ class DbTest extends TestCase
 
     public function testRunCustomQuery()
     {
-        $db = new Db([
+        $qdb = new Db([
             'connection' => [
                 'path' => 'tests/resources/test.sqlite.temp'
             ],
@@ -265,7 +265,7 @@ class DbTest extends TestCase
             'fetchMode' => PDO::FETCH_ASSOC,
         ]);
 
-        $statement = $db->selectUserRoleByName(['name' => 'Manager']);
+        $statement = $qdb->selectUserRoleByName(['name' => 'Manager']);
 
         $row = $statement->fetch();
 
@@ -277,7 +277,7 @@ class DbTest extends TestCase
 
     public function testRunCustomQueryNotDeclared()
     {
-        $db = new Db([
+        $qdb = new Db([
             'connection' => [
                 'path' => 'tests/resources/test.sqlite.temp'
             ],
@@ -288,26 +288,26 @@ class DbTest extends TestCase
 
         $this->expectException(BadMethodCallException::class);
 
-        $db->selectUserRoleByName(['name' => 'Manager']);
+        $qdb->selectUserRoleByName(['name' => 'Manager']);
     }
 
     public function testId()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
-        $db->run('
+        $qdb->run('
             INSERT  INTO `users` (`id`, `email`, `password_hash`)
             VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
 
-        $this->assertEquals(45, $db->id());
+        $this->assertEquals(45, $qdb->id());
     }
 
     public function testTrans()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
-        $db->trans(function() use($db) {
-            $db->run('
+        $qdb->trans(function() use($qdb) {
+            $qdb->run('
                 INSERT  INTO `users` (`id`, `email`, `password_hash`)
                 VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
         });
@@ -321,18 +321,18 @@ class DbTest extends TestCase
 
     public function testTransFailed()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
         $this->expectException(Exception::class);
 
-        $db->trans(function() use($db) {
-            $db->run('
+        $qdb->trans(function() use($qdb) {
+            $qdb->run('
                 INSERT  INTO `users` (`id`, `email`, `password_hash`)
                 VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
 
             throw new Exception();
 
-            $db->run('
+            $qdb->run('
                 INSERT  INTO `users` (`id`, `email`, `password_hash`)
                 VALUES  (7, \'john.doe@example.com\', \'124284\')');
         });
@@ -346,11 +346,11 @@ class DbTest extends TestCase
 
     public function testTransNotCallable()
     {
-        $db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
+        $qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp']]);
 
         $this->expectException(InvalidArgumentException::class);
 
-        $db->trans(123);
+        $qdb->trans(123);
     }
 }
 

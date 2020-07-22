@@ -19,13 +19,13 @@ use queasy\db\DbException;
 
 class FieldTest extends TestCase
 {
-    private $db;
+    private $qdb;
 
     private $pdo;
 
     public function setUp(): void
     {
-        $this->db = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => Db::FETCH_ASSOC]);
+        $this->qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => Db::FETCH_ASSOC]);
 
         $this->pdo = new PDO('sqlite:tests/resources/test.sqlite.temp');
     }
@@ -40,14 +40,14 @@ class FieldTest extends TestCase
 
     public function testGetRecord()
     {
-        $role = $this->db->user_roles->id[2];
+        $role = $this->qdb->user_roles->id[2];
 
         $this->assertEquals('Manager', $role['name']);
     }
 
     public function testGetRecords()
     {
-        $roles = $this->db->user_roles->id[[2, 3]];
+        $roles = $this->qdb->user_roles->id[[2, 3]];
 
         $this->assertCount(2, $roles);
 
@@ -57,7 +57,7 @@ class FieldTest extends TestCase
 
     public function testGetRecordInvoke()
     {
-        $roles = $this->db->user_roles->id(2);
+        $roles = $this->qdb->user_roles->id(2);
 
         $this->assertTrue(is_array($roles));
         $this->assertEquals('Manager', $roles[0]['name']);
@@ -70,7 +70,7 @@ class FieldTest extends TestCase
         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(1, array_shift($row));
 
-        $this->db->users->id[7] = null;
+        $this->qdb->users->id[7] = null;
 
         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(0, array_shift($row));
@@ -83,7 +83,7 @@ class FieldTest extends TestCase
         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(1, array_shift($row));
 
-        $rowsCount = $this->db->users->id->delete(7);
+        $rowsCount = $this->qdb->users->id->delete(7);
         $this->assertEquals(1, $rowsCount);
 
         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
@@ -94,7 +94,7 @@ class FieldTest extends TestCase
     {
         $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
 
-        unset($this->db->users->id[7]);
+        unset($this->qdb->users->id[7]);
 
         $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(0, array_shift($row));
@@ -108,7 +108,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $this->db->users->id[[7, 123]] = null;
+        $this->qdb->users->id[[7, 123]] = null;
 
         $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
         $this->assertCount(1, $rows);
@@ -125,7 +125,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->db->users->id->delete([7, 123]);
+        $rowsCount = $this->qdb->users->id->delete([7, 123]);
         $this->assertEquals(2, $rowsCount);
 
         $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
@@ -143,7 +143,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->db->users->id->delete([7, 123, 256]);
+        $rowsCount = $this->qdb->users->id->delete([7, 123, 256]);
         $this->assertEquals(2, $rowsCount);
     }
 
@@ -155,7 +155,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        unset($this->db->users->id[[7, 123]]);
+        unset($this->qdb->users->id[[7, 123]]);
 
         $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
         $this->assertCount(1, $rows);
@@ -172,7 +172,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $this->db->users->id[7] = ['password_hash' => 'cbKBLVIWVW'];
+        $this->qdb->users->id[7] = ['password_hash' => 'cbKBLVIWVW'];
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(7, $row['id']);
@@ -193,7 +193,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->db->users->id->update(7, ['password_hash' => 'cbKBLVIWVW']);
+        $rowsCount = $this->qdb->users->id->update(7, ['password_hash' => 'cbKBLVIWVW']);
         $this->assertEquals(1, $rowsCount);
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
@@ -215,7 +215,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $this->db->users->id[[7, 123]] = ['password_hash' => 'cbKBLVIWVW'];
+        $this->qdb->users->id[[7, 123]] = ['password_hash' => 'cbKBLVIWVW'];
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
         $this->assertEquals(7, $row['id']);
@@ -241,7 +241,7 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->db->users->id->update([7, 123], ['password_hash' => 'cbKBLVIWVW']);
+        $rowsCount = $this->qdb->users->id->update([7, 123], ['password_hash' => 'cbKBLVIWVW']);
         $this->assertEquals(2, $rowsCount);
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
@@ -268,16 +268,16 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->db->users->id->update([7, 123, 17], ['password_hash' => 'cbKBLVIWVW']);
+        $rowsCount = $this->qdb->users->id->update([7, 123, 17], ['password_hash' => 'cbKBLVIWVW']);
         $this->assertEquals(2, $rowsCount);
     }
 
     public function testIsset()
     {
-        $this->assertTrue(isset($this->db->user_roles->id[1]));
-        $this->assertTrue(isset($this->db->user_roles->id[2]));
-        $this->assertTrue(isset($this->db->user_roles->id[3]));
-        $this->assertFalse(isset($this->db->user_roles->id[7]));
+        $this->assertTrue(isset($this->qdb->user_roles->id[1]));
+        $this->assertTrue(isset($this->qdb->user_roles->id[2]));
+        $this->assertTrue(isset($this->qdb->user_roles->id[3]));
+        $this->assertFalse(isset($this->qdb->user_roles->id[7]));
     }
 }
 
