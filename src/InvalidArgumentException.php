@@ -26,7 +26,7 @@ class InvalidArgumentException extends StandardInvalidArgumentException
      */
     public static function queryInterfaceNotImplemented($className)
     {
-        return new InvalidArgumentException(sprintf('Query class "%s" does not implement queasy\db\query\QueryInterface.', $queryClass));
+        return new InvalidArgumentException(sprintf('Query class "%s" does not implement queasy\db\query\QueryInterface.', $className));
     }
 
     public static function missingQueryString()
