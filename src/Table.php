@@ -183,11 +183,11 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function offsetSet($offset, $value)
     {
-        if (null === $offset) {
-            $this->insert($value);
-        } else {
+        if (null !== $offset) {
             throw new DbException('Not implemented. Use Field instead of Table to update record.');
         }
+
+        $this->insert($value);
     }
 
     public function offsetUnset($offset)
@@ -212,12 +212,12 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
             $query->setLogger($this->logger);
 
             return call_user_func_array(array($query, 'run'), $args);
-        } else {
-            $field = $this[$method];
-
-            return $field($args[0]);
-            // throw DbException::tableMethodNotImplemented($this->name(), $method);
         }
+
+        $field = $this[$method];
+
+        return $field($args[0]);
+        // throw DbException::tableMethodNotImplemented($this->name(), $method);
     }
 
     /**

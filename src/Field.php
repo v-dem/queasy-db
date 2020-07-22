@@ -35,9 +35,9 @@ class Field implements ArrayAccess, LoggerAwareInterface
     {
         if (null === $value) {
             return $this->delete($offset);
-        } else {
-            return $this->table->update($value, $this->name, $offset, $options);
         }
+
+        return $this->table->update($value, $this->name, $offset, $options);
     }
 
     public function delete($offset, array $options = array())
@@ -54,9 +54,9 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
         if (is_array($value)) {
             return $statement->fetchAll();
-        } else {
-            return $statement->fetch();
         }
+
+        return $statement->fetch();
     }
 
     public function offsetExists($offset)

@@ -61,9 +61,9 @@ class CustomQuery extends Query
                 default:
                     return $statement;
             }
-        } else {
-            return $statement;
         }
+
+        return $statement;
     }
 }
 

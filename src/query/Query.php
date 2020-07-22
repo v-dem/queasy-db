@@ -69,7 +69,7 @@ class Query extends AbstractQuery
             $paramType = PDO::PARAM_BOOL;
         } else {
             if (is_float($value)) {
-                $value = strval($value);
+                $value = (string) $value;
             }
 
             $paramType = PDO::PARAM_STR;
