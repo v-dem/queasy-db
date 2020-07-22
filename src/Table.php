@@ -166,7 +166,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function offsetExists($offset)
     {
-        return true;
+        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
     }
 
     public function offsetGet($offset)

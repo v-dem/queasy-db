@@ -237,27 +237,27 @@ class FieldTest extends TestCase
     {
         $this->pdo->exec('
             INSERT  INTO `users`
-            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
-                    (12, \'mary.jones@example.com\', \'2341341421\'),
-                    (123, \'vitaly.d@example.com\', \'75647454\')');
+            VALUES  (8, \'john.doe@example.com\', \'73465981736598730\'),
+                    (13, \'mary.jones@example.com\', \'23413414210\'),
+                    (124, \'vitaly.d@example.com\', \'756474540\')');
 
-        $rowsCount = $this->qdb->users->id->update([7, 123], ['password_hash' => 'cbKBLVIWVW']);
+        $rowsCount = $this->qdb->users->id->update([8, 124], ['password_hash' => 'cbKBLVIWVW0']);
         $this->assertEquals(2, $rowsCount);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
-        $this->assertEquals(7, $row['id']);
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 8')->fetch(PDO::FETCH_ASSOC);
+        $this->assertEquals(8, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
-        $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
+        $this->assertEquals('cbKBLVIWVW0', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
-        $this->assertEquals(123, $row['id']);
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 124')->fetch(PDO::FETCH_ASSOC);
+        $this->assertEquals(124, $row['id']);
         $this->assertEquals('vitaly.d@example.com', $row['email']);
-        $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
+        $this->assertEquals('cbKBLVIWVW0', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 12')->fetch(PDO::FETCH_ASSOC);
-        $this->assertEquals(12, $row['id']);
+        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 13')->fetch(PDO::FETCH_ASSOC);
+        $this->assertEquals(13, $row['id']);
         $this->assertEquals('mary.jones@example.com', $row['email']);
-        $this->assertEquals('2341341421', $row['password_hash']);
+        $this->assertEquals('23413414210', $row['password_hash']);
     }
 
     public function testUpdateFunctionSomeNotExistent()
