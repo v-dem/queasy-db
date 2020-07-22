@@ -217,7 +217,6 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $field = $this[$method];
 
         return $field($args[0]);
-        // throw DbException::tableMethodNotImplemented($this->name(), $method);
     }
 
     /**

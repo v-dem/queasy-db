@@ -69,7 +69,7 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
     protected function sql()
     {
         if (empty($this->sql)) {
-            throw new DbException('SQL is empty.');
+            throw new DbException('SQL string is empty.');
         }
 
         return $this->sql;

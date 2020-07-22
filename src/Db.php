@@ -73,18 +73,14 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         $this->config = $config;
 
-        try {
-            $connectionString = new Connection($connectionConfig);
+        $connectionString = new Connection($connectionConfig);
 
-            parent::__construct(
-                $connectionString(),
-                isset($connectionConfig['user'])? $connectionConfig['user']: $user,
-                isset($connectionConfig['password'])? $connectionConfig['password']: $password,
-                isset($connectionConfig['options'])? $connectionConfig['options']: $options
-            );
-        } catch (PDOException $e) {
-            throw DbException::connectionFailed($e);
-        }
+        parent::__construct(
+            $connectionString(),
+            isset($connectionConfig['user'])? $connectionConfig['user']: $user,
+            isset($connectionConfig['password'])? $connectionConfig['password']: $password,
+            isset($connectionConfig['options'])? $connectionConfig['options']: $options
+        );
 
         if (isset($config['queries'])) {
             $this->queries = $config['queries'];
@@ -92,12 +88,12 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         $errorMode = isset($config['errorMode'])? $config['errorMode']: self::ERRMODE_EXCEPTION;
         if (!$this->setAttribute(self::ATTR_ERRMODE, $errorMode)) {
-            throw DbException::errorModeNotSet();
+            throw new DbException('Cannot set error mode.');
         }
 
         if (isset($config['fetchMode'])) {
             if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $config['fetchMode'])) {
-                throw DbException::fetchModeNotSet();
+                throw new DbException('Cannot set fetch mode.');
             }
         }
     }
@@ -120,7 +116,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function __call($name, array $args = array())
     {
         if (!isset($this->queries[$name])) {
-            throw DbException::queryNotDeclared($name);
+            throw new BadMethodCallException(sprintf('No method "%s" found.', $name));
         }
 
         $query = new CustomQuery($this, $this->queries[$name]);

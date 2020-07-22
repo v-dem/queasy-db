@@ -13,6 +13,7 @@ namespace queasy\db\tests;
 use PHPUnit\Framework\TestCase;
 
 use PDO;
+use PDOException;
 
 use Exception;
 use InvalidArgumentException;
@@ -86,7 +87,7 @@ class DbTest extends TestCase
 
     public function testConstructorWithWrongDSN()
     {
-        $this->expectException(DbException::class);
+        $this->expectException(PDOException::class);
 
         new Db('wrong dsn');
     }
@@ -285,7 +286,7 @@ class DbTest extends TestCase
             'fetchMode' => PDO::FETCH_ASSOC,
         ]);
 
-        $this->expectException(DbException::class);
+        $this->expectException(BadMethodCallException::class);
 
         $db->selectUserRoleByName(['name' => 'Manager']);
     }

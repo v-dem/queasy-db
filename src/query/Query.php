@@ -23,12 +23,8 @@ class Query extends AbstractQuery
     {
         $this->logger()->debug(sprintf('%s::run(): SQL: %s', get_class($this), $this->sql()), $params);
 
-        try {
-            $statement = $this->pdo()->prepare($this->sql(), $options);
-            $statement->closeCursor(); // Avoid error with not closed recordset
-        } catch (Exception $e) {
-            throw DbException::cannotPrepareStatement($this->query(), $e);
-        }
+        $statement = $this->pdo()->prepare($this->sql(), $options);
+        $statement->closeCursor(); // Avoid error with not closed recordset
 
         $counter = 1;
         foreach ($params as $paramKey => $paramValue) {
@@ -53,7 +49,7 @@ class Query extends AbstractQuery
         if (!$statement->execute()) {
             list($sqlErrorCode, $errorMessage, $errorMessage) = $statement->errorInfo();
 
-            throw DbException::cannotExecuteQuery($this->sql(), $sqlErrorCode, $errorMessage);
+            throw new DbException(sprintf('Statement failed to execute. Error code: "%s", error message: "%s".', $sqlErrorCode, $errorMessage));
         }
 
         return $statement;
