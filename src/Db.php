@@ -88,12 +88,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             $this->queries = $config['queries'];
         }
 
-        if (isset($config['statement'])) {
-            if (!$this->setAttribute(self::ATTR_STATEMENT_CLASS, array($config['statement'], array($this)))) {
-                throw DbException::statementClassNotSet();
-            }
-        }
-
         $errorMode = isset($config['errorMode'])? $config['errorMode']: self::ERRMODE_EXCEPTION;
         if (!$this->setAttribute(self::ATTR_ERRMODE, $errorMode)) {
             throw DbException::errorModeNotSet();

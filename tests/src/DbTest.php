@@ -97,20 +97,6 @@ class DbTest extends TestCase
         new Db(32167);
     }
 
-    public function testConstructorWithStatementClass()
-    {
-        $db = new Db([
-            'connection' => [
-                'path' => 'tests/resources/test.sqlite.temp'
-            ],
-            'statement' => FakeStatement::class
-        ]);
-
-        $statement = $db('SELECT * FROM `user_roles`');
-
-        $this->assertInstanceOf(FakeStatement::class, $statement);
-    }
-
     public function testGetTable()
     {
         $db = new Db();
