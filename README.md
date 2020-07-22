@@ -18,7 +18,7 @@ added into database and/or tables config.
 * PHP version 5.3 or higher
 * Package `v-dem/queasy-helper`
 * Package `v-dem/queasy-config` *(required for `dev` only)*
-* Package `v-dem/queasy-log` *(required for `dev`  only)*
+* Package `v-dem/queasy-log` *(required for `dev` only)*
 
 ### Documentation
 
