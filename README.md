@@ -38,17 +38,20 @@ See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 #### Initialization
 
 Sample:
+
     ```php
-    $db = new queasy\db\Db([
-        'connection' => [
-            'driver' => 'mysql',
-            'host' => 'localhost',
-            'name' => 'test',
-            'user' => 'test_user',
-            'password' => 'test_password'
-        ],
-        'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
-    ]);
+    $db = new queasy\db\Db(
+        [
+            'connection' => [
+                'driver' => 'mysql',
+                'host' => 'localhost',
+                'name' => 'test',
+                'user' => 'test_user',
+                'password' => 'test_password'
+            ],
+            'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
+        ]
+    );
     ```
 
 #### Getting a single record from `users` table by `id` key
