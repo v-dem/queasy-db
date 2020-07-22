@@ -106,7 +106,7 @@ class DbTest extends TestCase
         $table = $qdb->table('users');
 
         $this->assertInstanceOf(\queasy\db\Table::class, $table);
-        $this->assertEquals('users', $table->name());
+        $this->assertEquals('users', $table->getName());
     }
 
     public function testGetTableTwice()
@@ -126,7 +126,7 @@ class DbTest extends TestCase
         $table = $qdb->users;
 
         $this->assertInstanceOf('queasy\db\Table', $table);
-        $this->assertEquals('users', $table->name());
+        $this->assertEquals('users', $table->getName());
     }
 
     public function testGetTableAsArrayItem()
@@ -136,7 +136,7 @@ class DbTest extends TestCase
         $table = $qdb['users'];
 
         $this->assertInstanceOf('queasy\db\Table', $table);
-        $this->assertEquals('users', $table->name());
+        $this->assertEquals('users', $table->getName());
     }
 
     public function testSetTableAsArrayItem()

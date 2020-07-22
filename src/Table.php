@@ -229,7 +229,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    public function name()
+    public function getName()
     {
         return $this->name;
     }

@@ -47,7 +47,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function select($value, array $options = array())
     {
-        $query = new SelectQuery($this->pdo, $this->table->name());
+        $query = new SelectQuery($this->pdo, $this->table->getName());
         $query->setLogger($this->logger);
 
         $statement = $query(array($this->name => $value), $options);
@@ -61,7 +61,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetExists($offset)
     {
-        $query = new CountQuery($this->pdo, $this->table->name());
+        $query = new CountQuery($this->pdo, $this->table->getName());
         $query->setLogger($this->logger);
 
         $statement = $query(array($this->name => $offset));
