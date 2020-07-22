@@ -15,10 +15,10 @@ added into database and/or tables config.
 
 ### Requirements
 
-* PHP version 5.3 or higher
-* Package `v-dem/queasy-helper`
-* Package `v-dem/queasy-config` *(required for `dev` only)*
-* Package `v-dem/queasy-log` *(required for `dev` only)*
+  * PHP version 5.3 or higher
+  * Package `v-dem/queasy-helper`
+  * Package `v-dem/queasy-config` *(required for `dev` only)*
+  * Package `v-dem/queasy-log` *(required for `dev` only)*
 
 ### Documentation
 
@@ -32,27 +32,26 @@ See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 
 #### Notes
 
-* `queasy\db\Db` class inherits `PDO` class, so any `PDO` methods can be called with it
-* For some reasons original `PDOStatement` class is replaced by its implementation `queasy\db\Statement`
-* You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries
+  * `queasy\db\Db` class inherits `PDO` class, so any `PDO` methods can be called with it
+  * You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries
 
 #### Initialization
 
 Sample:
 ```php
-$db = new queasy\db\Db([
-    'connection' => [
-        'driver' => 'mysql',
-        'host' => 'localhost',
-        'name' => 'test',
-        'user' => 'test_user',
-        'password' => 'test_password'
-    ],
-    'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
-]);
+    $db = new queasy\db\Db([
+        'connection' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'name' => 'test',
+            'user' => 'test_user',
+            'password' => 'test_password'
+        ],
+        'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
+    ]);
 ```
 
-#### Getting a single record from `users` table by `id` key:
+#### Getting a single record from `users` table by `id` key
 
 ```php
 $user = $db->users->id[$userId];
@@ -66,7 +65,7 @@ FROM    `users`
 WHERE   `id` = :id
 ```
 
-#### Inserting a record into `users` table using associative array:
+#### Inserting a record into `users` table using associative array
 
 ```php
 $db->users[] = [
@@ -82,7 +81,7 @@ INSERT  INTO `users` (`email`, `password_hash`)
 VALUES  (:email, :password_hash)
 ```
 
-#### Inserting a record into `users` table by order (not recommended, keep in mind fields order):
+#### Inserting a record into `users` table by order (not recommended, keep in mind fields order)
 
 ```php
 $db->users[] = [
@@ -91,7 +90,7 @@ $db->users[] = [
 ];
 ```
 
-#### Inserting many records into `users` table using associative array (it will generate single `INSERT` statement):
+#### Inserting many records into `users` table using associative array (it will generate single `INSERT` statement)
 
 ```php
 $db->users[] = [
@@ -105,7 +104,7 @@ $db->users[] = [
 ];
 ```
 
-#### Inserting many records into `users` table by order (not recommended; it will generate single `INSERT` statement):
+#### Inserting many records into `users` table by order (not recommended; it will generate single `INSERT` statement)
 
 ```php
 $db->users[] = [
@@ -119,7 +118,7 @@ $db->users[] = [
 ];
 ```
 
-#### Inserting many records into `users` table with field names denoted separately (it will generate single `INSERT` statement):
+#### Inserting many records into `users` table with field names denoted separately (it will generate single `INSERT` statement)
 
 ```php
 $db->users[] = [
@@ -138,13 +137,13 @@ $db->users[] = [
 ];
 ```
 
-#### Getting last insert id (alias of `lastInsertId()` method):
+#### Getting last insert id (alias of `lastInsertId()` method)
 
 ```php
 $newUserId = $db->id();
 ```
 
-#### Updating a record in `users` table by `id` key:
+#### Updating a record in `users` table by `id` key
 
 ```php
 $db->users->id[$userId] = [
@@ -152,19 +151,19 @@ $db->users->id[$userId] = [
 ]
 ```
 
-#### Deleting a record in `users` table by `id` key:
+#### Deleting a record in `users` table by `id` key
 
 ```php
 unset($db->users->id[$userId]);
 ```
 
-#### Get count of all records in `users` table *(I know this function is not very useful)*:
+#### Get count of all records in `users` table *(I know this function is not very useful)*
 
 ```php
 $usersCount = count($db->users);
 ```
 
-#### Using transactions:
+#### Using transactions
 
 ```php
 $db->trans(function() use($db) {
@@ -172,12 +171,10 @@ $db->trans(function() use($db) {
 });
 ```
 
-#### Using `foreach` with a `users` table (obviously it will get all table records first):
+#### Using `foreach` with a `users` table (obviously it will get all table records first)
 
 ```php
 foreach($db->users as $user) {
     // Do something
 }
 ```
-
-
