@@ -46,7 +46,7 @@ class Connection
 
                 return;
             }
-
+/*
             $driver = isset($config['driver'])? $config['driver']: static::DEFAULT_DRIVER;
             switch ($driver) {
                 case static::DEFAULT_DRIVER:
@@ -63,6 +63,19 @@ class Connection
                         isset($config['name'])? $config['name']: null
                     );
             }
+*/
+            $this->string = isset($config['driver'])
+                ? sprintf(
+                    static::GENERIC_TEMPLATE,
+                    $config['driver'],
+                    isset($config['host'])? $config['host']: null,
+                    isset($config['port'])? $config['port']: null,
+                    isset($config['name'])? $config['name']: null)
+                : sprintf(
+                    static::SQLITE_TEMPLATE,
+                    isset($config['path'])
+                        ? $config['path']
+                        : ':memory:');
 
             return;
         }
