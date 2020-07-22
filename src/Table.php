@@ -132,7 +132,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                     : new SingleNamedInsertQuery($this->db, $this->name); // By field names
             }
         } else {
-            throw new DbException('Invalid assignment type (must be array).');
+            throw InvalidArgumentException::rowsUnexpectedValue();
         }
 
         $query->setLogger($this->logger);

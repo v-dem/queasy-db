@@ -114,7 +114,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
-
     }
 
     public function __get($name)
@@ -140,9 +139,9 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         );
     }
 
-    public function __invoke($sql, array $params = array())
+    public function __invoke($sql, array $params = array(), array $options = array())
     {
-        return $this->run($sql, $params);
+        return $this->run($sql, $params, $options);
     }
 
     public function offsetGet($name)
