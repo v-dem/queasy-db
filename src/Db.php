@@ -3,11 +3,11 @@
 namespace queasy\db;
 
 use Exception;
-
-use PDO;
+use BadMethodCallException;
+use InvalidArgumentException;
 use PDOException;
 
-use InvalidArgumentException;
+use PDO;
 
 use ArrayAccess;
 
@@ -68,7 +68,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             $config = $configOrDsn;
             $connectionConfig = isset($config['connection'])? $config['connection']: null;
         } else {
-            throw DbException::invalidConstructorArguments();
+            throw new InvalidArgumentException('Wrong constructor arguments.');
         }
 
         $this->config = $config;
@@ -147,17 +147,17 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     public function offsetSet($offset, $value)
     {
-        throw DbException::notImplementedException(__CLASS__, __METHOD__);
+        throw new BadMethodCallException('Not implemented.');
     }
 
     public function offsetExists($offset)
     {
-        throw DbException::notImplementedException(__CLASS__, __METHOD__);
+        throw new BadMethodCallException('Not implemented.');
     }
 
     public function offsetUnset($offset)
     {
-        throw DbException::notImplementedException(__CLASS__, __METHOD__);
+        throw new BadMethodCallException('Not implemented.');
     }
 
     public function table($name)

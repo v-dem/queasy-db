@@ -2,6 +2,8 @@
 
 namespace queasy\db;
 
+use BadMethodCallException;
+
 use PDO;
 use ArrayAccess;
 use Countable;
@@ -182,7 +184,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     public function offsetSet($offset, $value)
     {
         if (null !== $offset) {
-            throw new DbException('Not implemented. Use Field instead of Table to update record.');
+            throw new BadMethodCallException('Not implemented. Use Field instead of Table to update record.');
         }
 
         $this->insert($value);
@@ -190,7 +192,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function offsetUnset($offset)
     {
-        throw new Exception('Cannot unset table field.');
+        throw new BadMethodCallException('Not implemented.');
     }
 
     /**

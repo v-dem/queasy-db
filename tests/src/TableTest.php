@@ -14,6 +14,8 @@ use PHPUnit\Framework\TestCase;
 
 use PDO;
 
+use BadMethodCallException;
+
 use queasy\db\Db;
 use queasy\db\DbException;
 
@@ -218,7 +220,7 @@ class TableTest extends TestCase
 
     public function testInsertByOffset()
     {
-        $this->expectException(DbException::class);
+        $this->expectException(BadMethodCallException::class);
 
         $this->db->ids[12] = [22];
     }

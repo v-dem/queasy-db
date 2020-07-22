@@ -4,6 +4,8 @@ namespace queasy\db;
 
 use ArrayAccess;
 
+use InvalidArgumentException;
+
 class Connection
 {
     const DEFAULT = 'sqlite::memory:';
@@ -52,7 +54,7 @@ class Connection
                 }
             }
         } else {
-            throw DbException::invalidConnectionDsn();
+            throw new InvalidArgumentException('Wrong config argument.');
         }
     }
 

@@ -16,6 +16,7 @@ use PDO;
 
 use Exception;
 use InvalidArgumentException;
+use BadMethodCallException;
 
 use queasy\db\Db;
 use queasy\db\DbException;
@@ -92,7 +93,7 @@ class DbTest extends TestCase
 
     public function testConstructorWithWrongDSNNumeric()
     {
-        $this->expectException(DbException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new Db(32167);
     }
@@ -141,7 +142,7 @@ class DbTest extends TestCase
     {
         $db = new Db();
 
-        $this->expectException(DbException::class);
+        $this->expectException(BadMethodCallException::class);
 
         $db['users'] = true;
     }
@@ -150,7 +151,7 @@ class DbTest extends TestCase
     {
         $db = new Db();
 
-        $this->expectException(DbException::class);
+        $this->expectException(BadMethodCallException::class);
 
         isset($db['users']);
     }
@@ -159,7 +160,7 @@ class DbTest extends TestCase
     {
         $db = new Db();
 
-        $this->expectException(DbException::class);
+        $this->expectException(BadMethodCallException::class);
 
         unset($db['users']);
     }

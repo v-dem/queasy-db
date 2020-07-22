@@ -12,8 +12,9 @@ namespace queasy\db\tests;
 
 use PHPUnit\Framework\TestCase;
 
+use InvalidArgumentException;
+
 use queasy\db\Connection;
-use queasy\db\DbException;
 
 class ConnectionTest extends TestCase
 {
@@ -78,7 +79,7 @@ class ConnectionTest extends TestCase
 
     public function testInvalidDsn()
     {
-        $this->expectException(DbException::class);
+        $this->expectException(InvalidArgumentException::class);
 
         new Connection(32167);
     }

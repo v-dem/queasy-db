@@ -6,24 +6,9 @@ use Exception;
 
 class DbException extends Exception
 {
-    public static function invalidConnectionDsn()
-    {
-        return new DbException('Invalid connection DSN.');
-    }
-
-    public static function invalidConstructorArguments()
-    {
-        return new DbException('Invalid arguments passed to constructor.');
-    }
-
     public static function connectionFailed($e = null)
     {
         return new DbException('Cannot connect to database.', 0, $e);
-    }
-
-    public static function statementClassNotSet()
-    {
-        return new DbException('Cannot set statement class.');
     }
 
     public static function errorModeNotSet()
@@ -59,11 +44,6 @@ class DbException extends Exception
     public static function noValueSelected($query)
     {
         return new DbException(sprintf('No value was selected by query: %s', $query));
-    }
-
-    public static function notImplementedException($class, $method)
-    {
-        return new DbException(sprintf('Method "%s" not implemented in "%s" class.', $method, $class));
     }
 }
 
