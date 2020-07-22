@@ -107,32 +107,30 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     {
         $isSingleInsert = true;
         $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
-        if (null === $params) {
-            throw new DbException('Cannot assign null to table field.');
-        } elseif (is_array($params)) {
-            $keys = array_keys($params);
-            if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
-                $isSingleInsert = false;
-                if ((2 === count($params))
-                        && is_array($params[1])
-                        && (0 < count($params[1]))
-                        && isset($params[1][0])
-                        && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
-                    $query = new BatchSeparatelyNamedInsertQuery($this->pdo, $this->name);
-                } else {
-                    $keys = array_keys($params[$keys[0]]);
+        if ((null === $params) || !is_array($params)) {
+            throw new InvalidArgumentException('Wrong rows argument.');
+        }
 
-                    $query = (!count($keys) || is_numeric($keys[0]))
-                        ? new BatchInsertQuery($this->pdo, $this->name) // Batch insert
-                        : new BatchNamedInsertQuery($this->pdo, $this->name); // Batch insert with field names
-                }
-            } else { // Single inserts
+        $keys = array_keys($params);
+        if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
+            $isSingleInsert = false;
+            if ((2 === count($params))
+                    && is_array($params[1])
+                    && (0 < count($params[1]))
+                    && isset($params[1][0])
+                    && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
+                $query = new BatchSeparatelyNamedInsertQuery($this->pdo, $this->name);
+            } else {
+                $keys = array_keys($params[$keys[0]]);
+
                 $query = (!count($keys) || is_numeric($keys[0]))
-                    ? new SingleInsertQuery($this->pdo, $this->name) // By order, without field names
-                    : new SingleNamedInsertQuery($this->pdo, $this->name); // By field names
+                    ? new BatchInsertQuery($this->pdo, $this->name) // Batch insert
+                    : new BatchNamedInsertQuery($this->pdo, $this->name); // Batch insert with field names
             }
-        } else {
-            throw InvalidArgumentException::rowsUnexpectedValue();
+        } else { // Single inserts
+            $query = (!count($keys) || is_numeric($keys[0]))
+                ? new SingleInsertQuery($this->pdo, $this->name) // By order, without field names
+                : new SingleNamedInsertQuery($this->pdo, $this->name); // By field names
         }
 
         $query->setLogger($this->logger);

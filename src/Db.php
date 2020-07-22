@@ -7,6 +7,8 @@ use Exception;
 use PDO;
 use PDOException;
 
+use InvalidArgumentException;
+
 use ArrayAccess;
 
 use Psr\Log\NullLogger;
@@ -192,7 +194,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function trans($func)
     {
         if (!is_callable($func)) {
-            throw InvalidArgumentException::argumentNotCallable();
+            throw new InvalidArgumentException('Argument is not callable.');
         }
 
         $this->beginTransaction();
