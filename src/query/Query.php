@@ -51,7 +51,7 @@ class Query extends AbstractQuery
         }
 
         if (!$statement->execute()) {
-            list($sqlErrorCode, $driverErrorCode, $errorMessage) = $statement->errorInfo();
+            list($sqlErrorCode, $errorMessage, $errorMessage) = $statement->errorInfo();
 
             throw DbException::cannotExecuteQuery($this->sql(), $sqlErrorCode, $errorMessage);
         }
