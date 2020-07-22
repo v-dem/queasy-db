@@ -18,8 +18,11 @@ use PDOStatement;
  */
 class FakeStatement extends PDOStatement
 {
+    protected $pdo;
+
     protected function __construct(PDO $pdo)
     {
+        $this->pdo = $pdo;
     }
 }
 

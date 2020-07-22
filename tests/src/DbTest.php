@@ -87,14 +87,14 @@ class DbTest extends TestCase
     {
         $this->expectException(DbException::class);
 
-        $db = new Db('wrong dsn');
+        new Db('wrong dsn');
     }
 
     public function testConstructorWithWrongDSNNumeric()
     {
         $this->expectException(DbException::class);
 
-        $db = new Db(32167);
+        new Db(32167);
     }
 
     public function testConstructorWithStatementClass()
@@ -300,7 +300,7 @@ class DbTest extends TestCase
 
         $this->expectException(DbException::class);
 
-        $statement = $db->selectUserRoleByName(['name' => 'Manager']);
+        $db->selectUserRoleByName(['name' => 'Manager']);
     }
 
     public function testId()
