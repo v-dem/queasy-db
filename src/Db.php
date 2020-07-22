@@ -143,17 +143,17 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     public function offsetSet($offset, $value)
     {
-        throw new BadMethodCallException('Not implemented.');
+        throw new BadMethodCallException(sprintf('Not implemented.', $offset, $value));
     }
 
     public function offsetExists($offset)
     {
-        throw new BadMethodCallException('Not implemented.');
+        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
     }
 
     public function offsetUnset($offset)
     {
-        throw new BadMethodCallException('Not implemented.');
+        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
     }
 
     public function table($name)
