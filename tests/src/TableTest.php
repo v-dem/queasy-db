@@ -92,8 +92,8 @@ class TableTest extends TestCase
 
     public function testFunctionInsert()
     {
-        $id = $this->qdb->users->insert([15, 'john.doe@example.com', sha1('gfhjkm')]);
-        $this->assertEquals(15, $id);
+        $userId = $this->qdb->users->insert([15, 'john.doe@example.com', sha1('gfhjkm')]);
+        $this->assertEquals(15, $userId);
 
         $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
 
@@ -116,8 +116,8 @@ class TableTest extends TestCase
 
     public function testFunctionInsertNamed()
     {
-        $id = $this->qdb->users->insert(['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')]);
-        $this->assertEquals(15, $id);
+        $userId = $this->qdb->users->insert(['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')]);
+        $this->assertEquals(15, $userId);
 
         $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
 
@@ -238,14 +238,14 @@ class TableTest extends TestCase
 
     public function testFunctionInsertEmpty()
     {
-        $id = $this->qdb->ids->insert();
+        $uniqueId = $this->qdb->ids->insert();
 
-        $this->assertTrue(is_numeric($id));
+        $this->assertTrue(is_numeric($uniqueId));
 
-        $row = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $id)->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $uniqueId)->fetch(PDO::FETCH_ASSOC);
 
-        $this->assertNotNull($id);
-        $this->assertEquals($id, $row['id']);
+        $this->assertNotNull($uniqueId);
+        $this->assertEquals($uniqueId, $row['id']);
     }
 
     public function testUpdateOne()
