@@ -15,11 +15,9 @@ class CountQuery extends TableQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        if (count($params)) {
-            $this->setSql(sprintf('SELECT count(*) FROM `%s` WHERE `%s` = :%2$s', $this->tableName(), key($params)));
-        } else {
-            $this->setSql(sprintf('SELECT count(*) FROM `%s`', $this->tableName()));
-        }
+        count($params)
+            ? $this->setSql(sprintf('SELECT count(*) FROM `%s` WHERE `%s` = :%2$s', $this->tableName(), key($params)))
+            : $this->setSql(sprintf('SELECT count(*) FROM `%s`', $this->tableName()));
 
         return parent::run($params, $options);
     }

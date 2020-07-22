@@ -30,7 +30,7 @@ class Query extends AbstractQuery
         foreach ($params as $paramKey => $paramValue) {
             // Detect parameter type
             $paramType = $this->getParamType($paramValue);
-
+/*
             if (is_int($paramKey)) { // Use counter as a key if param keys are numeric (so query string use question mark placeholders)
                 $bindKey = $counter;
 
@@ -38,6 +38,13 @@ class Query extends AbstractQuery
             } else { // Use param key as a bind key (use named placeholders)
                 $bindKey = Strings::startsWith($paramKey, ':')? $paramKey: ':' . $paramKey;
             }
+*/
+            $bindKey = is_int($paramKey)
+                ? $counter++
+                : (Strings::startsWith($paramKey, ':')
+                    ? $paramKey
+                    : ':' . $paramKey
+                );
 
             $statement->bindValue(
                 $bindKey,
@@ -58,20 +65,18 @@ class Query extends AbstractQuery
     protected function getParamType($value)
     {
         if (null === $value) {
-            $paramType = PDO::PARAM_NULL;
-        } elseif (is_int($value)) {
-            $paramType = PDO::PARAM_INT;
-        } elseif (is_bool($value)) {
-            $paramType = PDO::PARAM_BOOL;
-        } else {
-            if (is_float($value)) {
-                $value = (string) $value;
-            }
-
-            $paramType = PDO::PARAM_STR;
+            return PDO::PARAM_NULL;
         }
 
-        return $paramType;
+        if (is_int($value)) {
+            return PDO::PARAM_INT;
+        }
+
+        if (is_bool($value)) {
+            return PDO::PARAM_BOOL;
+        }
+
+        return PDO::PARAM_STR;
     }
 }
 

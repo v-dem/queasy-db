@@ -30,32 +30,44 @@ class Connection
     {
         if (empty($config)) {
             $this->string = static::DEFAULT;
-        } elseif (is_string($config)) {
+
+            return;
+        }
+
+        if (is_string($config)) {
             $this->string = $config;
-        } elseif (is_array($config) || (is_object($config) && ($config instanceof ArrayAccess))) {
+
+            return;
+        }
+
+        if (is_array($config) || (is_object($config) && ($config instanceof ArrayAccess))) {
             if (isset($config['dsn'])) {
                 $this->string = $config['dsn'];
-            } else {
-                $driver = isset($config['driver'])? $config['driver']: static::DEFAULT_DRIVER;
-                switch ($driver) {
-                    case static::DEFAULT_DRIVER:
-                        $this->string = sprintf(static::SQLITE_TEMPLATE, isset($config['path'])? $config['path']: ':memory:');
 
-                        break;
-
-                    default:
-                        $this->string = sprintf(
-                            static::GENERIC_TEMPLATE,
-                            $driver,
-                            isset($config['host'])? $config['host']: null,
-                            isset($config['port'])? $config['port']: null,
-                            isset($config['name'])? $config['name']: null
-                        );
-                }
+                return;
             }
-        } else {
-            throw new InvalidArgumentException('Wrong config argument.');
+
+            $driver = isset($config['driver'])? $config['driver']: static::DEFAULT_DRIVER;
+            switch ($driver) {
+                case static::DEFAULT_DRIVER:
+                    $this->string = sprintf(static::SQLITE_TEMPLATE, isset($config['path'])? $config['path']: ':memory:');
+
+                    break;
+
+                default:
+                    $this->string = sprintf(
+                        static::GENERIC_TEMPLATE,
+                        $driver,
+                        isset($config['host'])? $config['host']: null,
+                        isset($config['port'])? $config['port']: null,
+                        isset($config['name'])? $config['name']: null
+                    );
+            }
+
+            return;
         }
+
+        throw new InvalidArgumentException('Wrong config argument.');
     }
 
     /**
