@@ -16,8 +16,6 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
 
     private $sql;
 
-    private $statement;
-
     /**
      * Logger instance.
      *
