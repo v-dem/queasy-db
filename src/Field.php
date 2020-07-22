@@ -14,7 +14,7 @@ use queasy\db\query\SelectQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
 {
-    private $db;
+    private $pdo;
 
     private $table;
 
@@ -22,11 +22,11 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     private $logger;
 
-    public function __construct(PDO $db, Table $table, $name)
+    public function __construct(PDO $pdo, Table $table, $name)
     {
         $this->logger = new NullLogger();
 
-        $this->db = $db;
+        $this->pdo = $pdo;
         $this->table = $table;
         $this->name = $name;
     }
@@ -47,7 +47,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function select($value, array $options = array())
     {
-        $query = new SelectQuery($this->db, $this->table->name());
+        $query = new SelectQuery($this->pdo, $this->table->name());
         $query->setLogger($this->logger);
 
         $statement = $query(array($this->name => $value), $options);
@@ -61,7 +61,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetExists($offset)
     {
-        $query = new CountQuery($this->db, $this->table->name());
+        $query = new CountQuery($this->pdo, $this->table->name());
         $query->setLogger($this->logger);
 
         $statement = $query(array($this->name => $offset));

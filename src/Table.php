@@ -24,7 +24,7 @@ use queasy\db\query\DeleteQuery;
 
 class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 {
-    private $db;
+    private $pdo;
 
     private $name;
 
@@ -46,11 +46,11 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
      */
     protected $logger;
 
-    public function __construct(PDO $db, $name, $config = array())
+    public function __construct(PDO $pdo, $name, $config = array())
     {
         $this->logger = new NullLogger();
 
-        $this->db = $db;
+        $this->pdo = $pdo;
         $this->name = $name;
         $this->fields = array();
         $this->rows = null;
@@ -64,7 +64,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function count()
     {
-        $query = new CountQuery($this->db, $this->name);
+        $query = new CountQuery($this->pdo, $this->name);
         $query->setLogger($this->logger);
 
         $statement = $query();
@@ -91,7 +91,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function rewind()
     {
-        $query = new SelectQuery($this->db, $this->name);
+        $query = new SelectQuery($this->pdo, $this->name);
 
         $statement = $query();
 
@@ -118,18 +118,18 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                         && (0 < count($params[1]))
                         && isset($params[1][0])
                         && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
-                    $query = new BatchSeparatelyNamedInsertQuery($this->db, $this->name);
+                    $query = new BatchSeparatelyNamedInsertQuery($this->pdo, $this->name);
                 } else {
                     $keys = array_keys($params[$keys[0]]);
 
                     $query = (!count($keys) || is_numeric($keys[0]))
-                        ? new BatchInsertQuery($this->db, $this->name) // Batch insert
-                        : new BatchNamedInsertQuery($this->db, $this->name); // Batch insert with field names
+                        ? new BatchInsertQuery($this->pdo, $this->name) // Batch insert
+                        : new BatchNamedInsertQuery($this->pdo, $this->name); // Batch insert with field names
                 }
             } else { // Single inserts
                 $query = (!count($keys) || is_numeric($keys[0]))
-                    ? new SingleInsertQuery($this->db, $this->name) // By order, without field names
-                    : new SingleNamedInsertQuery($this->db, $this->name); // By field names
+                    ? new SingleInsertQuery($this->pdo, $this->name) // By order, without field names
+                    : new SingleNamedInsertQuery($this->pdo, $this->name); // By field names
             }
         } else {
             throw InvalidArgumentException::rowsUnexpectedValue();
@@ -140,13 +140,13 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $statement = $query($params);
 
         return $isSingleInsert
-            ? $this->db->id()
+            ? $this->pdo->id()
             : $statement->rowCount();
     }
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new UpdateQuery($this->db, $this->name, $fieldName, $fieldValue);
+        $query = new UpdateQuery($this->pdo, $this->name, $fieldName, $fieldValue);
         $query->setLogger($this->logger);
 
         $statement = $query($params, $options);
@@ -156,7 +156,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function delete($fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new DeleteQuery($this->db, $this->name, $fieldName, $fieldValue);
+        $query = new DeleteQuery($this->pdo, $this->name, $fieldName, $fieldValue);
         $query->setLogger($this->logger);
 
         $statement = $query(array(), $options);
@@ -172,7 +172,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     public function offsetGet($offset)
     {
         if (!isset($this->fields[$offset])) {
-            $field = new Field($this->db, $this, $offset);
+            $field = new Field($this->pdo, $this, $offset);
             $field->setLogger($this->logger);
 
             $this->fields[$offset] = $field;
@@ -208,7 +208,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     public function __call($method, array $args)
     {
         if (isset($this->config[$method])) {
-            $query = new CustomQuery($this->db, $this->config[$method]);
+            $query = new CustomQuery($this->pdo, $this->config[$method]);
             $query->setLogger($this->logger);
 
             return call_user_func_array(array($query, 'run'), $args);
@@ -247,9 +247,9 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    protected function db()
+    protected function pdo()
     {
-        return $this->db;
+        return $this->pdo;
     }
 
     protected function config()
