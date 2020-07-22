@@ -30,15 +30,7 @@ class Query extends AbstractQuery
         foreach ($params as $paramKey => $paramValue) {
             // Detect parameter type
             $paramType = $this->getParamType($paramValue);
-/*
-            if (is_int($paramKey)) { // Use counter as a key if param keys are numeric (so query string use question mark placeholders)
-                $bindKey = $counter;
 
-                $counter++;
-            } else { // Use param key as a bind key (use named placeholders)
-                $bindKey = Strings::startsWith($paramKey, ':')? $paramKey: ':' . $paramKey;
-            }
-*/
             $bindKey = is_int($paramKey)
                 ? $counter++
                 : (Strings::startsWith($paramKey, ':')

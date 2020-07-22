@@ -20,17 +20,13 @@ class SingleInsertQuery extends TableQuery
             $this->tableName()
         );
 
-        if (count($params)) {
-            $sql = sprintf('
+        $sql = count($params)
+            ? sprintf('
                 %s
                 VALUES  (%s)',
                 $sql,
-                rtrim(str_repeat('?, ', count($params)), ', ')
-            );
-        } else {
-            // TIP: Seems like this will work with at least SQLite, MySQL, PostgreSQL. Not sure about others.
-            $sql .= ' DEFAULT VALUES';
-        }
+                rtrim(str_repeat('?, ', count($params)), ', '))
+            : $sql . ' DEFAULT VALUES';
 
         $this->setSql($sql);
 
