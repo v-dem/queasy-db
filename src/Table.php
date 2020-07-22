@@ -15,11 +15,6 @@ use Psr\Log\LoggerAwareInterface;
 
 use queasy\db\query\CustomQuery;
 use queasy\db\query\CountQuery;
-use queasy\db\query\SingleInsertQuery;
-use queasy\db\query\SingleNamedInsertQuery;
-use queasy\db\query\BatchInsertQuery;
-use queasy\db\query\BatchNamedInsertQuery;
-use queasy\db\query\BatchSeparatelyNamedInsertQuery;
 use queasy\db\query\SelectQuery;
 use queasy\db\query\UpdateQuery;
 use queasy\db\query\DeleteQuery;
@@ -104,7 +99,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     {
         return isset($this->rows[$this->key()]);
     }
-
+/*
     public function insert()
     {
         $isSingleInsert = true;
@@ -135,6 +130,48 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                 : new SingleNamedInsertQuery($this->pdo, $this->name); // By field names
         }
 
+        $query->setLogger($this->logger);
+
+        $statement = $query($params);
+
+        return $isSingleInsert
+            ? $this->pdo->id()
+            : $statement->rowCount();
+    }
+*/
+    public function insert()
+    {
+        $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
+        if ((null === $params) || !is_array($params)) {
+            throw new InvalidArgumentException('Wrong rows argument.');
+        }
+
+        $isSingleInsert = true;
+
+        $keys = array_keys($params);
+        if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
+            $isSingleInsert = false;
+            if (!((2 === count($params))
+                    && is_array($params[1])
+                    && (0 < count($params[1]))
+                    && isset($params[1][0])
+                    && is_array($params[1][0]))) { // Batch insert with field names listed in a separate array
+                $keys = array_keys($params[$keys[0]]);
+
+                $queryClass = (!count($keys) || is_numeric($keys[0]))
+                    ? 'BatchInsertQuery' // Batch insert
+                    : 'BatchNamedInsertQuery'; // Batch insert with field names
+            } else {
+                $queryClass = 'BatchSeparatelyNamedInsertQuery';
+            }
+        } else { // Single inserts
+            $queryClass = (!count($keys) || is_numeric($keys[0]))
+                ? 'SingleInsertQuery' // By order, without field names
+                : 'SingleNamedInsertQuery'; // By field names
+        }
+
+        $queryClass = 'queasy\\db\\query\\' . $queryClass;
+        $query = new $queryClass($this->pdo, $this->name);
         $query->setLogger($this->logger);
 
         $statement = $query($params);
