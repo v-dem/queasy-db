@@ -21,13 +21,13 @@ use queasy\db\query\DeleteQuery;
 
 class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 {
-    private $pdo;
+    protected $pdo;
 
-    private $name;
+    protected $name;
 
-    private $fields;
+    protected $fields;
 
-    private $rows;
+    protected $rows;
 
     /**
      * Config instance.
@@ -51,7 +51,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $this->name = $name;
         $this->fields = array();
         $this->rows = null;
-        $this->setConfig($config);
+        $this->config = $config;
     }
 
     public function __get($fieldName)
@@ -99,46 +99,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     {
         return isset($this->rows[$this->key()]);
     }
-/*
-    public function insert()
-    {
-        $isSingleInsert = true;
-        $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
-        if ((null === $params) || !is_array($params)) {
-            throw new InvalidArgumentException('Wrong rows argument.');
-        }
 
-        $keys = array_keys($params);
-        if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
-            $isSingleInsert = false;
-            if ((2 === count($params))
-                    && is_array($params[1])
-                    && (0 < count($params[1]))
-                    && isset($params[1][0])
-                    && is_array($params[1][0])) { // Batch insert with field names listed in a separate array
-                $query = new BatchSeparatelyNamedInsertQuery($this->pdo, $this->name);
-            } else {
-                $keys = array_keys($params[$keys[0]]);
-
-                $query = (!count($keys) || is_numeric($keys[0]))
-                    ? new BatchInsertQuery($this->pdo, $this->name) // Batch insert
-                    : new BatchNamedInsertQuery($this->pdo, $this->name); // Batch insert with field names
-            }
-        } else { // Single inserts
-            $query = (!count($keys) || is_numeric($keys[0]))
-                ? new SingleInsertQuery($this->pdo, $this->name) // By order, without field names
-                : new SingleNamedInsertQuery($this->pdo, $this->name); // By field names
-        }
-
-        $query->setLogger($this->logger);
-
-        $statement = $query($params);
-
-        return $isSingleInsert
-            ? $this->pdo->id()
-            : $statement->rowCount();
-    }
-*/
     public function insert()
     {
         $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
@@ -177,7 +138,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $statement = $query($params);
 
         return $isSingleInsert
-            ? $this->pdo->id()
+            ? $this->pdo->lastInsertId()
             : $statement->rowCount();
     }
 
@@ -257,23 +218,6 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     }
 
     /**
-     * Sets a config.
-     *
-     * @param array|ConfigInterface $config
-     */
-    public function setConfig($config)
-    {
-        $this->config = empty($config)
-            ? array()
-            : $config;
-    }
-
-    public function name()
-    {
-        return $this->name;
-    }
-
-    /**
      * Sets a logger.
      *
      * @param LoggerInterface $logger
@@ -283,19 +227,9 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $this->logger = $logger;
     }
 
-    protected function pdo()
+    public function name()
     {
-        return $this->pdo;
-    }
-
-    protected function config()
-    {
-        return $this->config;
-    }
-
-    protected function logger()
-    {
-        return $this->logger;
+        return $this->name;
     }
 }
 

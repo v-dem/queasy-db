@@ -14,13 +14,13 @@ use queasy\db\query\SelectQuery;
 
 class Field implements ArrayAccess, LoggerAwareInterface
 {
-    private $pdo;
+    protected $pdo;
 
-    private $table;
+    protected $table;
 
-    private $name;
+    protected $name;
 
-    private $logger;
+    protected $logger;
 
     public function __construct(PDO $pdo, Table $table, $name)
     {
@@ -96,16 +96,6 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
-    }
-
-    protected function table()
-    {
-        return $this->table;
-    }
-
-    protected function logger()
-    {
-        return $this->logger;
     }
 }
 
