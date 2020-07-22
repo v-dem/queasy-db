@@ -102,7 +102,9 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function insert()
     {
-        $params = (1 === func_num_args())? func_get_arg(0): func_get_args();
+        $params = (1 === func_num_args())
+            ? func_get_arg(0)
+            : func_get_args();
         if ((null === $params) || !is_array($params)) {
             throw new InvalidArgumentException('Wrong rows argument.');
         }
