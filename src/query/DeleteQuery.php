@@ -10,9 +10,9 @@ class DeleteQuery extends TableQuery
 
     private $fieldValue;
 
-    public function __construct(PDO $db, $tableName, $fieldName = null, $fieldValue = null)
+    public function __construct(PDO $pdo, $tableName, $fieldName = null, $fieldValue = null)
     {
-        parent::__construct($db, $tableName);
+        parent::__construct($pdo, $tableName);
 
         $this->fieldName = $fieldName;
 

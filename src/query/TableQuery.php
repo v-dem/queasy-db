@@ -8,11 +8,11 @@ abstract class TableQuery extends Query
 {
     private $tableName;
 
-    public function __construct(PDO $db, $tableName, $sql = '')
+    public function __construct(PDO $pdo, $tableName, $sql = '')
     {
         $this->tableName = $tableName;
 
-        parent::__construct($db, $sql);
+        parent::__construct($pdo, $sql);
     }
 
     protected function tableName()

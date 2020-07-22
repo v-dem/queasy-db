@@ -10,11 +10,11 @@ class CustomQuery extends Query
 {
     private $config;
 
-    public function __construct(PDO $db, $config)
+    public function __construct(PDO $pdo, $config)
     {
         $this->config = $config;
 
-        parent::__construct($db, $config['sql']);
+        parent::__construct($pdo, $config['sql']);
     }
 
     /**

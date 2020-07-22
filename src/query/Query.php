@@ -24,7 +24,7 @@ class Query extends AbstractQuery
         $this->logger()->debug(sprintf('%s::run(): SQL: %s', get_class($this), $this->sql()), $params);
 
         try {
-            $statement = $this->db()->prepare($this->sql(), $options);
+            $statement = $this->pdo()->prepare($this->sql(), $options);
             $statement->closeCursor(); // Avoid error with not closed recordset
         } catch (Exception $e) {
             throw DbException::cannotPrepareStatement($this->query(), $e);

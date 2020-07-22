@@ -12,7 +12,7 @@ use queasy\db\DbException;
 
 abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
 {
-    private $db;
+    private $pdo;
 
     private $sql;
 
@@ -26,16 +26,16 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
     /**
      * Constructor.
      *
-     * @param PDO $db PDO instance
+     * @param PDO $pdo PDO instance
      * @param string $query Query string
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(PDO $db, $sql = null)
+    public function __construct(PDO $pdo, $sql = null)
     {
         $this->logger = new NullLogger();
 
-        $this->db = $db;
+        $this->pdo = $pdo;
         $this->setSql($sql);
     }
 
@@ -61,9 +61,9 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
         return $this->logger;
     }
 
-    protected function db()
+    protected function pdo()
     {
-        return $this->db;
+        return $this->pdo;
     }
 
     protected function sql()
