@@ -122,18 +122,17 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                 $keys = array_keys($params[$keys[0]]);
 
                 $queryClass = (!count($keys) || is_numeric($keys[0]))
-                    ? 'BatchInsertQuery' // Batch insert
-                    : 'BatchNamedInsertQuery'; // Batch insert with field names
+                    ? 'queasy\\db\\query\\BatchInsertQuery' // Batch insert
+                    : 'queasy\\db\\query\\BatchNamedInsertQuery'; // Batch insert with field names
             } else {
-                $queryClass = 'BatchSeparatelyNamedInsertQuery';
+                $queryClass = 'queasy\\db\\query\\BatchSeparatelyNamedInsertQuery';
             }
         } else { // Single inserts
             $queryClass = (!count($keys) || is_numeric($keys[0]))
-                ? 'SingleInsertQuery' // By order, without field names
-                : 'SingleNamedInsertQuery'; // By field names
+                ? 'queasy\\db\\query\\SingleInsertQuery' // By order, without field names
+                : 'queasy\\db\\query\\SingleNamedInsertQuery'; // By field names
         }
 
-        $queryClass = 'queasy\\db\\query\\' . $queryClass;
         $query = new $queryClass($this->pdo, $this->name);
         $query->setLogger($this->logger);
 
