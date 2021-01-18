@@ -182,7 +182,7 @@ foreach($db->users as $user) {
 }
 ```
 
-#### Run custom query (returns PDOStatement)
+#### Run custom query (returns `PDOStatement`)
 
 ```php
 $result = $db->run('
