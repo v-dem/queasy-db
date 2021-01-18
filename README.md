@@ -182,7 +182,7 @@ foreach($db->users as $user) {
 }
 ```
 
-### Run custom query (returns PDOStatement)
+#### Run custom query (returns PDOStatement)
 
 ```php
 $result = $db->run('
@@ -195,4 +195,4 @@ $result = $db->run('
 );
 ```
 
-* Possible 3rd argument is `$driverOptions` passed to `PDO::prepare()`
+* Possible 3rd argument is `$driverOptions` which will be passed to `PDO::prepare()`
