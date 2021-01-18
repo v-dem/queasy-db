@@ -181,3 +181,18 @@ foreach($db->users as $user) {
     // Do something
 }
 ```
+
+### Run custom query (returns PDOStatement)
+
+```php
+$result = $db->run('
+    SELECT  *
+    FROM    `users`
+    WHERE   `name` LIKE concat(\'%\', :searchName, \'%\')',
+    [
+        ':searchName' => $searchName
+    ]
+);
+```
+
+* Possible 3rd argument is `$driverOptions` passed to `PDO::prepare()`
