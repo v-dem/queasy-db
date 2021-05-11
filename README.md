@@ -54,6 +54,25 @@ $db = new queasy\db\Db(
 );
 ```
 
+Or
+```php
+$db = new queasy\db\Db(
+    [
+        'connection' => [
+            'dsn' => 'mysql:host=localhost;dbname=test',
+            'user' => 'test_user',
+            'password' => 'test_password'
+        ],
+        'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
+    ]
+);
+```
+
+Or PDO-way:
+```php
+$db = new queasy\db\Db('mysql:host=localhost;dbname=test', 'test_user', 'test_password');
+```
+
 *   By default error mode is set to `PDO::ERRMODE_EXCEPTION`
 
 #### Getting a single record from `users` table by `id` key
