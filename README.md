@@ -262,3 +262,39 @@ $db = new queasy\db\Db(
 
 $role = $db->user_roles->selectUserRoleByName(['name' => 'Manager']);
 ```
+
+#### Using `v-dem/queasy-config` together with `v-dem/queasy-db`
+
+```php
+$config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XML
+$db = new queasy\db\Db($config->db);
+```
+
+`config.php:`
+```php
+return [
+    'db' => [
+        'connection' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'name' => 'test',
+            'user' => 'test_user',
+            'password' => 'test_password'
+        ],
+        'fetchMode' => PDO::FETCH_ASSOC,
+        'tables' => [
+            `user_roles` => [
+                `queries` => [
+                    'selectUserRoleByName' => [
+                        'sql' => '
+                            SELECT  *
+                            FROM    `user_roles`
+                            WHERE   `name` = :name',
+                        'returns' => Db::RETURN_ONE
+                    ]
+                ]
+            ]
+        ]
+    ]
+];
+```
