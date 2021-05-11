@@ -263,7 +263,7 @@ $db = new queasy\db\Db(
 $role = $db->user_roles->selectUserRoleByName(['name' => 'Manager']);
 ```
 
-#### Using `v-dem/queasy-config` together with `v-dem/queasy-db`
+#### Using `v-dem/queasy-db` together with `v-dem/queasy-config`
 
 ```php
 $config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XML
