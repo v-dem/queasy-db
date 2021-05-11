@@ -54,6 +54,8 @@ $db = new queasy\db\Db(
 );
 ```
 
+*   By default error mode is set to `PDO::ERRMODE_EXCEPTION`
+
 #### Getting a single record from `users` table by `id` key
 
 ```php
@@ -196,3 +198,65 @@ $result = $db->run('
 ```
 
 * Possible 3rd argument is `$driverOptions` which will be passed to `PDO::prepare()`
+
+#### Run query predefined in configuration
+
+```php
+$db = new queasy\db\Db(
+    [
+        'connection' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'name' => 'test',
+            'user' => 'test_user',
+            'password' => 'test_password'
+        ],
+        'fetchMode' => PDO::FETCH_ASSOC,
+        'queries' => [
+            'selectUserRoleByName' => [
+                'sql' => '
+                    SELECT  *
+                    FROM    `user_roles`
+                    WHERE   `name` = :name',
+                'returns' => Db::RETURN_ONE
+            ]
+        ]
+    ]
+);
+
+$role = $db->selectUserRoleByName(['name' => 'Manager']);
+```
+
+* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
+
+Also it is possible to group predefined queries by tables:
+
+```php
+$db = new queasy\db\Db(
+    [
+        'connection' => [
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'name' => 'test',
+            'user' => 'test_user',
+            'password' => 'test_password'
+        ],
+        'fetchMode' => PDO::FETCH_ASSOC,
+        'tables' => [
+            `user_roles` => [
+                `queries` => [
+                    'selectUserRoleByName' => [
+                        'sql' => '
+                            SELECT  *
+                            FROM    `user_roles`
+                            WHERE   `name` = :name',
+                        'returns' => Db::RETURN_ONE
+                    ]
+                ]
+            ]
+        ]
+    ]
+);
+
+$role = $db->user_roles->selectUserRoleByName(['name' => 'Manager']);
+```
