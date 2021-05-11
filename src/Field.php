@@ -52,11 +52,11 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
         $statement = $query(array($this->name => $value), $options);
 
-        if (is_array($value)) {
+        // if (is_array($value)) {
             return $statement->fetchAll();
-        }
+        // }
 
-        return $statement->fetch();
+        // return $statement->fetch();
     }
 
     public function offsetExists($offset)
@@ -75,7 +75,15 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function offsetGet($offset)
     {
-        return $this->select($offset);
+        $rows = $this->select($offset);
+
+        if (is_array($offset)) {
+            return $rows;
+        } else {
+            return array_shift($rows);
+        }
+
+        // return $this->select($offset);
     }
 
     public function offsetSet($offset, $value)

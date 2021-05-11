@@ -99,7 +99,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     }
 
     /**
-     * Sets a logger.
+     * Set a logger.
      *
      * @param LoggerInterface $logger
      */

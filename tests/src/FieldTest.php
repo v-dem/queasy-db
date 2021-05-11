@@ -38,10 +38,29 @@ class FieldTest extends TestCase
         $this->pdo = null;
     }
 
+    public function testSelect()
+    {
+        $roles = $this->qdb->user_roles->id->select(2);
+
+        $this->assertIsArray($roles);
+        $this->assertIsArray($roles[0]);
+        $this->assertEquals('Manager', $roles[0]['name']);
+    }
+
+    public function testSelectMultiple()
+    {
+        $roles = $this->qdb->user_roles->id->select([2, 3]);
+
+        $this->assertIsArray($roles);
+        $this->assertCount(2, $roles);
+        $this->assertEquals('Manager', $roles[0]['name']);
+    }
+
     public function testGetRecord()
     {
         $role = $this->qdb->user_roles->id[2];
 
+        $this->assertIsArray($role);
         $this->assertEquals('Manager', $role['name']);
     }
 
