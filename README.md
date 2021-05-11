@@ -201,6 +201,8 @@ $result = $db->run('
 
 #### Run query predefined in configuration
 
+This feature can help keep code cleaner and place SQL code outside PHP, somewhere in config files.
+
 ```php
 $db = new queasy\db\Db(
     [
