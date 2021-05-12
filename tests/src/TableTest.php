@@ -240,7 +240,7 @@ class TableTest extends TestCase
     {
         $uniqueId = $this->qdb->ids->insert();
 
-        $this->assertTrue(is_numeric($uniqueId));
+        $this->assertIsNumeric($uniqueId);
 
         $row = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $uniqueId)->fetch(PDO::FETCH_ASSOC);
 
@@ -296,7 +296,7 @@ class TableTest extends TestCase
 
     public function testCount()
     {
-        $this->assertEquals(3, count($this->qdb->user_roles));
+        $this->assertCount(3, $this->qdb->user_roles);
     }
 
     public function testForeach()
@@ -313,7 +313,7 @@ class TableTest extends TestCase
         $rowsCount = 0;
         foreach ($this->qdb->users as $user) {
             $offset = array_search($user['id'], $expectedIds);
-            $this->assertTrue(is_numeric($offset));
+            $this->assertIsNumeric($offset);
             $this->assertEquals($expectedIds[$offset], $user['id']);
             $this->assertEquals($expectedEmails[$offset], $user['email']);
             $this->assertEquals($expectedPasswordHashes[$offset], $user['password_hash']);

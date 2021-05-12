@@ -27,7 +27,7 @@
         "phpunit/phpunit": "~7",
         "v-dem/queasy-config": "dev-master",
         "v-dem/queasy-log": "dev-master",
-        "ext-xdebug": "^2.6.0"
+        "ext-xdebug": "*"
     },
     "suggest": {
         "queasy/config": "Configuration provider package, supports PHP (and multifile configs in this case), INI, XML and JSON (and YAML in future) formats",
