@@ -78,7 +78,7 @@ class FieldTest extends TestCase
     {
         $roles = $this->qdb->user_roles->id(2);
 
-        $this->assertTrue(is_array($roles));
+        $this->assertIsArray($roles);
         $this->assertEquals('Manager', $roles[0]['name']);
     }
 
