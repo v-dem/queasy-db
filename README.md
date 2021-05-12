@@ -302,8 +302,8 @@ return [
         ],
         'fetchMode' => PDO::FETCH_ASSOC,
         'tables' => [
-            `user_roles` => [
-                `queries` => [
+            'user_roles' => [
+                'queries' => [
                     'selectUserRoleByName' => [
                         'sql' => '
                             SELECT  *
