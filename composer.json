@@ -1,6 +1,6 @@
 {
     "name": "v-dem/queasy-db",
-    "description": "Database access classes, part of Queasy PHP framework",
+    "description": "Database access classes, part of QuEasy PHP framework",
     "homepage": "https://github.com/v-dem/queasy-db/",
     "keywords": ["database", "pdo", "mysql", "postgresql", "sqlite", "pdo wrapper"],
     "license": "LGPL-3.0-only",
@@ -25,8 +25,6 @@
         "php": ">=7.1.0",
         "ext-sqlite3": "*",
         "phpunit/phpunit": "~7",
-        "v-dem/queasy-config": "dev-master",
-        "v-dem/queasy-log": "dev-master",
         "ext-xdebug": "*"
     },
     "suggest": {
