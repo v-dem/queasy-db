@@ -16,13 +16,6 @@ added into database and/or tables config.
 ### Requirements
 
 *   PHP version 5.3 or higher
-*   Package `v-dem/queasy-helper`
-*   Package `v-dem/queasy-config` *(required for `dev` only)*
-*   Package `v-dem/queasy-log` *(required for `dev` only)*
-
-### Documentation
-
-See our [Wiki page](https://github.com/v-dem/queasy-db/wiki).
 
 ### Installation
 
