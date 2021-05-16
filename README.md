@@ -190,10 +190,11 @@ $usersCount = count($db->users);
 #### Using transactions
 
 ```php
-$db->trans(function() use($db) {
+$db->trans(function(queasy\db\Db $db) use(...) {
     // Run queries inside a transaction
 });
 ```
+* `queasy\db\Db` instance will be passed as first argument.
 
 #### Using `foreach` with a `users` table (obviously it will get all table records first)
 
@@ -326,4 +327,4 @@ $logger = new queasy\log\Logger($config->logger);
 $db = new queasy\db\Db($config->db);
 $db->setLogger($config->logger);
 ```
-All queries will be logged with `Psr\Log\LogLevel::DEBUG` level. Also it's possible to use any other logger class compatible with PSR-3.
+* All queries will be logged with `Psr\Log\LogLevel::DEBUG` level. Also it's possible to use any other logger class compatible with PSR-3.
