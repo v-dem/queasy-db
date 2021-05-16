@@ -73,23 +73,40 @@ Or PDO-way:
 $db = new queasy\db\Db('mysql:host=localhost;dbname=test', 'test_user', 'test_password');
 ```
 
-*   By default error mode is set to `PDO::ERRMODE_EXCEPTION`
+* By default error mode is set to `PDO::ERRMODE_EXCEPTION`
 
-#### Getting a single record from `users` table by `id` key
+#### Get a single record from `users` table by `id` key
 
 ```php
 $user = $db->users->id[$userId];
 ```
 
 It will generate the following query:
-
 ```sql
 SELECT  *
 FROM    `users`
 WHERE   `id` = :id
 ```
 
-#### Inserting a record into `users` table using associative array
+It's possible to use `select()` method to pass PDO options:
+```php
+$user = $db->users->id->select($userId, $options);
+```
+
+#### Get multiple records
+
+```php
+$users = $db->users->id[[$userId1, $userId2]];
+```
+
+SQL:
+```sql
+SELECT  *
+FROM    `users`
+WHERE   `id` IN (:id_1, :id_2)
+```
+
+#### Insert a record into `users` table using associative array
 
 ```php
 $db->users[] = [
@@ -105,7 +122,7 @@ INSERT  INTO `users` (`email`, `password_hash`)
 VALUES  (:email, :password_hash)
 ```
 
-#### Inserting a record into `users` table by order (not recommended, keep in mind fields order)
+#### Insert a record into `users` table by fields order
 
 ```php
 $db->users[] = [
@@ -114,7 +131,7 @@ $db->users[] = [
 ];
 ```
 
-#### Inserting many records into `users` table using associative array (it will generate single `INSERT` statement)
+#### Insert many records into `users` table using associative array (it will generate single `INSERT` statement)
 
 ```php
 $db->users[] = [
@@ -128,7 +145,14 @@ $db->users[] = [
 ];
 ```
 
-#### Inserting many records into `users` table by order (not recommended; it will generate single `INSERT` statement)
+SQL:
+```sql
+INSERT  INTO `users` (`email`, `password_hash`)
+VALUES  (:email_1, :password_hash_1),
+        (:email_2, :password_hash_2)
+```
+
+#### Insert many records into `users` table by order
 
 ```php
 $db->users[] = [
@@ -142,7 +166,7 @@ $db->users[] = [
 ];
 ```
 
-#### Inserting many records into `users` table with field names denoted separately (it will generate single `INSERT` statement)
+#### Inserting many records into `users` table with field names denoted separately
 
 ```php
 $db->users[] = [
@@ -161,13 +185,21 @@ $db->users[] = [
 ];
 ```
 
-#### Getting last insert id (alias of `lastInsertId()` method)
+It's possible to use `insert()` method to pass PDO options:
+```php
+$db->users->insert([
+    'email' => 'john.doe@example.com',
+    'password_hash' => sha1('myverystrongpassword')
+], $options);
+```
+
+#### Get last insert id (alias of `lastInsertId()` method)
 
 ```php
 $newUserId = $db->id();
 ```
 
-#### Updating a record in `users` table by `id` key
+#### Update a record in `users` table by `id` key
 
 ```php
 $db->users->id[$userId] = [
@@ -175,13 +207,27 @@ $db->users->id[$userId] = [
 ]
 ```
 
-#### Deleting a record in `users` table by `id` key
+#### Update multiple records
+
+```php
+$db->users->id[[$userId1, $userId2]] = [
+    'is_blocked' => true
+]
+```
+
+#### Delete a record in `users` table by `id` key
 
 ```php
 unset($db->users->id[$userId]);
 ```
 
-#### Get count of all records in `users` table *(I know this function is not very useful)*
+#### Delete multiple records
+
+```php
+unset($db->users->id[[$userId1, $userId2]]);
+```
+
+#### Get count of all records in `users` table
 
 ```php
 $usersCount = count($db->users);
@@ -196,7 +242,7 @@ $db->trans(function(queasy\db\Db $db) use(...) {
 ```
 * `queasy\db\Db` instance will be passed as first argument.
 
-#### Using `foreach` with a `users` table (obviously it will get all table records first)
+#### Using `foreach` with a `users` table
 
 ```php
 foreach($db->users as $user) {
