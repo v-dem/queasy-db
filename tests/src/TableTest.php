@@ -322,6 +322,13 @@ class TableTest extends TestCase
         $this->assertEquals(3, $rowsCount);
     }
 
+    public function testAll()
+    {
+        $userRoles = $this->qdb->user_roles->all();
+
+        $this->assertCount(3, $userRoles);
+    }
+
     public function testCustomRemoveMethod()
     {
         $this->pdo->exec('
