@@ -88,16 +88,23 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function rewind()
     {
-        $query = new SelectQuery($this->pdo, $this->name);
-
-        $statement = $query();
-
-        $this->rows = $statement->fetchAll();
+        $this->all();
     }
 
     public function valid()
     {
         return isset($this->rows[$this->key()]);
+    }
+
+    public function all()
+    {
+        $query = new SelectQuery($this->pdo, $this->name);
+
+        $statement = $query();
+
+        $this->rows = $statement->fetchAll();
+
+        return $this->rows;
     }
 
     public function insert()
