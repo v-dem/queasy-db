@@ -68,6 +68,12 @@ $db = new queasy\db\Db('mysql:host=localhost;dbname=test', 'test_user', 'test_pa
 
 * By default error mode is set to `PDO::ERRMODE_EXCEPTION`
 
+#### Get all records from `users` table
+
+```php
+$user = $db->users->all();
+```
+
 #### Get a single record from `users` table by `id` key
 
 ```php
