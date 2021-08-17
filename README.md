@@ -4,7 +4,7 @@
 [![Total Downloads](https://poser.pugx.org/v-dem/queasy-db/downloads)](https://packagist.org/packages/v-dem/queasy-db)
 [![License](https://poser.pugx.org/v-dem/queasy-db/license)](https://packagist.org/packages/v-dem/queasy-db)
 
-# [QuEasy PHP Framework](https://github.com/v-dem/queasy-app/) - Database
+# [QuEasy PHP Framework](https://github.com/v-dem/queasy-framework/) - Database
 
 ## Package `v-dem/queasy-db`
 
