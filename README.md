@@ -294,7 +294,7 @@ $db = new queasy\db\Db(
 $role = $db->selectUserRoleByName(['name' => 'Manager']);
 ```
 
-* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
+* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default, returns `PDOStatement` instance), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
 
 Also it is possible to group predefined queries by tables:
 
