@@ -311,14 +311,12 @@ $db = new queasy\db\Db(
         'fetchMode' => PDO::FETCH_ASSOC,
         'tables' => [
             'user_roles' => [
-                'queries' => [
-                    'selectUserRoleByName' => [
-                        'sql' => '
-                            SELECT  *
-                            FROM    `user_roles`
-                            WHERE   `name` = :name',
-                        'returns' => Db::RETURN_ONE
-                    ]
+                'selectUserRoleByName' => [
+                    'sql' => '
+                        SELECT  *
+                        FROM    `user_roles`
+                        WHERE   `name` = :name',
+                    'returns' => Db::RETURN_ONE
                 ]
             ]
         ]
