@@ -299,7 +299,7 @@ $db = new queasy\db\Db(
 $role = $db->selectUserRoleByName(['name' => 'Manager']);
 ```
 
-* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
+* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default, returns `PDOStatement` instance), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
 
 Also it is possible to group predefined queries by tables:
 
@@ -315,15 +315,13 @@ $db = new queasy\db\Db(
         ],
         'fetchMode' => PDO::FETCH_ASSOC,
         'tables' => [
-            `user_roles` => [
-                `queries` => [
-                    'selectUserRoleByName' => [
-                        'sql' => '
-                            SELECT  *
-                            FROM    `user_roles`
-                            WHERE   `name` = :name',
-                        'returns' => Db::RETURN_ONE
-                    ]
+            'user_roles' => [
+                'selectUserRoleByName' => [
+                    'sql' => '
+                        SELECT  *
+                        FROM    `user_roles`
+                        WHERE   `name` = :name',
+                    'returns' => Db::RETURN_ONE
                 ]
             ]
         ]
@@ -354,14 +352,12 @@ return [
         'fetchMode' => PDO::FETCH_ASSOC,
         'tables' => [
             'user_roles' => [
-                'queries' => [
-                    'selectUserRoleByName' => [
-                        'sql' => '
-                            SELECT  *
-                            FROM    `user_roles`
-                            WHERE   `name` = :name',
-                        'returns' => Db::RETURN_ONE
-                    ]
+                'selectUserRoleByName' => [
+                    'sql' => '
+                        SELECT  *
+                        FROM    `user_roles`
+                        WHERE   `name` = :name',
+                    'returns' => Db::RETURN_ONE
                 ]
             ]
         ]
