@@ -71,7 +71,13 @@ $db = new queasy\db\Db('mysql:host=localhost;dbname=test', 'test_user', 'test_pa
 #### Get all records from `users` table
 
 ```php
-$user = $db->users->all();
+$users = $db->users->all();
+```
+
+Resulting SQL:
+```sql
+SELECT  *
+FROM    `users`
 ```
 
 #### Get a single record from `users` table by `id` key
@@ -80,16 +86,16 @@ $user = $db->users->all();
 $user = $db->users->id[$userId];
 ```
 
-It will generate the following query:
+Resulting SQL:
 ```sql
 SELECT  *
 FROM    `users`
 WHERE   `id` = :id
 ```
 
-It's possible to use `select()` method to pass PDO options:
+It's possible to use `select()` method to pass PDO options; `select()` returns array of rows:
 ```php
-$user = $db->users->id->select($userId, $options);
+$users = $db->users->id->select($userId, $options);
 ```
 
 #### Get multiple records
@@ -98,7 +104,7 @@ $user = $db->users->id->select($userId, $options);
 $users = $db->users->id[[$userId1, $userId2]];
 ```
 
-SQL:
+Resulting SQL:
 ```sql
 SELECT  *
 FROM    `users`
@@ -114,8 +120,7 @@ $db->users[] = [
 ];
 ```
 
-It will generate the following query:
-
+Resulting SQL:
 ```sql
 INSERT  INTO `users` (`email`, `password_hash`)
 VALUES  (:email, :password_hash)
@@ -144,7 +149,7 @@ $db->users[] = [
 ];
 ```
 
-SQL:
+Resulting SQL:
 ```sql
 INSERT  INTO `users` (`email`, `password_hash`)
 VALUES  (:email_1, :password_hash_1),
