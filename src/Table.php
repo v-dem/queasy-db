@@ -2,6 +2,7 @@
 
 namespace queasy\db;
 
+use InvalidArgumentException;
 use BadMethodCallException;
 
 use PDO;
@@ -207,7 +208,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
      * @param string $method Method name
      * @param array $args Arguments
      *
-     * @return mixed Return type depends on configuration. It can be a single value, an object, an array, or an array of objects or arrays
+     * @return mixed Return type depends on configuration. It can be a single value, a stdClass object, an array, or an array of objects or arrays, or PDOStatement instance
      *
      * @throws DbException On error
      */
@@ -218,6 +219,10 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
             $query->setLogger($this->logger);
 
             return call_user_func_array(array($query, 'run'), $args);
+        }
+
+        if (!count($args)) {
+            throw new InvalidArgumentException('Method is not declared in configuration.');
         }
 
         $field = $this[$method];
