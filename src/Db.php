@@ -187,6 +187,13 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         return $this->lastInsertId($sequence);
     }
 
+    /**
+     * Call a function inside transaction.
+     *
+     * @param callable $func Function to call
+     *
+     * @throws Exception Any exception thrown inside $func
+     */
     public function trans($func)
     {
         if (!is_callable($func)) {
@@ -206,6 +213,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         }
     }
 
+    /**
+     * Return logger instance.
+     *
+     * @return Psr\Log\LoggerInterface Logger instance
+     */
     protected function logger()
     {
         return $this->logger;
