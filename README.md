@@ -42,7 +42,7 @@ $db = new queasy\db\Db(
             'user' => 'test_user',
             'password' => 'test_password'
         ],
-        'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
+        'fetchMode' => PDO::FETCH_ASSOC // Default, can be omitted
     ]
 );
 ```
@@ -56,7 +56,7 @@ $db = new queasy\db\Db(
             'user' => 'test_user',
             'password' => 'test_password'
         ],
-        'fetchMode' => PDO::FETCH_ASSOC // Default fetch mode for all queries
+        'fetchMode' => PDO::FETCH_ASSOC
     ]
 );
 ```
@@ -189,7 +189,7 @@ $db->users[] = [
 ];
 ```
 
-It's possible to use `insert()` method to pass PDO options:
+Also it's possible to use `insert()` method (in the same way as above) when need to pass PDO options:
 ```php
 $db->users->insert([
     'email' => 'john.doe@example.com',
@@ -249,7 +249,7 @@ $db->trans(function(queasy\db\Db $db) use(...) {
 #### Using `foreach` with a `users` table
 
 ```php
-foreach($db->users as $user) {
+foreach ($db->users as $user) {
     // Do something
 }
 ```
@@ -283,20 +283,22 @@ $db = new queasy\db\Db(
             'user' => 'test_user',
             'password' => 'test_password'
         ],
-        'fetchMode' => PDO::FETCH_ASSOC,
         'queries' => [
-            'selectUserRoleByName' => [
+            'selectActiveUserByName' => [
                 'sql' => '
                     SELECT  *
                     FROM    `user_roles`
-                    WHERE   `name` = :name',
+                    WHERE   `name` = :name
+                            AND `is_active` = 1',
                 'returns' => Db::RETURN_ONE
             ]
         ]
     ]
 );
 
-$role = $db->selectUserRoleByName(['name' => 'Manager']);
+$user = $db->selectActiveUserByName([
+    'name' => 'John Doe'
+]);
 ```
 
 * Possible values for `returns` option are `Db::RETURN_STATEMENT` (default, returns `PDOStatement` instance), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
@@ -313,14 +315,14 @@ $db = new queasy\db\Db(
             'user' => 'test_user',
             'password' => 'test_password'
         ],
-        'fetchMode' => PDO::FETCH_ASSOC,
         'tables' => [
-            'user_roles' => [
-                'selectUserRoleByName' => [
+            'users' => [
+                'selectActiveByName' => [
                     'sql' => '
                         SELECT  *
                         FROM    `user_roles`
-                        WHERE   `name` = :name',
+                        WHERE   `name` = :name
+                                AND `is_active` = 1',
                     'returns' => Db::RETURN_ONE
                 ]
             ]
@@ -328,15 +330,12 @@ $db = new queasy\db\Db(
     ]
 );
 
-$role = $db->user_roles->selectUserRoleByName(['name' => 'Manager']);
+$user = $db->users->selectActiveByName([
+    'name' => 'John Doe'
+]);
 ```
 
-#### Using `v-dem/queasy-db` together with `v-dem/queasy-config`
-
-```php
-$config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XML
-$db = new queasy\db\Db($config->db);
-```
+#### Using `v-dem/queasy-db` together with `v-dem/queasy-config` and `v-dem/queasy-log`
 
 `config.php:`
 ```php
@@ -349,28 +348,39 @@ return [
             'user' => 'test_user',
             'password' => 'test_password'
         ],
-        'fetchMode' => PDO::FETCH_ASSOC,
         'tables' => [
-            'user_roles' => [
-                'selectUserRoleByName' => [
+            'users' => [
+                'selectActiveByName' => [
                     'sql' => '
                         SELECT  *
-                        FROM    `user_roles`
-                        WHERE   `name` = :name',
+                        FROM    `users`
+                        WHERE   `name` = :name
+                                AND `is_active` = 1',
                     'returns' => Db::RETURN_ONE
                 ]
             ]
+        ]
+    ],
+
+    'logger' => [
+        [
+            'class' => queasy\log\ConsoleLogger::class,
+            'minLevel' => Psr\Log\LogLevel::DEBUG
         ]
     ]
 ];
 ```
 
-#### Using `v-dem/queasy-db` together with `v-dem/queasy-log`
-
 ```php
-$config = new queasy\config\Config('config.php');
-$logger = new queasy\log\Logger($config->logger);
+$config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XML
+
+$logger = new queasy\log\Logger($config->db);
 $db = new queasy\db\Db($config->db);
-$db->setLogger($config->logger);
+$db->setLogger($logger);
+
+$adminRole = $db->users->selectActiveByName([
+    'name' => 'John Doe'
+]);
 ```
+
 * All queries will be logged with `Psr\Log\LogLevel::DEBUG` level. Also it's possible to use any other logger class compatible with PSR-3.
