@@ -285,7 +285,7 @@ $db = new queasy\db\Db(
             'password' => 'test_password'
         ],
         'queries' => [
-            'selectActiveUserByName' => [
+            'getActiveUserByName' => [
                 'sql' => '
                     SELECT  *
                     FROM    `user_roles`
@@ -297,7 +297,7 @@ $db = new queasy\db\Db(
     ]
 );
 
-$user = $db->selectActiveUserByName([
+$user = $db->getActiveUserByName([
     'name' => 'John Doe'
 ]);
 ```
@@ -318,7 +318,7 @@ $db = new queasy\db\Db(
         ],
         'tables' => [
             'users' => [
-                'selectActiveByName' => [
+                'getActiveByName' => [
                     'sql' => '
                         SELECT  *
                         FROM    `user_roles`
@@ -331,7 +331,7 @@ $db = new queasy\db\Db(
     ]
 );
 
-$user = $db->users->selectActiveByName([
+$user = $db->users->getActiveByName([
     'name' => 'John Doe'
 ]);
 ```
@@ -351,7 +351,7 @@ return [
         ],
         'tables' => [
             'users' => [
-                'selectActiveByName' => [
+                'getActiveByName' => [
                     'sql' => '
                         SELECT  *
                         FROM    `users`
@@ -380,7 +380,7 @@ $logger = new queasy\log\Logger($config->logger);
 $db = new queasy\db\Db($config->db);
 $db->setLogger($logger);
 
-$user = $db->users->selectActiveByName([
+$user = $db->users->getActiveByName([
     'name' => 'John Doe'
 ]);
 ```
