@@ -375,11 +375,12 @@ return [
 ```php
 $config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XML
 
-$logger = new queasy\log\Logger($config->db);
+$logger = new queasy\log\Logger($config->logger);
+
 $db = new queasy\db\Db($config->db);
 $db->setLogger($logger);
 
-$adminRole = $db->users->selectActiveByName([
+$user = $db->users->selectActiveByName([
     'name' => 'John Doe'
 ]);
 ```
