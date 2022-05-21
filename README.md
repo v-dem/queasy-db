@@ -21,6 +21,8 @@ added into database and/or tables config.
 
     composer require v-dem/queasy-db:master-dev
 
+It will also install `v-dem/queasy-helper`.
+
 ### Usage
 
 #### Notes
@@ -377,13 +379,10 @@ $config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XM
 $logger = new queasy\log\Logger($config->db);
 $db = new queasy\db\Db($config->db);
 $db->setLogger($logger);
-<<<<<<< HEAD
 
 $adminRole = $db->users->selectActiveByName([
     'name' => 'John Doe'
 ]);
-=======
->>>>>>> 0a5956cdc45fac1fef8d70e2a515367697b9f0a0
 ```
 
 * All queries will be logged with `Psr\Log\LogLevel::DEBUG` level. Also it's possible to use any other logger class compatible with PSR-3.
