@@ -57,8 +57,7 @@ $db = new queasy\db\Db(
             'dsn' => 'mysql:host=localhost;dbname=test',
             'user' => 'test_user',
             'password' => 'test_password'
-        ],
-        'fetchMode' => PDO::FETCH_ASSOC
+        ]
     ]
 );
 ```
