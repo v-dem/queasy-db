@@ -92,7 +92,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         }
 
         if (isset($config['fetchMode'])) {
-            if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $config['fetchMode'])) {
+            if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, isset($config['fetchMode'])? $config['fetchMode']: self::DEFAULT_FETCH_MODE)) {
                 throw new DbException('Cannot set fetch mode.');
             }
         }
@@ -101,7 +101,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     /**
      * Set a logger.
      *
-     * @param LoggerInterface $logger
+     * @param LoggerInterface $logger Logger instance
      */
     public function setLogger(LoggerInterface $logger)
     {
@@ -156,6 +156,13 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         throw new BadMethodCallException(sprintf('Not implemented.', $offset));
     }
 
+    /**
+     * Get Table instance.
+     *
+     * @param string $name Table name
+     *
+     * @return Table Instance
+     */
     public function table($name)
     {
         if (!isset($this->tables[$name])) {
@@ -174,6 +181,15 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         return $this->tables[$name];
     }
 
+    /**
+     * Execute a custom query.
+     *
+     * @param string $sql Custom SQL query
+     * @param array $params Optional
+     * @param array $options Optional
+     *
+     * @return PDOStatement Instance
+     */
     public function run($sql, array $params = array(), array $options = array())
     {
         $query = new Query($this, $sql);
@@ -182,6 +198,13 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         return $query($params, $options);
     }
 
+    /**
+     * Short-hand alias of PDO's `lastInsertId()`
+     *
+     * @param string $sequence Optional. Sequence name
+     *
+     * @return string|false Id of last inserted record or sequence value, or false on fail
+     */
     public function id($sequence = null)
     {
         return $this->lastInsertId($sequence);
