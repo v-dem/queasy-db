@@ -79,7 +79,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             $connectionString(),
             isset($connectionConfig['user'])? $connectionConfig['user']: $user,
             isset($connectionConfig['password'])? $connectionConfig['password']: $password,
-            isset($connectionConfig['options'])? $connectionConfig['options']: $options
+            isset($config['options'])? $config['options']: $options
         );
 
         if (isset($config['queries'])) {
@@ -91,10 +91,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             throw new DbException('Cannot set error mode.');
         }
 
-        if (isset($config['fetchMode'])) {
-            if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, isset($config['fetchMode'])? $config['fetchMode']: self::DEFAULT_FETCH_MODE)) {
-                throw new DbException('Cannot set fetch mode.');
-            }
+        $fetchMode = isset($config['options']) && isset($config['options']['fetchMode'])
+            ? $config['options']['fetchMode']
+            : self::DEFAULT_FETCH_MODE;
+        if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
+            throw new DbException('Cannot set fetch mode.');
         }
     }
 

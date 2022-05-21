@@ -44,7 +44,10 @@ $db = new queasy\db\Db(
             'user' => 'test_user',
             'password' => 'test_password'
         ],
-        'fetchMode' => PDO::FETCH_ASSOC // Default, can be omitted
+
+        'options' => [ // Optional. Driver options
+            'fetchMode' => PDO::FETCH_OBJ // Default is PDO::FETCH_ASSOC
+        ]
     ]
 );
 ```
