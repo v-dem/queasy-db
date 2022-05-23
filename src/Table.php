@@ -14,6 +14,8 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 
+use queasy\helper\System;
+
 use queasy\db\query\CustomQuery;
 use queasy\db\query\CountQuery;
 use queasy\db\query\SelectQuery;
@@ -218,7 +220,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
             $query = new CustomQuery($this->pdo, $this->config[$method]);
             $query->setLogger($this->logger);
 
-            return call_user_func_array(array($query, 'run'), $args);
+            return System::callUserFuncArray(array($query, 'run'), $args);
         }
 
         if (!count($args)) {

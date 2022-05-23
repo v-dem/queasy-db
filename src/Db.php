@@ -49,6 +49,8 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
      * @param string $password Database user password
      * @param array $options Key-value array of driver-specific options
      * 
+     * @throws InvalidArgumentException
+     * @throws DbException
      */
     public function __construct($configOrDsn = null, $user = null, $password = null, array $options = null)
     {
@@ -75,12 +77,16 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         $connectionString = new Connection($connectionConfig);
 
-        parent::__construct(
-            $connectionString(),
-            isset($connectionConfig['user'])? $connectionConfig['user']: $user,
-            isset($connectionConfig['password'])? $connectionConfig['password']: $password,
-            isset($config['options'])? $config['options']: $options
-        );
+        try {
+            parent::__construct(
+                $connectionString(),
+                isset($connectionConfig['user'])? $connectionConfig['user']: $user,
+                isset($connectionConfig['password'])? $connectionConfig['password']: $password,
+                isset($config['options'])? $config['options']: $options
+            );
+        } catch (PDOException $e) {
+            throw new DbException('Cannot initialize PDO', 0, $e);
+        }
 
         if (isset($config['queries'])) {
             $this->queries = $config['queries'];
