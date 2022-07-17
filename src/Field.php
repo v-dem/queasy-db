@@ -75,9 +75,9 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
         if (is_array($offset)) {
             return $rows;
-        } else {
-            return array_shift($rows);
         }
+
+        return array_shift($rows);
     }
 
     public function offsetSet($offset, $value)
