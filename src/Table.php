@@ -119,11 +119,17 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
             throw new InvalidArgumentException('Wrong rows argument.');
         }
 
-        $isSingleInsert = true;
-
         $keys = array_keys($params);
+
+        // Default is single inserts
+        $isSingleInsert = true;
+        $queryClass = (!count($keys) || is_numeric($keys[0]))
+            ? 'queasy\\db\\query\\SingleInsertQuery' // By order, without field names
+            : 'queasy\\db\\query\\SingleNamedInsertQuery'; // By field names
+
         if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
             $isSingleInsert = false;
+            $queryClass = 'queasy\\db\\query\\BatchSeparatelyNamedInsertQuery'; // Default
             if (!((2 === count($params))
                     && is_array($params[1])
                     && (0 < count($params[1]))
@@ -134,13 +140,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
                 $queryClass = (!count($keys) || is_numeric($keys[0]))
                     ? 'queasy\\db\\query\\BatchInsertQuery' // Batch insert
                     : 'queasy\\db\\query\\BatchNamedInsertQuery'; // Batch insert with field names
-            } else {
-                $queryClass = 'queasy\\db\\query\\BatchSeparatelyNamedInsertQuery';
             }
-        } else { // Single inserts
-            $queryClass = (!count($keys) || is_numeric($keys[0]))
-                ? 'queasy\\db\\query\\SingleInsertQuery' // By order, without field names
-                : 'queasy\\db\\query\\SingleNamedInsertQuery'; // By field names
         }
 
         $query = new $queryClass($this->pdo, $this->name);

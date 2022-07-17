@@ -55,7 +55,8 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $this->logger = new NullLogger();
 
         $config = array();
-        if (null === $configOrDsn) {
+
+        if (is_null($configOrDsn)) {
             $connectionConfig = null;
         } elseif (is_string($configOrDsn)) {
             $connectionConfig = array(
