@@ -20,8 +20,6 @@ use queasy\db\query\CustomQuery;
 
 class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 {
-    const DEFAULT_FETCH_MODE = PDO::FETCH_ASSOC;
-
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
@@ -92,16 +90,10 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             $this->queries = $config['queries'];
         }
 
-        $errorMode = isset($config['errorMode'])? $config['errorMode']: self::ERRMODE_EXCEPTION;
-        if (!$this->setAttribute(self::ATTR_ERRMODE, $errorMode)) {
-            throw new DbException('Cannot set error mode.');
-        }
-
-        $fetchMode = isset($config['options']) && isset($config['options']['fetchMode'])
-            ? $config['options']['fetchMode']
-            : self::DEFAULT_FETCH_MODE;
-        if (!$this->setAttribute(self::ATTR_DEFAULT_FETCH_MODE, $fetchMode)) {
-            throw new DbException('Cannot set fetch mode.');
+        if (isset($config['options'])) {
+            if (!isset($config['options'][self::ATTR_ERRMODE])) {
+                $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
+            }
         }
     }
 
