@@ -132,7 +132,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
             $queryClass = 'queasy\\db\\query\\BatchSeparatelyNamedInsertQuery'; // Default
             if (!((2 === count($params))
                     && is_array($params[1])
-                    && (0 < count($params[1]))
+                    && count($params[1])
                     && isset($params[1][0])
                     && is_array($params[1][0]))) { // Batch insert with field names listed in a separate array
                 $keys = array_keys($params[$keys[0]]);
