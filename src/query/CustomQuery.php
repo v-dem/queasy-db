@@ -29,11 +29,6 @@ class CustomQuery extends Query
     public function run(array $params = array(), array $options = array())
     {
         $config = $this->config;
-        /*
-        if (is_object($config) && method_exists($config, 'toArray')) {
-            $config = $config->toArray();
-        }
-        */
 
         $options = $options + (isset($config['options'])? $config['options']: array());
 
@@ -57,9 +52,7 @@ class CustomQuery extends Query
                     : $statement->fetchAll($fetchMode);
 
             case Db::RETURN_VALUE:
-                $row = $statement->fetch();
-                $value = array_shift($row);
-                return $value;
+                return $statement->fetchColumn();
 
             default:
                 return $statement;
