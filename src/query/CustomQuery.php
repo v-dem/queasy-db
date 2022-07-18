@@ -29,22 +29,23 @@ class CustomQuery extends Query
     public function run(array $params = array(), array $options = array())
     {
         $config = $this->config;
+        /*
         if (is_object($config) && method_exists($config, 'toArray')) {
             $config = $config->toArray();
         }
+        */
 
         $options = $options + (isset($config['options'])? $config['options']: array());
 
         $statement = parent::run($params, $options);
 
-        $returns = isset($this->config['returns'])? $this->config['returns']: null;
-        if (!$returns) {
+        if (!isset($this->config['returns'])) {
             return $statement;
         }
 
         $fetchMode = isset($this->config['fetchMode'])? $this->config['fetchMode']: null;
         $fetchClass = isset($this->config['fetchClass'])? $this->config['fetchClass']: 'stdClass';
-        switch ($returns) {
+        switch ($this->config['returns']) {
             case Db::RETURN_ONE:
                 return (Db::FETCH_CLASS === $fetchMode)
                     ? $statement->fetchObject($fetchClass)
