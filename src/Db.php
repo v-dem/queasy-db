@@ -235,21 +235,23 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     private function getConnectionConfig($configOrDsn = null, $user = null, $password = null, $options = null)
     {
         if (null === $configOrDsn) {
-            $connectionConfig = null;
-        } elseif (is_string($configOrDsn)) {
-            $connectionConfig = array(
+            return null;
+        }
+
+        if (is_string($configOrDsn)) {
+            return array(
                 'dsn' => $configOrDsn,
                 'user' => $user,
                 'password' => $password,
                 'options' => $options
             );
-        } elseif (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
-            $connectionConfig = isset($configOrDsn['connection'])? $configOrDsn['connection']: null;
-        } else {
-            throw new InvalidArgumentException('Wrong constructor arguments.');
         }
 
-        return $connectionConfig;
+        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+            return isset($configOrDsn['connection'])? $configOrDsn['connection']: null;
+        }
+
+        throw new InvalidArgumentException('Wrong constructor arguments.');
     }
 }
 
