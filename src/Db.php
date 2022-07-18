@@ -55,30 +55,18 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $this->logger = new NullLogger();
 
         $config = array();
-
-        if (null === $configOrDsn) {
-            $connectionConfig = null;
-        } elseif (is_string($configOrDsn)) {
-            $connectionConfig = array(
-                'dsn' => $configOrDsn,
-                'user' => $user,
-                'password' => $password,
-                'options' => $options
-            );
-        } elseif (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
             $config = $configOrDsn;
-            $connectionConfig = isset($config['connection'])? $config['connection']: null;
-        } else {
-            throw new InvalidArgumentException('Wrong constructor arguments.');
         }
 
         $this->config = $config;
 
-        $connectionString = new Connection($connectionConfig);
+        $connectionConfig = $this->getConnectionConfig($configOrDsn, $user, $password, $options);
+        $connection = new Connection($connectionConfig);
 
         try {
             parent::__construct(
-                $connectionString(),
+                $connection(),
                 isset($connectionConfig['user'])? $connectionConfig['user']: $user,
                 isset($connectionConfig['password'])? $connectionConfig['password']: $password,
                 isset($config['options'])? $config['options']: $options
@@ -91,10 +79,8 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             $this->queries = $config['queries'];
         }
 
-        if (isset($config['options'])) {
-            if (!isset($config['options'][self::ATTR_ERRMODE])) {
-                $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
-            }
+        if (isset($config['options']) && !isset($config['options'][self::ATTR_ERRMODE])) {
+            $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
         }
     }
 
@@ -143,17 +129,17 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     public function offsetSet($offset, $value)
     {
-        throw new BadMethodCallException(sprintf('Not implemented.', $offset, $value));
+        throw new BadMethodCallException('Not implemented.');
     }
 
     public function offsetExists($offset)
     {
-        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
+        throw new BadMethodCallException('Not implemented.');
     }
 
     public function offsetUnset($offset)
     {
-        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
+        throw new BadMethodCallException('Not implemented.');
     }
 
     /**
@@ -244,6 +230,26 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     protected function logger()
     {
         return $this->logger;
+    }
+
+    private function getConnectionConfig($configOrDsn = null, $user = null, $password = null, $options = null)
+    {
+        if (null === $configOrDsn) {
+            $connectionConfig = null;
+        } elseif (is_string($configOrDsn)) {
+            $connectionConfig = array(
+                'dsn' => $configOrDsn,
+                'user' => $user,
+                'password' => $password,
+                'options' => $options
+            );
+        } elseif (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+            $connectionConfig = isset($configOrDsn['connection'])? $configOrDsn['connection']: null;
+        } else {
+            throw new InvalidArgumentException('Wrong constructor arguments.');
+        }
+
+        return $connectionConfig;
     }
 }
 
