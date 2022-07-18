@@ -53,10 +53,9 @@ class CustomQuery extends Query
 
             case Db::RETURN_VALUE:
                 return $statement->fetchColumn();
-
-            default:
-                return $statement;
         }
+
+        return $statement;
     }
 }
 

@@ -201,7 +201,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
     public function offsetUnset($offset)
     {
-        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
+        throw new BadMethodCallException('Not implemented.');
     }
 
     /**
