@@ -38,32 +38,31 @@ class CustomQuery extends Query
         $statement = parent::run($params, $options);
 
         $returns = isset($this->config['returns'])? $this->config['returns']: null;
-
-        if ($returns) {
-            $fetchMode = isset($this->config['fetchMode'])? $this->config['fetchMode']: null;
-            $fetchArg = isset($this->config['fetchArg'])? $this->config['fetchArg']: null;
-            switch ($returns) {
-                case Db::RETURN_ONE:
-                    return (Db::FETCH_CLASS === $fetchMode)
-                        ? $statement->fetchObject($fetchArg? $fetchArg: 'stdClass')
-                        : $statement->fetch($fetchMode);
-
-                case Db::RETURN_ALL:
-                    return (Db::FETCH_CLASS === $fetchMode)
-                        ? $statement->fetchAll($fetchMode, $fetchArg)
-                        : $statement->fetchAll($fetchMode);
-
-                case Db::RETURN_VALUE:
-                    $row = $statement->fetch();
-                    $value = array_shift($row);
-                    return $value;
-
-                default:
-                    return $statement;
-            }
+        if (!$returns) {
+            return $statement;
         }
 
-        return $statement;
+        $fetchMode = isset($this->config['fetchMode'])? $this->config['fetchMode']: null;
+        $fetchClass = isset($this->config['fetchClass'])? $this->config['fetchClass']: 'stdClass';
+        switch ($returns) {
+            case Db::RETURN_ONE:
+                return (Db::FETCH_CLASS === $fetchMode)
+                    ? $statement->fetchObject($fetchClass)
+                    : $statement->fetch($fetchMode);
+
+            case Db::RETURN_ALL:
+                return (Db::FETCH_CLASS === $fetchMode)
+                    ? $statement->fetchAll($fetchMode, $fetchClass)
+                    : $statement->fetchAll($fetchMode);
+
+            case Db::RETURN_VALUE:
+                $row = $statement->fetch();
+                $value = array_shift($row);
+                return $value;
+
+            default:
+                return $statement;
+        }
     }
 }
 
