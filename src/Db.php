@@ -15,6 +15,7 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 
+use queasy\config\Config;
 use queasy\db\query\Query;
 use queasy\db\query\CustomQuery;
 
@@ -65,6 +66,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $connection = new Connection($connectionConfig);
 
         try {
+            $options = isset($config['options'])? $config['options']: $options;
+            if ($options instanceof Config) {
+                $options = $options->toArray();
+            }
+
             parent::__construct(
                 $connection(),
                 isset($connectionConfig['user'])? $connectionConfig['user']: $user,
