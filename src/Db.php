@@ -67,6 +67,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         try {
             $options = isset($config['options'])? $config['options']: $options;
+                var_dump($options);
             echo get_class($options);
             if ($options instanceof Config) {
                 echo "There";
