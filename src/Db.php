@@ -67,10 +67,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         try {
             $options = isset($config['options'])? $config['options']: $options;
-                var_dump($options);
-            echo get_class($options);
             if ($options instanceof Config) {
-                echo "There";
                 $options = $options->toArray();
             }
 
@@ -78,7 +75,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
                 $connection(),
                 isset($connectionConfig['user'])? $connectionConfig['user']: $user,
                 isset($connectionConfig['password'])? $connectionConfig['password']: $password,
-                isset($config['options'])? $config['options']: $options
+                $options
             );
         } catch (PDOException $e) {
             throw new DbException('Cannot initialize PDO', 0, $e);
