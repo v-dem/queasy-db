@@ -10,6 +10,7 @@ class Connection
 {
     const DEFAULT = 'sqlite::memory:';
     const DEFAULT_DRIVER = 'sqlite';
+    const DEFAULT_CHARSET = 'utf8';
 
     const GENERIC_TEMPLATE = '%s:host=%s;port=%s;dbname=%s;charset=%s';
     const SQLITE_TEMPLATE = 'sqlite:%s';
@@ -54,7 +55,7 @@ class Connection
                     isset($config['host'])? $config['host']: null,
                     isset($config['port'])? $config['port']: null,
                     isset($config['name'])? $config['name']: null,
-                    isset($config['charset'])? $config['charset']: null)
+                    isset($config['charset'])? $config['charset']: static::DEFAULT_CHARSET)
                 : sprintf(
                     static::SQLITE_TEMPLATE,
                     isset($config['path'])
