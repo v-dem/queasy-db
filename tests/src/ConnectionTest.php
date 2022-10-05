@@ -48,7 +48,7 @@ class ConnectionTest extends TestCase
             'name' => 'test'
         ]);
 
-        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test;charset=', $connection());
+        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test;charset=utf8', $connection());
     }
 
     public function testMysqlGet()
@@ -60,7 +60,20 @@ class ConnectionTest extends TestCase
             'name' => 'test'
         ]);
 
-        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test;charset=', $connection->get());
+        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test;charset=utf8', $connection->get());
+    }
+
+    public function testCharset()
+    {
+        $connection = new Connection([
+            'driver' => 'mysql',
+            'host' => 'localhost',
+            'port' => '9987',
+            'name' => 'test',
+            'charset' => 'cp1251'
+        ]);
+
+        $this->assertEquals('mysql:host=localhost;port=9987;dbname=test;charset=cp1251', $connection->get());
     }
 
     public function testCustomDsn()
