@@ -28,7 +28,8 @@ class CustomQuery extends Query
      */
     public function run(array $params = array(), array $options = array())
     {
-        $config = ($this->config instanceof queasy\config\Config)? $this->config->toArray(): $this->config;
+        $configInterface = 'queasy\config\ConfigInterface';
+        $config = ($this->config instanceof $configInterface)? $this->config->toArray(): $this->config;
 
         $options = array_merge($options, isset($config['options'])? $config['options']: array());
 
