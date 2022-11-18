@@ -15,7 +15,6 @@ use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 
-use queasy\config\Config;
 use queasy\db\query\Query;
 use queasy\db\query\CustomQuery;
 
