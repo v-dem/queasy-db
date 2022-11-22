@@ -77,7 +77,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
                 $options
             );
         } catch (PDOException $e) {
-            throw new DbException('Cannot initialize PDO', 0, $e);
+            throw new DbException('Cannot initialize PDO: ' . $e->getMessage(), 0, $e);
         }
 
         if (isset($config['queries'])) {
