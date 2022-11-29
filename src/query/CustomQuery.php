@@ -29,7 +29,9 @@ class CustomQuery extends Query
     public function run(array $params = array(), array $options = array())
     {
         $configInterface = 'queasy\config\ConfigInterface';
-        $config = ($this->config instanceof $configInterface)? $this->config->toArray(): $this->config;
+        $config = ($this->config instanceof $configInterface)
+            ? $this->config->toArray()
+            : $this->config;
 
         $options = array_merge($options, isset($config['options'])? $config['options']: array());
 
@@ -39,8 +41,12 @@ class CustomQuery extends Query
             return $statement;
         }
 
-        $fetchMode = isset($this->config['fetchMode'])? $this->config['fetchMode']: null;
-        $fetchClass = isset($this->config['fetchClass'])? $this->config['fetchClass']: 'stdClass';
+        $fetchMode = isset($this->config['fetchMode'])
+            ? $this->config['fetchMode']
+            : null;
+        $fetchClass = isset($this->config['fetchClass'])
+            ? $this->config['fetchClass']
+            : 'stdClass';
         switch ($this->config['returns']) {
             case Db::RETURN_ONE:
                 return (Db::FETCH_CLASS === $fetchMode)

@@ -20,6 +20,28 @@ use queasy\db\query\CustomQuery;
 
 class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 {
+    private static function getConnectionConfig($configOrDsn = null, $user = null, $password = null, $options = null)
+    {
+        if (null === $configOrDsn) {
+            return null;
+        }
+
+        if (is_string($configOrDsn)) {
+            return array(
+                'dsn' => $configOrDsn,
+                'user' => $user,
+                'password' => $password,
+                'options' => $options
+            );
+        }
+
+        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+            return isset($configOrDsn['connection'])? $configOrDsn['connection']: null;
+        }
+
+        throw new InvalidArgumentException('Wrong constructor arguments.');
+    }
+
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
@@ -61,7 +83,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         $this->config = $config;
 
-        $connectionConfig = $this->getConnectionConfig($configOrDsn, $user, $password, $options);
+        $connectionConfig = self::getConnectionConfig($configOrDsn, $user, $password, $options);
         $connection = new Connection($connectionConfig);
 
         try {
@@ -235,28 +257,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     protected function logger()
     {
         return $this->logger;
-    }
-
-    private function getConnectionConfig($configOrDsn = null, $user = null, $password = null, $options = null)
-    {
-        if (null === $configOrDsn) {
-            return null;
-        }
-
-        if (is_string($configOrDsn)) {
-            return array(
-                'dsn' => $configOrDsn,
-                'user' => $user,
-                'password' => $password,
-                'options' => $options
-            );
-        }
-
-        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
-            return isset($configOrDsn['connection'])? $configOrDsn['connection']: null;
-        }
-
-        throw new InvalidArgumentException('Wrong constructor arguments.');
     }
 }
 
