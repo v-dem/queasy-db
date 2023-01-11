@@ -88,7 +88,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         try {
             $options = isset($config['options'])? $config['options']: $options;
-            if ($options instanceof Config) {
+            if ($options instanceof \queasy\config\Config) {
                 $options = $options->toArray();
             }
 
