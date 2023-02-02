@@ -239,9 +239,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $this->beginTransaction();
 
         try {
-            $func($this);
+            $result = $func($this);
 
             $this->commit();
+
+            return $result;
         } catch (Exception $e) {
             $this->rollBack();
 
