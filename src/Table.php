@@ -62,6 +62,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $this[$fieldName];
     }
 
+    #[\ReturnTypeWillChange]
     public function count()
     {
         $query = new CountQuery($this->pdo, $this->name);
@@ -69,31 +70,36 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
         $statement = $query();
 
-        $row = $statement->fetch();
+        $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return array_shift($row);
     }
 
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return current($this->rows);
     }
 
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return key($this->rows);
     }
 
+    #[\ReturnTypeWillChange]
     public function next()
     {
         return next($this->rows);
     }
 
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->all();
     }
 
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         return isset($this->rows[$this->key()]);
@@ -173,11 +179,13 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $statement->rowCount();
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         throw new BadMethodCallException(sprintf('Not implemented.', $offset));
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if (!isset($this->fields[$offset])) {
@@ -190,6 +198,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $this->fields[$offset];
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if (null !== $offset) {
@@ -199,6 +208,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $this->insert($value);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new BadMethodCallException('Not implemented.');

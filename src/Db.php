@@ -149,21 +149,25 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         return $this->run($sql, $params, $options);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($name)
     {
         return $this->table($name);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         throw new BadMethodCallException('Not implemented.');
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         throw new BadMethodCallException('Not implemented.');
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         throw new BadMethodCallException('Not implemented.');

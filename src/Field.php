@@ -55,6 +55,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
         return $statement->fetchAll();
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
         $query = new CountQuery($this->pdo, $this->table->getName());
@@ -69,6 +70,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
         return $count > 0;
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         $rows = $this->select($offset);
@@ -80,11 +82,13 @@ class Field implements ArrayAccess, LoggerAwareInterface
         return array_shift($rows);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         $this->update($offset, $value);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($offset)
     {
         $this->delete($offset);
