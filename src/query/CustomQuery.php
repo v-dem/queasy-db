@@ -43,7 +43,7 @@ class CustomQuery extends Query
 
         $fetchMode = isset($this->config['fetchMode'])
             ? $this->config['fetchMode']
-            : Db::FETCH_DEFAULT;
+            : Db::FETCH_BOTH;
         $fetchClass = isset($this->config['fetchClass'])
             ? $this->config['fetchClass']
             : 'stdClass';
