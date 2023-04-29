@@ -17,7 +17,7 @@ class SelectQuery extends TableQuery
     {
         $sql = sprintf('
             SELECT  *
-            FROM    `%s`',
+            FROM    "%s"',
             $this->tableName()
         );
 
@@ -35,7 +35,7 @@ class SelectQuery extends TableQuery
 
                 $sql = sprintf('
                     %s
-                    WHERE   `%s` IN (%s)',
+                    WHERE   "%s" IN (%s)',
                     $sql,
                     $paramKeys[0],
                     implode(', ', array_keys($params))
@@ -47,7 +47,7 @@ class SelectQuery extends TableQuery
 
                 $sql = sprintf('
                     %s
-                    WHERE   `%s` = :%2$s',
+                    WHERE   "%s" = :%2$s',
                     $sql,
                     $paramKeys[0]
                 );

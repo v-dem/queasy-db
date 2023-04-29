@@ -22,7 +22,7 @@ class BatchNamedInsertQuery extends TableQuery
         }
 
         $columnNames = array_keys($params[0]);
-        $columnsString = '`' . implode('`, `', $columnNames) . '`';
+        $columnsString = '"' . implode('", "', $columnNames) . '"';
 
         $paramsString = '';
         $values = array();
@@ -43,7 +43,7 @@ class BatchNamedInsertQuery extends TableQuery
         $paramsString = rtrim($paramsString, ', ');
 
         $sql = sprintf('
-            INSERT  INTO `%s` (%s)
+            INSERT  INTO "%s" (%s)
             VALUES  %s',
             $this->tableName(),
             $columnsString,

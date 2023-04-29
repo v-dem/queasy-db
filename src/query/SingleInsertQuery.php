@@ -16,7 +16,7 @@ class SingleInsertQuery extends TableQuery
     public function run(array $params = array(), array $options = array())
     {
         $sql = sprintf('
-            INSERT  INTO `%s`',
+            INSERT  INTO "%s"',
             $this->tableName()
         );
 

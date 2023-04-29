@@ -26,7 +26,7 @@ class BatchInsertQuery extends TableQuery
         $rowString = rtrim(str_repeat('?, ', $colsCount), ', ');
 
         $sql = sprintf('
-            INSERT  INTO `%s`
+            INSERT  INTO "%s"
             VALUES  %s',
             $this->tableName(),
             sprintf($rowsString, $rowString)

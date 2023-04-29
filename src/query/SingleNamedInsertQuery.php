@@ -16,12 +16,12 @@ class SingleNamedInsertQuery extends TableQuery
     public function run(array $params = array(), array $options = array())
     {
         $sql = sprintf('
-            INSERT  INTO `%s` (%s)
+            INSERT  INTO "%s" (%s)
             VALUES  (%s)',
             $this->tableName(),
             implode(', ',
                 array_map(function($paramName) {
-                    return '`' . $paramName . '`';
+                    return '"' . $paramName . '"';
                 },  array_keys($params))
             ),
             implode(', ',

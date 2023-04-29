@@ -42,7 +42,7 @@ class UpdateQuery extends TableQuery
                 }
 
                 $conditionString = sprintf(
-                    '`%s` IN (%s)',
+                    '"%s" IN (%s)',
                     $this->fieldName,
                     implode(', ', array_keys($fieldValueParams))
                 );
@@ -50,7 +50,7 @@ class UpdateQuery extends TableQuery
                 $params = array_merge($params, $fieldValueParams);
             } else {
                 $conditionString = sprintf(
-                    '`%s` = :%s',
+                    '"%s" = :%s',
                     $this->fieldName,
                     $this->fieldName . '_queasydb' // Add a suffix to avoid collision with parameters passed to SET clause
                 );
@@ -60,7 +60,7 @@ class UpdateQuery extends TableQuery
         }
 
         $sql = sprintf('
-            UPDATE  `%s`
+            UPDATE  "%s"
             SET     %s
             %s',
             $this->tableName(),

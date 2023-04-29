@@ -32,13 +32,13 @@ class DeleteQuery extends TableQuery
                 }
 
                 $conditionString = sprintf(
-                    'WHERE %s IN (%s)',
+                    'WHERE "%s" IN (%s)',
                     $this->fieldName,
                     implode(', ', array_keys($params))
                 );
             } else {
                 $conditionString = sprintf(
-                    'WHERE `%s` = :%1$s',
+                    'WHERE "%s" = :%1$s',
                     $this->fieldName
                 );
 
@@ -47,7 +47,7 @@ class DeleteQuery extends TableQuery
         }
 
         $sql = sprintf('
-            DELETE  FROM `%s`
+            DELETE  FROM "%s"
             %s',
             $this->tableName(),
             $conditionString
