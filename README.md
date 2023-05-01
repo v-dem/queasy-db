@@ -30,6 +30,11 @@ It will also install `v-dem/queasy-helper`.
 *   `queasy\db\Db` class inherits `PDO` class, so any `PDO` methods can be called with it
 *   You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries
 
+#### IMPORTANT!
+
+*   For MySQL Server need to set option `PDO::MYSQL_ATTR_INIT_COMMAND` to `SET GLOBAL SQL_MODE=ANSI_QUOTES`.
+*   For MS SQL Server similar: `SET QUOTED_IDENTIFIER O`.
+
 #### Initialization
 
 Sample:
@@ -46,7 +51,7 @@ $db = new queasy\db\Db(
         ],
 
         'options' => [ // Optional. Driver options
-            'fetchMode' => PDO::FETCH_OBJ // Default is PDO::FETCH_ASSOC
+            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET GLOBAL SQL_MODE=ANSI_QUOTES' // Required for MySQL
         ]
     ]
 );
