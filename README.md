@@ -62,7 +62,7 @@ Or
 $db = new queasy\db\Db(
     [
         'connection' => [
-            'dsn' => 'mysql:host=localhost;dbname=test',
+            'dsn' => 'pgsql:host=localhost;dbname=test',
             'user' => 'test_user',
             'password' => 'test_password'
         ]
@@ -72,7 +72,7 @@ $db = new queasy\db\Db(
 
 Or PDO-way:
 ```php
-$db = new queasy\db\Db('mysql:host=localhost;dbname=test', 'test_user', 'test_password');
+$db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password');
 ```
 
 * By default error mode is set to `PDO::ERRMODE_EXCEPTION`
@@ -86,7 +86,7 @@ $users = $db->users->all();
 Resulting SQL:
 ```sql
 SELECT  *
-FROM    `users`
+FROM    "users"
 ```
 
 #### Get a single record from `users` table by `id` key
@@ -98,8 +98,8 @@ $user = $db->users->id[$userId];
 Resulting SQL:
 ```sql
 SELECT  *
-FROM    `users`
-WHERE   `id` = :id
+FROM    "users"
+WHERE   "id" = :id
 ```
 
 It's possible to use `select()` method to pass PDO options; `select()` returns array of rows:
@@ -116,8 +116,8 @@ $users = $db->users->id[[$userId1, $userId2]];
 Resulting SQL:
 ```sql
 SELECT  *
-FROM    `users`
-WHERE   `id` IN (:id_1, :id_2)
+FROM    "users"
+WHERE   "id" IN (:id_1, :id_2)
 ```
 
 #### Insert a record into `users` table using associative array
@@ -131,7 +131,7 @@ $db->users[] = [
 
 Resulting SQL:
 ```sql
-INSERT  INTO `users` (`email`, `password_hash`)
+INSERT  INTO "users" ("email", "password_hash")
 VALUES  (:email, :password_hash)
 ```
 
@@ -160,7 +160,7 @@ $db->users[] = [
 
 Resulting SQL:
 ```sql
-INSERT  INTO `users` (`email`, `password_hash`)
+INSERT  INTO "users" ("email", "password_hash")
 VALUES  (:email_1, :password_hash_1),
         (:email_2, :password_hash_2)
 ```
@@ -268,8 +268,8 @@ foreach ($db->users as $user) {
 ```php
 $result = $db->run('
     SELECT  *
-    FROM    `users`
-    WHERE   `name` LIKE concat(\'%\', :searchName, \'%\')',
+    FROM    "users"
+    WHERE   "name" LIKE concat(\'%\', :searchName, \'%\')',
     [
         ':searchName' => $searchName
     ]
@@ -286,7 +286,7 @@ This feature can help keep code cleaner and place SQL code outside PHP, somewher
 $db = new queasy\db\Db(
     [
         'connection' => [
-            'driver' => 'mysql',
+            'driver' => pgysql',
             'host' => 'localhost',
             'name' => 'test',
             'user' => 'test_user',
@@ -296,9 +296,9 @@ $db = new queasy\db\Db(
             'getActiveUserByName' => [
                 'sql' => '
                     SELECT  *
-                    FROM    `user_roles`
-                    WHERE   `name` = :name
-                            AND `is_active` = 1',
+                    FROM    "user_roles"
+                    WHERE   "name" = :name
+                            AND "is_active" = 1',
                 'returns' => Db::RETURN_ONE
             ]
         ]
@@ -318,7 +318,7 @@ Also it is possible to group predefined queries by tables:
 $db = new queasy\db\Db(
     [
         'connection' => [
-            'driver' => 'mysql',
+            'driver' => 'pgsql',
             'host' => 'localhost',
             'name' => 'test',
             'user' => 'test_user',
@@ -329,9 +329,9 @@ $db = new queasy\db\Db(
                 'getActiveByName' => [
                     'sql' => '
                         SELECT  *
-                        FROM    `user_roles`
-                        WHERE   `name` = :name
-                                AND `is_active` = 1',
+                        FROM    "user_roles"
+                        WHERE   "name" = :name
+                                AND "is_active" = 1',
                     'returns' => Db::RETURN_ONE
                 ]
             ]
@@ -351,7 +351,7 @@ $user = $db->users->getActiveByName([
 return [
     'db' => [
         'connection' => [
-            'driver' => 'mysql',
+            'driver' => 'pgsql',
             'host' => 'localhost',
             'name' => 'test',
             'user' => 'test_user',
@@ -362,9 +362,9 @@ return [
                 'getActiveByName' => [
                     'sql' => '
                         SELECT  *
-                        FROM    `users`
-                        WHERE   `name` = :name
-                                AND `is_active` = 1',
+                        FROM    "users"
+                        WHERE   "name" = :name
+                                AND "is_active" = 1',
                     'returns' => Db::RETURN_ONE
                 ]
             ]
