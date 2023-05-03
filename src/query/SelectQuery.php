@@ -13,11 +13,19 @@ class SelectQuery extends TableQuery
      *
      * @throws DbException On error
      */
-    public function run(array $params = array(), array $options = array())
+    public function run(array $params = array(), array $options = array(), array $columns = array())
     {
+        $columnsStr = '*';
+        if (count($columns)) {
+            $columnsStr = implode(', ', array_map(function($column) {
+                return '"' . $column . '"';
+            }, $columns));
+        }
+
         $sql = sprintf('
-            SELECT  *
+            SELECT  %s
             FROM    "%s"',
+            $columnsStr,
             $this->tableName()
         );
 

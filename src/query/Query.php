@@ -23,6 +23,10 @@ class Query extends AbstractQuery
     {
         $this->logger()->debug(sprintf('%s::run(): SQL: %s', get_class($this), $this->sql()), $params);
 
+        if (null === $options) {
+            $options = array();
+        }
+
         $statement = $this->pdo()->prepare($this->sql(), $options);
         $statement->closeCursor(); // Avoid error with not closed recordset
 
