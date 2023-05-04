@@ -161,9 +161,9 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
             } catch (PDOException $e) {
                 return true;
             }
-        } else {
-            return $statement->rowCount();
         }
+
+        return $statement->rowCount();
     }
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
