@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use BadMethodCallException;
 
 use PDO;
+use PDOException;
 use ArrayAccess;
 use Countable;
 use Iterator;
@@ -154,9 +155,15 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
 
         $statement = $query($params);
 
-        return $isSingleInsert
-            ? $this->pdo->lastInsertId()
-            : $statement->rowCount();
+        if ($isSingleInsert) {
+            try {
+                return $this->pdo->lastInsertId();
+            } catch (PDOException $e) {
+                return true;
+            }
+        } else {
+            return $statement->rowCount();
+        }
     }
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
