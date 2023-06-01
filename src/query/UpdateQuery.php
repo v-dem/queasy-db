@@ -27,7 +27,7 @@ class UpdateQuery extends TableQuery
             ', ',
             array_map(
                 function($paramName) {
-                    return sprintf('`%s` = :%s', $paramName, $paramName);
+                    return sprintf('"%s" = :%s', $paramName, $paramName);
                 },
                 array_keys($params)
             )

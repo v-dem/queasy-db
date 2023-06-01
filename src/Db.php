@@ -72,7 +72,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
      * @throws InvalidArgumentException
      * @throws DbException
      */
-    public function __construct($configOrDsn = null, $user = null, $password = null, array $options = null)
+    public function __construct($configOrDsn = null, $user = null, $password = null, array $options = array())
     {
         $this->logger = new NullLogger();
 
