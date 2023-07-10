@@ -52,7 +52,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
         $statement = $query(array($this->name => $value), $options);
 
-        return $statement->fetchAll();
+        return $statement;
     }
 
     #[\ReturnTypeWillChange]
@@ -73,7 +73,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
     #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
-        $rows = $this->select($offset);
+        $rows = $this->select($offset)->fetchAll();
 
         if (is_array($offset)) {
             return $rows;
@@ -96,7 +96,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     public function __invoke($value, array $options = array())
     {
-        return $this->select([$value], $options);
+        return $this->select([$value], $options)->fetchAll();
     }
 
     public function setLogger(LoggerInterface $logger)

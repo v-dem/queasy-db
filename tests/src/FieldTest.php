@@ -40,7 +40,7 @@ class FieldTest extends TestCase
 
     public function testSelect()
     {
-        $roles = $this->qdb->user_roles->id->select(2);
+        $roles = $this->qdb->user_roles->id->select(2)->fetchAll();
 
         $this->assertIsArray($roles);
         $this->assertIsArray($roles[0]);
@@ -49,7 +49,7 @@ class FieldTest extends TestCase
 
     public function testSelectMultiple()
     {
-        $roles = $this->qdb->user_roles->id->select([2, 3]);
+        $roles = $this->qdb->user_roles->id->select([2, 3])->fetchAll();
 
         $this->assertIsArray($roles);
         $this->assertCount(2, $roles);
