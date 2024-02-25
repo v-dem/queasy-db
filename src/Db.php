@@ -248,12 +248,16 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
             if ($this->inTransaction()) {
                 $this->commit();
             } else {
-                $this->logger->debug('Transaction was not started or already committed.');
+                $this->logger->debug('Commit check: Transaction was not started or already committed.');
             }
 
             return $result;
         } catch (Exception $e) {
-            $this->rollBack();
+            if ($this->inTransaction()) {
+                $this->rollBack();
+            } else {
+                $this->logger->debug('Rollback check: Transaction was not started or already committed.');
+            }
 
             throw $e;
         }
