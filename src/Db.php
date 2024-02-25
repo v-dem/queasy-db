@@ -245,7 +245,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         try {
             $result = $func($this);
 
-            $this->commit();
+            if ($this->inTransaction()) {
+                $this->commit();
+            } else {
+                $this->logger->debug('Transaction was not started or already committed.');
+            }
 
             return $result;
         } catch (Exception $e) {
