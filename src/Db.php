@@ -31,6 +31,8 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     private $queries = array();
 
+    private $queryConfigs = array();
+
     /**
      * @var LoggerInterface Logger instance
      */
@@ -53,15 +55,23 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
         if (null === $configOrDsn) {
             parent::__construct('sqlite::memory:', $user, $password, $options);
-        } elseif (is_string($configOrDsn)) {
+
+            return;
+        }
+
+        if (is_string($configOrDsn)) {
             parent::__construct($configOrDsn, $user, $password, $options);
-        } elseif (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+
+            return;
+        }
+
+        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
             if (isset($configOrDsn['tables'])) {
                 $this->tableConfigs = $configOrDsn['tables'];
             }
 
             if (isset($configOrDsn['queries'])) {
-                $this->queries = $configOrDsn['queries'];
+                $this->queryConfigs = $configOrDsn['queries'];
             }
 
             $connection = $configOrDsn;
@@ -87,9 +97,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
                 isset($connection['password'])? $connection['password']: null,
                 $options
             );
-        } else {
-            throw new InvalidArgumentException('Invalid arguments passed to Db::__construct()');
+
+            return;
         }
+
+        throw new InvalidArgumentException('Invalid arguments passed to Db::__construct(): $configOrDsn must be null, or a string, or an array or ArrayAccess instance');
     }
 
     /**
@@ -111,10 +123,14 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function __call($name, array $args = array())
     {
         if (!isset($this->queries[$name])) {
-            throw new BadMethodCallException(sprintf('No method "%s" found.', $name));
+            if (!isset($this->queryConfigs[$name])) {
+                throw new BadMethodCallException(sprintf('No method "%s" found.', $name));
+            }
+
+            $this->queries[$name] = new CustomQuery($this, $this->queryConfigs[$name]);
         }
 
-        $query = new CustomQuery($this, $this->queries[$name]);
+        $query = $this->queries[$name];
         $query->setLogger($this->logger);
 
         $params = array_shift($args);
