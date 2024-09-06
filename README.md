@@ -1,5 +1,4 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d4762b3b45e48c69d13687cd786e0ca)](https://app.codacy.com/manual/v-dem/queasy-db?utm_source=github.com&utm_medium=referral&utm_content=v-dem/queasy-db&utm_campaign=Badge_Grade_Dashboard)
-[![Build Status](https://travis-ci.com/v-dem/queasy-db.svg?branch=master)](https://travis-ci.com/v-dem/queasy-db)
 [![codecov](https://codecov.io/gh/v-dem/queasy-db/branch/master/graph/badge.svg)](https://codecov.io/gh/v-dem/queasy-db)
 [![Total Downloads](https://poser.pugx.org/v-dem/queasy-db/downloads)](https://packagist.org/packages/v-dem/queasy-db)
 [![License](https://poser.pugx.org/v-dem/queasy-db/license)](https://packagist.org/packages/v-dem/queasy-db)
@@ -8,10 +7,16 @@
 
 ## Package `v-dem/queasy-db`
 
-Database access classes. Some the most usual queries can be built automatically, more complex queries can be
-added into database and/or tables config.
+QuEasy DB is a set of database access classes for CRUD operations.
+Some of the most usual queries can be built automatically (like `SELECT` by unique field value/values, `UPDATE`, `INSERT` and `DELETE`).
+Complex queries can be defined in database and/or tables config.
+The main goal is to move `SQL` queries out of `PHP` code.
 
 ### Features
+
+* QuEasy DB extends `PDO` class, so any project which uses `PDO` can be seamlessly moved to use QuEasy DB.
+* CRUD database operations in just one PHP code row.
+* Separating SQL queries from PHP code.
 
 ### Requirements
 
@@ -19,7 +24,7 @@ added into database and/or tables config.
 
 ### Installation
 
-    composer require v-dem/queasy-db:master-dev
+    composer require v-dem/queasy-db
 
 It will also install `v-dem/queasy-helper`.
 
@@ -27,13 +32,13 @@ It will also install `v-dem/queasy-helper`.
 
 #### Notes
 
-*   `queasy\db\Db` class inherits `PDO` class, so any `PDO` methods can be called with it
-*   You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries
+*   You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries, by default `Psr\Log\NullLogger` is used.
+*   By default error mode is set to `PDO::ERRMODE_EXCEPTION` (as in PHP8) if another mode is not set in `$options`.
 
-#### IMPORTANT!
+##### IMPORTANT!
 
 *   For MySQL Server need to set option `PDO::MYSQL_ATTR_INIT_COMMAND` to `SET GLOBAL SQL_MODE=ANSI_QUOTES`.
-*   For MS SQL Server similar: `SET QUOTED_IDENTIFIER O`.
+*   For MSSQL Server need to run `$db->run('SET QUOTED_IDENTIFIER O');`.
 
 #### Initialization
 
@@ -74,8 +79,6 @@ Or PDO-way:
 ```php
 $db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password');
 ```
-
-* By default error mode is set to `PDO::ERRMODE_EXCEPTION`
 
 #### Get all records from `users` table
 
