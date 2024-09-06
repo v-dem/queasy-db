@@ -24,19 +24,19 @@ use queasy\db\DbException;
 
 class DbTest extends TestCase
 {
-    const DATABASE_PATH = 'tests/resources/test.sqlite.temp';
+    const DATABASE_DSN = 'sqlite:tests/resources/test.sqlite.temp';
 
     private $pdo;
 
     public function setUp(): void
     {
-        $this->pdo = new PDO('sqlite:' . self::DATABASE_PATH);
+        $this->pdo = new PDO(self::DATABASE_DSN);
     }
 
     public function tearDown(): void
     {
-        $this->pdo->exec('DELETE FROM `users`');
-        $this->pdo->exec('DELETE FROM `ids`');
+        $this->pdo->exec('DELETE FROM "users"');
+        $this->pdo->exec('DELETE FROM "ids"');
 
         $this->pdo = null;
     }
@@ -53,19 +53,19 @@ class DbTest extends TestCase
         $qdb = new Db();
 
         $qdb->exec('
-            CREATE  TABLE `users` (
-                    `id`            integer primary key,
-                    `email`         text not null unique,
-                    `password_hash` text not null
+            CREATE  TABLE "users" (
+                    "id"            integer primary key,
+                    "email"         text not null unique,
+                    "password_hash" text not null
             )');
 
         $qdb->exec('
-            INSERT  INTO `users` (`id`, `email`, `password_hash`)
+            INSERT  INTO "users" ("id", "email", "password_hash")
             VALUES  (12, \'john.doe@example.com\', \'7328576391847569\')');
 
         $statement = $qdb->query('
             SELECT  *
-            FROM    `users`');
+            FROM    "users"');
 
         $this->assertInstanceOf('PDOStatement', $statement);
 
@@ -82,7 +82,7 @@ class DbTest extends TestCase
 
     public function testConstructorWithPDOParameters()
     {
-        $qdb = new Db('sqlite:' . self::DATABASE_PATH);
+        $qdb = new Db(self::DATABASE_DSN);
 
         $this->assertCount(3, $qdb->user_roles);
     }
@@ -170,11 +170,11 @@ class DbTest extends TestCase
 
     public function testRunSelect()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $statement = $qdb->run('
             SELECT  count(*)
-            FROM    `user_roles`');
+            FROM    "user_roles"');
 
         $this->assertInstanceOf('PDOStatement', $statement);
 
@@ -185,11 +185,11 @@ class DbTest extends TestCase
 
     public function testInvokeSelect()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $statement = $qdb('
             SELECT  count(*)
-            FROM    `user_roles`');
+            FROM    "user_roles"');
 
         $this->assertInstanceOf('PDOStatement', $statement);
 
@@ -200,12 +200,12 @@ class DbTest extends TestCase
 
     public function testInvokeSelectWithParameters()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH], 'options' => ['fetchMode' => PDO::FETCH_ASSOC]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $statement = $qdb('
             SELECT  *
-            FROM    `user_roles`
-            WHERE   `id` = ?', [
+            FROM    "user_roles"
+            WHERE   "id" = ?', [
                 2
             ]
         );
@@ -220,12 +220,12 @@ class DbTest extends TestCase
 
     public function testInvokeSelectWithNamedParameters()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH], 'options' => ['fetchMode' => PDO::FETCH_ASSOC]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $statement = $qdb('
             SELECT  *
-            FROM    `user_roles`
-            WHERE   `id` = :id', [
+            FROM    "user_roles"
+            WHERE   "id" = :id', [
                 'id' => 2
             ]
         );
@@ -240,10 +240,10 @@ class DbTest extends TestCase
 
     public function testRunInsert()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $statement = $qdb->run('
-            INSERT  INTO `users` (`id`, `email`, `password_hash`)
+            INSERT  INTO "users" ("id", "email", "password_hash")
             VALUES  (1, \'john.doe@example.com\', \'34896830491683096\'),
                     (45, \'mary.jones@example.com\', \'9387460918340139684\')');
 
@@ -254,18 +254,18 @@ class DbTest extends TestCase
     {
         $qdb = new Db([
             'connection' => [
-                'path' => self::DATABASE_PATH
+                'dsn' => self::DATABASE_DSN,
+                'options' => [
+                    'fetchMode' => PDO::FETCH_ASSOC
+                ]
             ],
             'queries' => [
                 'selectUserRoleByName' => [
                     'sql' => '
                         SELECT  *
-                        FROM    `user_roles`
-                        WHERE   `name` = :name'
+                        FROM    "user_roles"
+                        WHERE   "name" = :name'
                 ]
-            ],
-            'options' => [
-                'fetchMode' => PDO::FETCH_ASSOC
             ]
         ]);
 
@@ -283,12 +283,12 @@ class DbTest extends TestCase
     {
         $qdb = new Db([
             'connection' => [
-                'path' => self::DATABASE_PATH
+                'dsn' => self::DATABASE_DSN,
+                'options' => [
+                    'fetchMode' => PDO::FETCH_ASSOC
+                ]
             ],
             'queries' => [
-            ],
-            'options' => [
-                'fetchMode' => PDO::FETCH_ASSOC,
             ]
         ]);
 
@@ -299,10 +299,10 @@ class DbTest extends TestCase
 
     public function testId()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $qdb->run('
-            INSERT  INTO `users` (`id`, `email`, `password_hash`)
+            INSERT  INTO "users" ("id", "email", "password_hash")
             VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
 
         $this->assertEquals(45, $qdb->id());
@@ -310,15 +310,15 @@ class DbTest extends TestCase
 
     public function testTrans()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $qdb->trans(function() use($qdb) {
             $qdb->run('
-                INSERT  INTO `users` (`id`, `email`, `password_hash`)
+                INSERT  INTO "users" ("id", "email", "password_hash")
                 VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
         });
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 45')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 45')->fetch();
 
         $this->assertNotNull($row);
         $this->assertEquals(45, $row['id']);
@@ -327,32 +327,32 @@ class DbTest extends TestCase
 
     public function testTransFailed()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $this->expectException(Exception::class);
 
         $qdb->trans(function() use($qdb) {
             $qdb->run('
-                INSERT  INTO `users` (`id`, `email`, `password_hash`)
+                INSERT  INTO "users" ("id", "email", "password_hash")
                 VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
 
             throw new Exception();
 
             $qdb->run('
-                INSERT  INTO `users` (`id`, `email`, `password_hash`)
+                INSERT  INTO "users" ("id", "email", "password_hash")
                 VALUES  (7, \'john.doe@example.com\', \'124284\')');
         });
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
         $this->assertNull($row);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 45')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 45')->fetch();
         $this->assertNull($row);
     }
 
     public function testTransNotCallable()
     {
-        $qdb = new Db(['connection' => ['path' => self::DATABASE_PATH]]);
+        $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
         $this->expectException(InvalidArgumentException::class);
 

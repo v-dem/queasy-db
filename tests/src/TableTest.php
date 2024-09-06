@@ -29,29 +29,28 @@ class TableTest extends TestCase
     {
         $this->qdb = new Db([
             'connection' => [
-                'path' => 'tests/resources/test.sqlite.temp'
+                'dsn' => 'sqlite:tests/resources/test.sqlite.temp'
             ],
-            'fetchMode' => Db::FETCH_ASSOC,
             'tables' => [
                 'users' => [
                     'deleteWithSubstringInEmail' => [
                         'sql' => '
-                            DELETE  FROM `users`
-                            WHERE   `email` LIKE (\'%\' || :substring || \'%\')'
+                            DELETE  FROM "users"
+                            WHERE   "email" LIKE (\'%\' || :substring || \'%\')'
                     ],
                     'selectWithSubstringInEmailBackOrdered' => [
                         'sql' => '
                             SELECT  *
-                            FROM    `users`
-                            WHERE   `email` LIKE (\'%\' || :substring || \'%\')
-                            ORDER   BY `id` DESC',
+                            FROM    "users"
+                            WHERE   "email" LIKE (\'%\' || :substring || \'%\')
+                            ORDER   BY "id" DESC',
                         'returns' => Db::RETURN_ALL
                     ],
                     'getLatestById' => [
                         'sql' => '
                             SELECT  *
-                            FROM    `users`
-                            ORDER   BY `id` DESC
+                            FROM    "users"
+                            ORDER   BY "id" DESC
                             LIMIT   1',
                         'returns' => Db::RETURN_ONE
                     ]
@@ -60,7 +59,7 @@ class TableTest extends TestCase
                     'getRolesCount' => [
                         'sql' => '
                             SELECT  count(*)
-                            FROM    `user_roles`',
+                            FROM    "user_roles"',
                         'returns' => Db::RETURN_VALUE
                     ]
                 ]
@@ -72,8 +71,8 @@ class TableTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->pdo->exec('DELETE FROM `users`');
-        $this->pdo->exec('DELETE FROM `ids`');
+        $this->pdo->exec('DELETE FROM "users"');
+        $this->pdo->exec('DELETE FROM "ids"');
 
         $this->pdo = null;
     }
@@ -82,7 +81,7 @@ class TableTest extends TestCase
     {
         $this->qdb->users[] = [15, 'john.doe@example.com', sha1('gfhjkm')];
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
 
         $this->assertNotNull($row);
         $this->assertEquals(15, $row['id']);
@@ -95,7 +94,7 @@ class TableTest extends TestCase
         $userId = $this->qdb->users->insert([15, 'john.doe@example.com', sha1('gfhjkm')]);
         $this->assertEquals(15, $userId);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
 
         $this->assertNotNull($row);
         $this->assertEquals(15, $row['id']);
@@ -107,7 +106,7 @@ class TableTest extends TestCase
     {
         $this->qdb->users[] = ['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')];
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
 
         $this->assertNotNull($user);
         $this->assertEquals('john.doe@example.com', $user['email']);
@@ -119,7 +118,7 @@ class TableTest extends TestCase
         $userId = $this->qdb->users->insert(['id' => 15, 'email' => 'john.doe@example.com', 'password_hash' => sha1('gfhjkm')]);
         $this->assertEquals(15, $userId);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
 
         $this->assertNotNull($user);
         $this->assertEquals('john.doe@example.com', $user['email']);
@@ -133,13 +132,13 @@ class TableTest extends TestCase
             [22, 'mary.jones@example.com', sha1('321654')]
         ];
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(15, $user['id']);
         $this->assertEquals('john.doe@example.com', $user['email']);
         $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
@@ -154,13 +153,13 @@ class TableTest extends TestCase
         ]);
         $this->assertEquals(2, $rowsCount);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(15, $user['id']);
         $this->assertEquals('john.doe@example.com', $user['email']);
         $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
@@ -177,13 +176,13 @@ class TableTest extends TestCase
             ]
         ];
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(15, $user['id']);
         $this->assertEquals('john.doe@example.com', $user['email']);
         $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
@@ -197,13 +196,13 @@ class TableTest extends TestCase
             ['id' => 22, 'email' => 'mary.jones@example.com', 'password_hash' => sha1('321654')]
         ];
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(15, $user['id']);
         $this->assertEquals('john.doe@example.com', $user['email']);
         $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
@@ -214,7 +213,7 @@ class TableTest extends TestCase
     {
         $this->qdb->ids[] = [];
 
-        $row = $this->pdo->query('SELECT count(*) FROM `ids`')->fetch(PDO::FETCH_NUM);
+        $row = $this->pdo->query('SELECT count(*) FROM "ids"')->fetch(PDO::FETCH_NUM);
         $this->assertEquals(1, $row[0]);
     }
 
@@ -231,7 +230,7 @@ class TableTest extends TestCase
     {
         $this->qdb->ids[] = [[], []];
 
-        $row = $this->pdo->query('SELECT count(*) FROM `ids`')->fetch(PDO::FETCH_NUM);
+        $row = $this->pdo->query('SELECT count(*) FROM "ids"')->fetch(PDO::FETCH_NUM);
         $this->assertEquals(2, $row[0]);
     }
     */
@@ -242,7 +241,7 @@ class TableTest extends TestCase
 
         $this->assertIsNumeric($uniqueId);
 
-        $row = $this->pdo->query('SELECT * FROM `ids` WHERE `id` = ' . $uniqueId)->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "ids" WHERE "id" = ' . $uniqueId)->fetch();
 
         $this->assertNotNull($uniqueId);
         $this->assertEquals($uniqueId, $row['id']);
@@ -258,13 +257,13 @@ class TableTest extends TestCase
         $rowsCount = $this->qdb->users->update(['email' => 'vitaly.d@example.com'], 'id', 15);
         $this->assertEquals(1, $rowsCount);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(15, $user['id']);
         $this->assertEquals('vitaly.d@example.com', $user['email']);
         $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
@@ -281,13 +280,13 @@ class TableTest extends TestCase
         $rowsCount = $this->qdb->users->update(['password_hash' => sha1('secret')]);
         $this->assertEquals(2, $rowsCount);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 15')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(15, $user['id']);
         $this->assertEquals('john.doe@example.com', $user['email']);
         $this->assertEquals(sha1('secret'), $user['password_hash']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 22')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
         $this->assertNotNull($user);
         $this->assertEquals(22, $user['id']);
         $this->assertEquals('mary.jones@example.com', $user['email']);
@@ -302,7 +301,7 @@ class TableTest extends TestCase
     public function testForeach()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
@@ -319,6 +318,7 @@ class TableTest extends TestCase
             $this->assertEquals($expectedPasswordHashes[$offset], $user['password_hash']);
             $rowsCount++;
         }
+
         $this->assertEquals(3, $rowsCount);
     }
 
@@ -332,24 +332,24 @@ class TableTest extends TestCase
     public function testCustomRemoveMethod()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         $this->qdb->users->deleteWithSubstringInEmail(['substring' => 'jo']);
 
-        $user = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
+        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 123')->fetch();
         $this->assertNotNull($user);
 
-        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_NUM);
+        $row = $this->pdo->query('SELECT count(*) FROM "users"')->fetch(PDO::FETCH_NUM);
         $this->assertEquals(1, $row[0]);
     }
 
     public function testCustomSelectMethodReturningAll()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
@@ -369,7 +369,7 @@ class TableTest extends TestCase
     public function testCustomSelectMethodReturningOne()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
@@ -386,7 +386,7 @@ class TableTest extends TestCase
     public function testCustomSelectMethodReturningValue()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');

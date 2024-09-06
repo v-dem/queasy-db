@@ -25,15 +25,15 @@ class FieldTest extends TestCase
 
     public function setUp(): void
     {
-        $this->qdb = new Db(['connection' => ['path' => 'tests/resources/test.sqlite.temp'], 'fetchMode' => Db::FETCH_ASSOC]);
+        $this->qdb = new Db(['connection' => ['dsn' => 'sqlite:tests/resources/test.sqlite.temp']]);
 
         $this->pdo = new PDO('sqlite:tests/resources/test.sqlite.temp');
     }
 
     public function tearDown(): void
     {
-        $this->pdo->exec('DELETE FROM `users`');
-        $this->pdo->exec('DELETE FROM `ids`');
+        $this->pdo->exec('DELETE FROM "users"');
+        $this->pdo->exec('DELETE FROM "ids"');
 
         $this->pdo = null;
     }
@@ -84,52 +84,52 @@ class FieldTest extends TestCase
 
     public function testDeleteAssignNull()
     {
-        $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
+        $this->pdo->exec('INSERT INTO "users" VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
 
-        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT count(*) FROM "users"')->fetch();
         $this->assertEquals(1, array_shift($row));
 
         $this->qdb->users->id[7] = null;
 
-        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT count(*) FROM "users"')->fetch();
         $this->assertEquals(0, array_shift($row));
     }
 
     public function testDeleteFunction()
     {
-        $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
+        $this->pdo->exec('INSERT INTO "users" VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
 
-        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT count(*) FROM "users"')->fetch();
         $this->assertEquals(1, array_shift($row));
 
         $rowsCount = $this->qdb->users->id->delete(7);
         $this->assertEquals(1, $rowsCount);
 
-        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT count(*) FROM "users"')->fetch();
         $this->assertEquals(0, array_shift($row));
     }
 
     public function testDeleteUnset()
     {
-        $this->pdo->exec('INSERT INTO `users` VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
+        $this->pdo->exec('INSERT INTO "users" VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');
 
         unset($this->qdb->users->id[7]);
 
-        $row = $this->pdo->query('SELECT count(*) FROM `users`')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT count(*) FROM "users"')->fetch();
         $this->assertEquals(0, array_shift($row));
     }
 
     public function testDeleteSomeAssignNull()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         $this->qdb->users->id[[7, 123]] = null;
 
-        $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $this->pdo->query('SELECT * FROM "users"')->fetchAll();
         $this->assertCount(1, $rows);
         $this->assertEquals(12, $rows[0]['id']);
         $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
@@ -139,7 +139,7 @@ class FieldTest extends TestCase
     public function testDeleteSomeFunction()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
@@ -147,7 +147,7 @@ class FieldTest extends TestCase
         $rowsCount = $this->qdb->users->id->delete([7, 123]);
         $this->assertEquals(2, $rowsCount);
 
-        $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $this->pdo->query('SELECT * FROM "users"')->fetchAll();
         $this->assertCount(1, $rows);
         $this->assertEquals(12, $rows[0]['id']);
         $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
@@ -157,7 +157,7 @@ class FieldTest extends TestCase
     public function testDeleteSomeFunctionWithNotExistentRecord()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
@@ -169,14 +169,14 @@ class FieldTest extends TestCase
     public function testDeleteSomeUnset()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         unset($this->qdb->users->id[[7, 123]]);
 
-        $rows = $this->pdo->query('SELECT * FROM `users`')->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $this->pdo->query('SELECT * FROM "users"')->fetchAll();
         $this->assertCount(1, $rows);
         $this->assertEquals(12, $rows[0]['id']);
         $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
@@ -186,19 +186,19 @@ class FieldTest extends TestCase
     public function testUpdate()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         $this->qdb->users->id[7] = ['password_hash' => 'cbKBLVIWVW'];
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
         $this->assertEquals(7, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 123')->fetch();
         $this->assertEquals(123, $row['id']);
         $this->assertEquals('vitaly.d@example.com', $row['email']);
         $this->assertEquals('75647454', $row['password_hash']);
@@ -207,7 +207,7 @@ class FieldTest extends TestCase
     public function testUpdateFunction()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
@@ -215,12 +215,12 @@ class FieldTest extends TestCase
         $rowsCount = $this->qdb->users->id->update(7, ['password_hash' => 'cbKBLVIWVW']);
         $this->assertEquals(1, $rowsCount);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
         $this->assertEquals(7, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 123')->fetch();
         $this->assertEquals(123, $row['id']);
         $this->assertEquals('vitaly.d@example.com', $row['email']);
         $this->assertEquals('75647454', $row['password_hash']);
@@ -229,24 +229,24 @@ class FieldTest extends TestCase
     public function testUpdateSome()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         $this->qdb->users->id[[7, 123]] = ['password_hash' => 'cbKBLVIWVW'];
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 7')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
         $this->assertEquals(7, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 123')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 123')->fetch();
         $this->assertEquals(123, $row['id']);
         $this->assertEquals('vitaly.d@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 12')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 12')->fetch();
         $this->assertEquals(12, $row['id']);
         $this->assertEquals('mary.jones@example.com', $row['email']);
         $this->assertEquals('2341341421', $row['password_hash']);
@@ -255,7 +255,7 @@ class FieldTest extends TestCase
     public function testUpdateFunctionSome()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (8, \'john.doe@example.com\', \'73465981736598730\'),
                     (13, \'mary.jones@example.com\', \'23413414210\'),
                     (124, \'vitaly.d@example.com\', \'756474540\')');
@@ -263,17 +263,17 @@ class FieldTest extends TestCase
         $rowsCount = $this->qdb->users->id->update([8, 124], ['password_hash' => 'cbKBLVIWVW0']);
         $this->assertEquals(2, $rowsCount);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 8')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 8')->fetch();
         $this->assertEquals(8, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW0', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 124')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 124')->fetch();
         $this->assertEquals(124, $row['id']);
         $this->assertEquals('vitaly.d@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW0', $row['password_hash']);
 
-        $row = $this->pdo->query('SELECT * FROM `users` WHERE `id` = 13')->fetch(PDO::FETCH_ASSOC);
+        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 13')->fetch();
         $this->assertEquals(13, $row['id']);
         $this->assertEquals('mary.jones@example.com', $row['email']);
         $this->assertEquals('23413414210', $row['password_hash']);
@@ -282,7 +282,7 @@ class FieldTest extends TestCase
     public function testUpdateFunctionSomeNotExistent()
     {
         $this->pdo->exec('
-            INSERT  INTO `users`
+            INSERT  INTO "users"
             VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');

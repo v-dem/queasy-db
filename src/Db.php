@@ -20,28 +20,6 @@ use queasy\db\query\CustomQuery;
 
 class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 {
-    private static function getConnectionConfig($configOrDsn = null, $user = null, $password = null, $options = null)
-    {
-        if (null === $configOrDsn) {
-            return null;
-        }
-
-        if (is_string($configOrDsn)) {
-            return array(
-                'dsn' => $configOrDsn,
-                'user' => $user,
-                'password' => $password,
-                'options' => $options
-            );
-        }
-
-        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
-            return isset($configOrDsn['connection'])? $configOrDsn['connection']: null;
-        }
-
-        throw new InvalidArgumentException('Wrong constructor arguments.');
-    }
-
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
@@ -49,12 +27,9 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
 
     private $tables = array();
 
-    private $queries = array();
+    private $tableConfigs = array();
 
-    /**
-     * @var array|ArrayAccess Database config
-     */
-    protected $config;
+    private $queries = array();
 
     /**
      * @var LoggerInterface Logger instance
@@ -76,38 +51,44 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     {
         $this->logger = new NullLogger();
 
-        $config = array();
-        if (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
-            $config = $configOrDsn;
-        }
+        if (null === $configOrDsn) {
+            parent::__construct('sqlite::memory:', $user, $password, $options);
+        } elseif (is_string($configOrDsn)) {
+            parent::__construct($configOrDsn, $user, $password, $options);
+        } elseif (is_array($configOrDsn) || ($configOrDsn instanceof ArrayAccess)) {
+            if (isset($configOrDsn['tables'])) {
+                $this->tableConfigs = $configOrDsn['tables'];
+            }
 
-        $this->config = $config;
+            if (isset($configOrDsn['queries'])) {
+                $this->queries = $configOrDsn['queries'];
+            }
 
-        $connectionConfig = self::getConnectionConfig($configOrDsn, $user, $password, $options);
-        $connection = new Connection($connectionConfig);
+            $connection = $configOrDsn;
+            if (isset($configOrDsn['connection'])) {
+                $connection = $configOrDsn['connection'];
+            }
 
-        try {
-            $options = isset($config['options'])? $config['options']: $options;
-            if ($options instanceof \queasy\config\Config) {
-                $options = $options->toArray();
+            if (!isset($connection['dsn'])) {
+                throw new InvalidArgumentException('Missing "dsn" key');
+            }
+
+            $options = array();
+            if (isset($connection['options'])) {
+                $options = $connection['options'];
+                if (!isset($options[self::ATTR_ERRMODE])) {
+                    $options[self::ATTR_ERRMODE] = self::ERRMODE_EXCEPTION;
+                }
             }
 
             parent::__construct(
-                $connection(),
-                isset($connectionConfig['user'])? $connectionConfig['user']: $user,
-                isset($connectionConfig['password'])? $connectionConfig['password']: $password,
+                $connection['dsn'],
+                isset($connection['user'])? $connection['user']: null,
+                isset($connection['password'])? $connection['password']: null,
                 $options
             );
-        } catch (PDOException $e) {
-            throw new DbException('Cannot initialize PDO: ' . $e->getMessage(), 0, $e);
-        }
-
-        if (isset($config['queries'])) {
-            $this->queries = $config['queries'];
-        }
-
-        if (isset($config['options']) && !isset($config['options'][self::ATTR_ERRMODE])) {
-            $this->setAttribute(self::ATTR_ERRMODE, self::ERRMODE_EXCEPTION);
+        } else {
+            throw new InvalidArgumentException('Invalid arguments passed to Db::__construct()');
         }
     }
 
@@ -116,6 +97,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
      *
      * @param LoggerInterface $logger Logger instance
      */
+    #[\ReturnTypeWillChange]
     public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
@@ -183,15 +165,11 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function table($name)
     {
         if (!isset($this->tables[$name])) {
-            $tablesConfig = isset($this->config['tables'])
-                ? $this->config['tables']
+            $config = isset($this->tableConfigs[$name])
+                ? $this->tableConfigs[$name]
                 : array();
 
-            $tableConfig = isset($tablesConfig[$name])
-                ? $tablesConfig[$name]
-                : array();
-
-            $this->tables[$name] = new Table($this, $name, $tableConfig);
+            $this->tables[$name] = new Table($this, $name, $config);
             $this->tables[$name]->setLogger($this->logger);
         }
 
@@ -243,7 +221,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
         $this->beginTransaction();
 
         try {
-            $result = $func($this);
+            $result = $func();
 
             if ($this->inTransaction()) {
                 $this->commit();
