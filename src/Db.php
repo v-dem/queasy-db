@@ -5,7 +5,6 @@ namespace queasy\db;
 use Exception;
 use BadMethodCallException;
 use InvalidArgumentException;
-use PDOException;
 
 use PDO;
 
