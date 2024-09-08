@@ -280,9 +280,7 @@ This feature can help keep code cleaner and place SQL code outside PHP, somewher
 $db = new queasy\db\Db(
     [
         'connection' => [
-            'driver' => pgysql',
-            'host' => 'localhost',
-            'name' => 'test',
+            'dsn' => 'pgsql:host=localhost;dbname=test',
             'user' => 'test_user',
             'password' => 'test_password'
         ],
@@ -311,9 +309,7 @@ Also it is possible to group predefined queries by tables:
 $db = new queasy\db\Db(
     [
         'connection' => [
-            'driver' => 'pgsql',
-            'host' => 'localhost',
-            'name' => 'test',
+            'dsn' => 'pgsql:host=localhost;dbname=test',
             'user' => 'test_user',
             'password' => 'test_password'
         ],
@@ -343,9 +339,7 @@ $users = $db->users->searchByName([
 return [
     'db' => [
         'connection' => [
-            'driver' => 'pgsql',
-            'host' => 'localhost',
-            'name' => 'test',
+            'dsn' => 'pgsql:host=localhost;dbname=test',
             'user' => 'test_user',
             'password' => 'test_password'
         ],
