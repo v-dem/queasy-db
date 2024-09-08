@@ -298,7 +298,7 @@ $db = new queasy\db\Db(
                 'sql' => '
                     SELECT  *
                     FROM    "users"
-                    WHERE   "name" LIKE concat(\'%\', :name, \'%\')',
+                    WHERE   "name" LIKE concat(\'%\', :searchName, \'%\')',
                 'returns' => Db::RETURN_ALL
             ]
         ]
@@ -306,7 +306,7 @@ $db = new queasy\db\Db(
 );
 
 $users = $db->searchUsersByName([
-    'name' => 'John'
+    'searchName' => 'John'
 ]);
 ```
 
