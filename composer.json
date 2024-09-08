@@ -28,8 +28,8 @@
         "ext-xdebug": "*"
     },
     "suggest": {
-        "queasy/config": "Configuration provider package, supports PHP (and multifile configs in this case), INI, XML and JSON (and YAML in future) formats",
-        "queasy/log": "PSR-3 compatible logger package, supports file system log writer, console and email (using mail() function)"
+        "v-dem/queasy-config": "Configuration provider package, supports PHP (and multifile configs in this case), INI, XML and JSON (and YAML in future) formats",
+        "v-dem/queasy-log": "PSR-3 compatible logger package, supports file system log writer, console and email (using mail() function)"
     },
     "autoload":{
         "psr-4":{

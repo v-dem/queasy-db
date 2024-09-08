@@ -38,39 +38,36 @@ It will also install `v-dem/queasy-helper`.
 
 ##### IMPORTANT!
 
-*   For MySQL Server need to set option `PDO::MYSQL_ATTR_INIT_COMMAND` to `SET GLOBAL SQL_MODE=ANSI_QUOTES`.
-*   For MSSQL Server need to run `$db->run('SET QUOTED_IDENTIFIER O');`.
+*   For MySQL Server need to set option `PDO::MYSQL_ATTR_INIT_COMMAND` to `SET GLOBAL SQL_MODE=ANSI_QUOTES` or run same query before calling DB-specific methods.
+*   For MSSQL Server need to run `SET QUOTED_IDENTIFIER ON` or `SET ANSI_DEFAULTS ON` query before calling DB-specific methods.
 
 #### Initialization
 
 Sample:
-
 ```php
 $db = new queasy\db\Db(
     [
-        'connection' => [
-            'driver' => 'mysql',
-            'host' => 'localhost',
-            'name' => 'test',
-            'user' => 'test_user',
-            'password' => 'test_password'
-        ],
-
-        'options' => [ // Optional. Driver options
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET GLOBAL SQL_MODE=ANSI_QUOTES' // Required for MySQL
+        'dsn' => 'pgsql:host=localhost;dbname=test',
+        'user' => 'test_user',
+        'password' => 'test_password',
+        'options' => [
+            ...options...
         ]
     ]
 );
 ```
 
-Or
+Or:
 ```php
 $db = new queasy\db\Db(
     [
         'connection' => [
             'dsn' => 'pgsql:host=localhost;dbname=test',
             'user' => 'test_user',
-            'password' => 'test_password'
+            'password' => 'test_password',
+            'options' => [
+                ...options...
+            ]
         ]
     ]
 );
@@ -78,7 +75,7 @@ $db = new queasy\db\Db(
 
 Or PDO-way:
 ```php
-$db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password');
+$db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password', [...options...]);
 ```
 
 #### Get all records from `users` table
@@ -87,26 +84,13 @@ $db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_pa
 $users = $db->users->all();
 ```
 
-Resulting SQL:
-```sql
-SELECT  *
-FROM    "users"
-```
-
 #### Get a single record from `users` table by `id` key
 
 ```php
 $user = $db->users->id[$userId];
 ```
 
-Resulting SQL:
-```sql
-SELECT  *
-FROM    "users"
-WHERE   "id" = :id
-```
-
-It's possible to use `select()` method to pass PDO options; `select()` returns array of rows:
+It's possible to use `select()` method to pass PDO options; `select()` returns PDOStatement instance:
 ```php
 $users = $db->users->id->select($userId, $options);
 ```
@@ -117,13 +101,6 @@ $users = $db->users->id->select($userId, $options);
 $users = $db->users->id[[$userId1, $userId2]];
 ```
 
-Resulting SQL:
-```sql
-SELECT  *
-FROM    "users"
-WHERE   "id" IN (:id_1, :id_2)
-```
-
 #### Insert a record into `users` table using associative array
 
 ```php
@@ -131,12 +108,6 @@ $db->users[] = [
     'email' => 'john.doe@example.com',
     'password_hash' => sha1('myverystrongpassword')
 ];
-```
-
-Resulting SQL:
-```sql
-INSERT  INTO "users" ("email", "password_hash")
-VALUES  (:email, :password_hash)
 ```
 
 #### Insert a record into `users` table by fields order
@@ -160,13 +131,6 @@ $db->users[] = [
         'password_hash' => sha1('herverystrongpassword')
     ]
 ];
-```
-
-Resulting SQL:
-```sql
-INSERT  INTO "users" ("email", "password_hash")
-VALUES  (:email_1, :password_hash_1),
-        (:email_2, :password_hash_2)
 ```
 
 #### Insert many records into `users` table by order
@@ -202,11 +166,23 @@ $db->users[] = [
 ];
 ```
 
-Also it's possible to use `insert()` method (in the same way as above) when need to pass PDO options:
+Also it's possible to use `insert()` method (in the same way as above) when need to pass PDO options; returns last insert id for single insert and number of inserted rows for multiple inserts:
 ```php
-$db->users->insert([
+$userId = $db->users->insert([
     'email' => 'john.doe@example.com',
     'password_hash' => sha1('myverystrongpassword')
+], $options);
+```
+
+```php
+$insertedRowsCount = $db->users->insert([
+    [
+        'email' => 'john.doe@example.com',
+        'password_hash' => sha1('myverystrongpassword')
+    ], [
+        'email' => 'mary.joe@example.com',
+        'password_hash' => sha1('herverystrongpassword')
+    ]
 ], $options);
 ```
 
@@ -222,6 +198,12 @@ $newUserId = $db->id();
 $db->users->id[$userId] = [
     'password_hash' => sha1('mynewverystrongpassword')
 ]
+```
+
+```php
+$updatedRowsCount = $db->users->id->update($userId, [
+    'password_hash' => sha1('mynewverystrongpassword')
+], $options);
 ```
 
 #### Update multiple records
@@ -244,6 +226,10 @@ unset($db->users->id[$userId]);
 unset($db->users->id[[$userId1, $userId2]]);
 ```
 
+```php
+$deletedRowsCount = $db->users->id->delete([[$userId1, $userId2]], $options);
+```
+
 #### Get count of all records in `users` table
 
 ```php
@@ -253,11 +239,15 @@ $usersCount = count($db->users);
 #### Using transactions
 
 ```php
-$db->trans(function(queasy\db\Db $db) use(...) {
-    // Run queries inside a transaction
+$db->trans(function() use($db) {
+    // Run queries inside a transaction, for example:
+    $db->users[] = [
+        'john.doe@example.com',
+        sha1('myverystrongpassword')
+    ];
 });
 ```
-* `queasy\db\Db` instance will be passed as first argument.
+* On exception transaction is rolled back and exception re-thrown to outer code.
 
 #### Using `foreach` with a `users` table
 
@@ -297,20 +287,19 @@ $db = new queasy\db\Db(
             'password' => 'test_password'
         ],
         'queries' => [
-            'getActiveUserByName' => [
+            'searchUsersByName' => [
                 'sql' => '
                     SELECT  *
-                    FROM    "user_roles"
-                    WHERE   "name" = :name
-                            AND "is_active" = 1',
-                'returns' => Db::RETURN_ONE
+                    FROM    "users"
+                    WHERE   "name" LIKE concat(\'%\', :name, \'%\')',
+                'returns' => Db::RETURN_ALL
             ]
         ]
     ]
 );
 
-$user = $db->getActiveUserByName([
-    'name' => 'John Doe'
+$users = $db->searchUsersByName([
+    'name' => 'John'
 ]);
 ```
 
@@ -330,20 +319,19 @@ $db = new queasy\db\Db(
         ],
         'tables' => [
             'users' => [
-                'getActiveByName' => [
+                'searchByName' => [
                     'sql' => '
                         SELECT  *
                         FROM    "user_roles"
-                        WHERE   "name" = :name
-                                AND "is_active" = 1',
-                    'returns' => Db::RETURN_ONE
+                        WHERE   "name" = concat(\'%\', :name, \'%\')',
+                    'returns' => Db::RETURN_ALL
                 ]
             ]
         ]
     ]
 );
 
-$user = $db->users->getActiveByName([
+$users = $db->users->searchByName([
     'name' => 'John Doe'
 ]);
 ```
@@ -363,13 +351,12 @@ return [
         ],
         'tables' => [
             'users' => [
-                'getActiveByName' => [
+                'searchByName' => [
                     'sql' => '
                         SELECT  *
                         FROM    "users"
-                        WHERE   "name" = :name
-                                AND "is_active" = 1',
-                    'returns' => Db::RETURN_ONE
+                        WHERE   "name" = concat(\'%\', :name, \'%\')',
+                    'returns' => Db::RETURN_ALL
                 ]
             ]
         ]
@@ -392,9 +379,10 @@ $logger = new queasy\log\Logger($config->logger);
 $db = new queasy\db\Db($config->db);
 $db->setLogger($logger);
 
-$user = $db->users->getActiveByName([
-    'name' => 'John Doe'
+$users = $db->users->searchByName([
+    'name' => 'John'
 ]);
 ```
 
 * All queries will be logged with `Psr\Log\LogLevel::DEBUG` level. Also it's possible to use any other logger class compatible with PSR-3.
+
