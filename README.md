@@ -75,8 +75,10 @@ $db = new queasy\db\Db(
 
 Or PDO-way:
 ```php
-$db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password', [...options...]);
+$db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password', $options);
 ```
+
+* Fourth argument (`$options`) is optional, will be passed to `PDO::prepare()`
 
 #### Get all records from `users` table
 
@@ -84,7 +86,15 @@ $db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_pa
 $users = $db->users->all();
 ```
 
-#### Get a single record from `users` table by `id` key
+#### Using `foreach` with `users` table
+
+```php
+foreach ($db->users as $user) {
+    // Do something
+}
+```
+
+#### Get single record from `users` table by `id` key
 
 ```php
 $user = $db->users->id[$userId];
@@ -186,6 +196,8 @@ $insertedRowsCount = $db->users->insert([
 ], $options);
 ```
 
+* Second argument (`$options`) is optional, will be passed to `PDO::prepare()`
+
 #### Get last insert id (alias of `lastInsertId()` method)
 
 ```php
@@ -205,6 +217,8 @@ $updatedRowsCount = $db->users->id->update($userId, [
     'password_hash' => sha1('mynewverystrongpassword')
 ], $options);
 ```
+
+* Third argument (`$options`) is optional, will be passed to `PDO::prepare()`
 
 #### Update multiple records
 
@@ -230,6 +244,8 @@ unset($db->users->id[[$userId1, $userId2]]);
 $deletedRowsCount = $db->users->id->delete([[$userId1, $userId2]], $options);
 ```
 
+* Second argument (`$options`) is optional, will be passed to `PDO::prepare()`
+
 #### Get count of all records in `users` table
 
 ```php
@@ -249,28 +265,21 @@ $db->trans(function() use($db) {
 ```
 * On exception transaction is rolled back and exception re-thrown to outer code.
 
-#### Using `foreach` with a `users` table
-
-```php
-foreach ($db->users as $user) {
-    // Do something
-}
-```
-
 #### Run custom query (returns `PDOStatement`)
 
 ```php
-$result = $db->run('
+$users = $db->run('
     SELECT  *
     FROM    "users"
     WHERE   "name" LIKE concat(\'%\', :searchName, \'%\')',
     [
-        ':searchName' => $searchName
-    ]
-);
+        ':searchName' => 'John'
+    ],
+    $options
+)->fetchAll();
 ```
 
-* Possible 3rd argument is `$driverOptions` which will be passed to `PDO::prepare()`
+* Third argument (`$options`) is optional, will be passed to `PDO::prepare()`
 
 #### Run query predefined in configuration
 
@@ -319,7 +328,7 @@ $db = new queasy\db\Db(
                     'sql' => '
                         SELECT  *
                         FROM    "user_roles"
-                        WHERE   "name" = concat(\'%\', :name, \'%\')',
+                        WHERE   "name" LIKE concat(\'%\', :searchName, \'%\')',
                     'returns' => Db::RETURN_ALL
                 ]
             ]
@@ -328,7 +337,7 @@ $db = new queasy\db\Db(
 );
 
 $users = $db->users->searchByName([
-    'name' => 'John Doe'
+    'searchName' => 'John'
 ]);
 ```
 
@@ -349,7 +358,7 @@ return [
                     'sql' => '
                         SELECT  *
                         FROM    "users"
-                        WHERE   "name" = concat(\'%\', :name, \'%\')',
+                        WHERE   "name" LIKE concat(\'%\', :searchName, \'%\')',
                     'returns' => Db::RETURN_ALL
                 ]
             ]
@@ -365,6 +374,7 @@ return [
 ];
 ```
 
+Initializing:
 ```php
 $config = new queasy\config\Config('config.php'); // Can be also INI, JSON or XML
 
@@ -374,7 +384,7 @@ $db = new queasy\db\Db($config->db);
 $db->setLogger($logger);
 
 $users = $db->users->searchByName([
-    'name' => 'John'
+    'searchName' => 'John'
 ]);
 ```
 
