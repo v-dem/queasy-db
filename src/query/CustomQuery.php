@@ -60,9 +60,10 @@ class CustomQuery extends Query
 
             case Db::RETURN_VALUE:
                 return $statement->fetchColumn();
-        }
 
-        return $statement;
+            default:
+                throw new DbException('Wrong return type: ' . $this->config['returns']);
+        }
     }
 }
 

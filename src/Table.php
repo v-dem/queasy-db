@@ -189,7 +189,7 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
-        throw new BadMethodCallException(sprintf('Not implemented.', $offset));
+        throw new BadMethodCallException('Not implemented.');
     }
 
     #[\ReturnTypeWillChange]

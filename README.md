@@ -10,13 +10,13 @@
 
 QuEasy DB is a set of database access classes for CRUD operations.
 Some of the most usual queries can be built automatically (like `SELECT` by unique field value/values, `UPDATE`, `INSERT` and `DELETE`).
-Complex queries can be defined in database and/or tables config.
-The main goal is to move `SQL` queries out of `PHP` code.
+More complex queries can be defined in database and/or tables config.
+The main goal is to separate `SQL` queries out of `PHP` code and provide an easy way for CRUD operations.
 
 ### Features
 
 * QuEasy DB extends `PDO` class, so any project which uses `PDO` can be seamlessly moved to use QuEasy DB.
-* CRUD database operations in just one PHP code row.
+* Simple CRUD database operations in just one PHP code row.
 * Separating SQL queries from PHP code.
 
 ### Requirements
@@ -33,7 +33,7 @@ It will also install `v-dem/queasy-helper`.
 
 #### Notes
 
-*   You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` to log all queries, by default `Psr\Log\NullLogger` is used.
+*   You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` implementation to log all queries, by default `Psr\Log\NullLogger` is used.
 *   By default error mode is set to `PDO::ERRMODE_EXCEPTION` (as in PHP8) if another mode is not set in `$options`.
 
 ##### IMPORTANT!

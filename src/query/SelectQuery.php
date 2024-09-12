@@ -66,5 +66,10 @@ class SelectQuery extends TableQuery
 
         return parent::run($params, $options);
     }
+
+    public function __invoke(array $params = array(), array $options = array(), array $columns = array())
+    {
+        return $this->run($params, $options, $columns);
+    }
 }
 

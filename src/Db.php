@@ -123,7 +123,7 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     {
         if (!isset($this->queries[$name])) {
             if (!isset($this->queryConfigs[$name])) {
-                throw new BadMethodCallException(sprintf('No method "%s" found.', $name));
+                throw new BadMethodCallException("No method \"$name\" found.");
             }
 
             $this->queries[$name] = new CustomQuery($this, $this->queryConfigs[$name]);
