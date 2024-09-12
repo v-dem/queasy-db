@@ -1,5 +1,5 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/0d4762b3b45e48c69d13687cd786e0ca)](https://app.codacy.com/manual/v-dem/queasy-db?utm_source=github.com&utm_medium=referral&utm_content=v-dem/queasy-db&utm_campaign=Badge_Grade_Dashboard)
-[![codecov](https://codecov.io/gh/v-dem/queasy-db/branch/master/graph/badge.svg)](https://codecov.io/gh/v-dem/queasy-db)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9410c697499a4388a268b0dbfc0bfe79)](https://app.codacy.com/gh/v-dem/queasy-db/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9410c697499a4388a268b0dbfc0bfe79)](https://app.codacy.com/gh/v-dem/queasy-db/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 [![Total Downloads](https://poser.pugx.org/v-dem/queasy-db/downloads)](https://packagist.org/packages/v-dem/queasy-db)
 [![Latest Stable Version](https://img.shields.io/github/v/release/v-dem/queasy-db)](https://packagist.org/packages/v-dem/queasy-db)
 [![License](https://poser.pugx.org/v-dem/queasy-db/license)](https://packagist.org/packages/v-dem/queasy-db)
