@@ -17,7 +17,7 @@ use Psr\Log\LoggerAwareInterface;
 use queasy\db\query\Query;
 use queasy\db\query\CustomQuery;
 
-class Db extends PDO implements ArrayAccess, LoggerAwareInterface
+class Db extends PDO implements LoggerAwareInterface
 {
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
@@ -144,30 +144,6 @@ class Db extends PDO implements ArrayAccess, LoggerAwareInterface
     public function __invoke($sql, array $params = array(), array $options = array())
     {
         return $this->run($sql, $params, $options);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function offsetGet($name)
-    {
-        return $this->table($name);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
-    {
-        throw new BadMethodCallException('Not implemented.');
-    }
-
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
-    {
-        throw new BadMethodCallException('Not implemented.');
-    }
-
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
-    {
-        throw new BadMethodCallException('Not implemented.');
     }
 
     /**

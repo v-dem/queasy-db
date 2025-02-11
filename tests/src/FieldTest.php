@@ -74,14 +74,6 @@ class FieldTest extends TestCase
         $this->assertEquals('User', $roles[1]['name']);
     }
 
-    public function testGetRecordInvoke()
-    {
-        $roles = $this->qdb->user_roles->id(2);
-
-        $this->assertIsArray($roles);
-        $this->assertEquals('Manager', $roles[0]['name']);
-    }
-
     public function testDeleteAssignNull()
     {
         $this->pdo->exec('INSERT INTO "users" VALUES (7, \'john.doe@example.com\', \'7346598173659873\')');

@@ -131,43 +131,6 @@ class DbTest extends TestCase
         $this->assertEquals('users', $table->getName());
     }
 
-    public function testGetTableAsArrayItem()
-    {
-        $qdb = new Db();
-
-        $table = $qdb['users'];
-
-        $this->assertInstanceOf('queasy\db\Table', $table);
-        $this->assertEquals('users', $table->getName());
-    }
-
-    public function testSetTableAsArrayItem()
-    {
-        $qdb = new Db();
-
-        $this->expectException(BadMethodCallException::class);
-
-        $qdb['users'] = true;
-    }
-
-    public function testIssetTableAsArrayItem()
-    {
-        $qdb = new Db();
-
-        $this->expectException(BadMethodCallException::class);
-
-        isset($qdb['users']);
-    }
-
-    public function testUnsetTableAsArrayItem()
-    {
-        $qdb = new Db();
-
-        $this->expectException(BadMethodCallException::class);
-
-        unset($qdb['users']);
-    }
-
     public function testRunSelect()
     {
         $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);

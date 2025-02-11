@@ -9,7 +9,7 @@ use PDO;
 use PDOException;
 use ArrayAccess;
 use Countable;
-use Iterator;
+use IteratorAggregate;
 
 use Psr\Log\NullLogger;
 use Psr\Log\LoggerInterface;
@@ -23,15 +23,13 @@ use queasy\db\query\SelectQuery;
 use queasy\db\query\UpdateQuery;
 use queasy\db\query\DeleteQuery;
 
-class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
+class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInterface
 {
     protected $pdo;
 
     protected $name;
 
     protected $fields;
-
-    protected $rows;
 
     /**
      * Config instance.
@@ -54,13 +52,88 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $this->pdo = $pdo;
         $this->name = $name;
         $this->fields = array();
-        $this->rows = null;
         $this->config = $config;
     }
 
     public function __get($fieldName)
     {
-        return $this[$fieldName];
+        if (!isset($this->fields[$fieldName])) {
+            $field = new Field($this->pdo, $this, $fieldName);
+            $field->setLogger($this->logger);
+
+            $this->fields[$fieldName] = $field;
+        }
+
+        return $this->fields[$fieldName];
+    }
+
+    public function statement()
+    {
+        $query = new SelectQuery($this->pdo, $this->name);
+        $query->setLogger($this->logger);
+
+        return $query();
+    }
+
+    public function all()
+    {
+        return $this->statement()->fetchAll();
+    }
+
+    #[\ReturnTypeWillChange]
+    public function getIterator()
+    {
+        return $this->statement()->getIterator();
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetExists($offset)
+    {
+        throw new BadMethodCallException('Not implemented.');
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
+    {
+        throw new BadMethodCallException('Not implemented.');
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetSet($offset, $value)
+    {
+        if (null !== $offset) {
+            throw new BadMethodCallException('Not implemented. Use Field instead of Table to update record.');
+        }
+
+        $this->insert($value);
+    }
+
+    #[\ReturnTypeWillChange]
+    public function offsetUnset($offset)
+    {
+        throw new BadMethodCallException('Not implemented.');
+    }
+
+    /**
+     * Calls an user-defined (in configuration) method
+     *
+     * @param string $method Method name
+     * @param array $args Arguments
+     *
+     * @return mixed Return type depends on configuration. It can be a single value, a stdClass object, an array, or an array of objects or arrays, or PDOStatement instance
+     *
+     * @throws DbException On error
+     */
+    public function __call($method, array $args)
+    {
+        if (isset($this->config[$method])) {
+            $query = new CustomQuery($this->pdo, $this->config[$method]);
+            $query->setLogger($this->logger);
+
+            return System::callUserFuncArray(array($query, 'run'), $args);
+        }
+
+        throw new InvalidArgumentException('Method is not declared in configuration.');
     }
 
     #[\ReturnTypeWillChange]
@@ -74,47 +147,6 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         $row = $statement->fetch(PDO::FETCH_ASSOC);
 
         return array_shift($row);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function current()
-    {
-        return current($this->rows);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function key()
-    {
-        return key($this->rows);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function next()
-    {
-        return next($this->rows);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function rewind()
-    {
-        $this->all();
-    }
-
-    #[\ReturnTypeWillChange]
-    public function valid()
-    {
-        return isset($this->rows[$this->key()]);
-    }
-
-    public function all()
-    {
-        $query = new SelectQuery($this->pdo, $this->name);
-
-        $statement = $query();
-
-        $this->rows = $statement->fetchAll();
-
-        return $this->rows;
     }
 
     public function insert()
@@ -186,67 +218,14 @@ class Table implements ArrayAccess, Countable, Iterator, LoggerAwareInterface
         return $statement->rowCount();
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
+    public function select(array $columns = null, array $options = array())
     {
-        throw new BadMethodCallException('Not implemented.');
-    }
+        $queryBuilder = new QueryBuilder($this->pdo, $options);
+        $queryBuilder->setLogger($this->logger);
+        $queryBuilder->table($this->name);
+        $queryBuilder->select($columns);
 
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
-    {
-        if (!isset($this->fields[$offset])) {
-            $field = new Field($this->pdo, $this, $offset);
-            $field->setLogger($this->logger);
-
-            $this->fields[$offset] = $field;
-        }
-
-        return $this->fields[$offset];
-    }
-
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
-    {
-        if (null !== $offset) {
-            throw new BadMethodCallException('Not implemented. Use Field instead of Table to update record.');
-        }
-
-        $this->insert($value);
-    }
-
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
-    {
-        throw new BadMethodCallException('Not implemented.');
-    }
-
-    /**
-     * Calls an user-defined (in configuration) method
-     *
-     * @param string $method Method name
-     * @param array $args Arguments
-     *
-     * @return mixed Return type depends on configuration. It can be a single value, a stdClass object, an array, or an array of objects or arrays, or PDOStatement instance
-     *
-     * @throws DbException On error
-     */
-    public function __call($method, array $args)
-    {
-        if (isset($this->config[$method])) {
-            $query = new CustomQuery($this->pdo, $this->config[$method]);
-            $query->setLogger($this->logger);
-
-            return System::callUserFuncArray(array($query, 'run'), $args);
-        }
-
-        if (!count($args)) {
-            throw new InvalidArgumentException('Method is not declared in configuration.');
-        }
-
-        $field = $this[$method];
-
-        return $field($args[0]);
+        return $queryBuilder;
     }
 
     /**

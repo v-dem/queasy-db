@@ -4,6 +4,7 @@ namespace queasy\db\query;
 
 use PDO;
 
+use queasy\helper\Arrays;
 use queasy\helper\Strings;
 
 use queasy\db\DbException;
@@ -31,16 +32,14 @@ class Query extends AbstractQuery
         $statement->closeCursor(); // Avoid error with not closed recordset
 
         $counter = 1;
+        $isAssoc = Arrays::isAssoc($params);
         foreach ($params as $paramKey => $paramValue) {
             // Detect parameter type
             $paramType = $this->getParamType($paramValue);
 
-            $bindKey = is_int($paramKey)
-                ? $counter++
-                : (Strings::startsWith($paramKey, ':')
-                    ? $paramKey
-                    : ':' . $paramKey
-                );
+            $bindKey = $isAssoc
+                ? $paramKey
+                : $counter++;
 
             $statement->bindValue(
                 $bindKey,
@@ -70,6 +69,10 @@ class Query extends AbstractQuery
 
         if (is_bool($value)) {
             return PDO::PARAM_BOOL;
+        }
+
+        if (is_resource($value)) {
+            return PDO::PARAM_LOB;
         }
 
         return PDO::PARAM_STR;
