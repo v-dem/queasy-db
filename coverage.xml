@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1739257549">
-  <project timestamp="1739257549">
+<coverage generated="1739258649">
+  <project timestamp="1739258649">
     <file name="/var/projects/queasy/queasy-db/src/Db.php">
       <class name="queasy\db\Db" namespace="global">
         <metrics complexity="32" methods="10" coveredmethods="6" conditionals="0" coveredconditionals="0" statements="70" coveredstatements="65" elements="80" coveredelements="71"/>
