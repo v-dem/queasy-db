@@ -86,7 +86,7 @@ class Db extends PDO implements LoggerAwareInterface
             if (isset($connection['options'])) {
                 $options = $connection['options'];
                 if (!isset($options[self::ATTR_ERRMODE])) {
-                    if (method_exists($options, 'toArray')) {
+                    if (is_object($options) && method_exists($options, 'toArray')) {
                         $options = $options->toArray();
                     }
 

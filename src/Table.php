@@ -133,7 +133,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
             return System::callUserFuncArray(array($query, 'run'), $args);
         }
 
-        throw new InvalidArgumentException('Method is not declared in configuration.');
+        throw new InvalidArgumentException("Method \"$method\" is not declared in \"{$this->name}\" table configuration.");
     }
 
     #[\ReturnTypeWillChange]
