@@ -19,10 +19,17 @@ use queasy\db\query\CustomQuery;
 
 class Db extends PDO implements LoggerAwareInterface
 {
+    public static function expr($expr)
+    {
+        return new Expression($expr);
+    }
+
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
     const RETURN_VALUE = 4;
+
+    const ATTR_USE_RETURNING = 'useReturning';
 
     private $tables = array();
 
@@ -31,6 +38,8 @@ class Db extends PDO implements LoggerAwareInterface
     private $queries = array();
 
     private $queryConfigs = array();
+
+    private $useReturning = false;
 
     /**
      * @var LoggerInterface Logger instance
@@ -51,6 +60,12 @@ class Db extends PDO implements LoggerAwareInterface
     public function __construct($configOrDsn = null, $user = null, $password = null, array $options = array())
     {
         $this->logger = new NullLogger();
+
+        if (!isset($options[self::ATTR_ERRMODE])) {
+            $options[self::ATTR_ERRMODE] = self::ERRMODE_EXCEPTION;
+        }
+
+        $this->useReturning = isset($options[self::ATTR_USE_RETURNING]) && $options[self::ATTR_USE_RETURNING];
 
         if (null === $configOrDsn) {
             parent::__construct('sqlite::memory:', $user, $password, $options);
@@ -73,13 +88,11 @@ class Db extends PDO implements LoggerAwareInterface
                 $this->queryConfigs = $configOrDsn['queries'];
             }
 
-            $connection = $configOrDsn;
-            if (isset($configOrDsn['connection'])) {
-                $connection = $configOrDsn['connection'];
-            }
+            $connection = $configOrDsn['connection'];
 
-            if (!isset($connection['dsn'])) {
-                throw new InvalidArgumentException('Missing "dsn" key');
+            $dsn = 'sqlite::memory:';
+            if (isset($connection['dsn'])) {
+                $dsn = $connection['dsn'];
             }
 
             $options = array();
@@ -92,10 +105,12 @@ class Db extends PDO implements LoggerAwareInterface
 
                     $options[self::ATTR_ERRMODE] = self::ERRMODE_EXCEPTION;
                 }
+
+                $this->useReturning = isset($options[self::ATTR_USE_RETURNING]) && $options[self::ATTR_USE_RETURNING];
             }
 
             parent::__construct(
-                $connection['dsn'],
+                $dsn,
                 isset($connection['user'])? $connection['user']: null,
                 isset($connection['password'])? $connection['password']: null,
                 $options
@@ -234,6 +249,11 @@ class Db extends PDO implements LoggerAwareInterface
 
             throw $e;
         }
+    }
+
+    public function useReturning()
+    {
+        return $this->useReturning;
     }
 
     /**

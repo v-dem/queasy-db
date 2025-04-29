@@ -166,29 +166,6 @@ class TableTest extends TestCase
         $this->assertEquals(sha1('321654'), $user['password_hash']);
     }
 
-    public function testBatchInsertNamed()
-    {
-        $this->qdb->users[] = [
-            ['id', 'email', 'password_hash'],
-            [
-                [15, 'john.doe@example.com', sha1('gfhjkm')],
-                [22, 'mary.jones@example.com', sha1('321654')]
-            ]
-        ];
-
-        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 15')->fetch();
-        $this->assertNotNull($user);
-        $this->assertEquals(15, $user['id']);
-        $this->assertEquals('john.doe@example.com', $user['email']);
-        $this->assertEquals(sha1('gfhjkm'), $user['password_hash']);
-
-        $user = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 22')->fetch();
-        $this->assertNotNull($user);
-        $this->assertEquals(22, $user['id']);
-        $this->assertEquals('mary.jones@example.com', $user['email']);
-        $this->assertEquals(sha1('321654'), $user['password_hash']);
-    }
-
     public function testBatchInsertSeparatelyNamed()
     {
         $this->qdb->users[] = [

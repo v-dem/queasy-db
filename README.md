@@ -9,8 +9,8 @@
 ## Package `v-dem/queasy-db`
 
 QuEasy DB is a set of database access classes for CRUD operations.
-Some of the most usual queries can be built automatically (like `SELECT` by unique field value/values, `UPDATE`, `INSERT` and `DELETE`).
-More complex queries can be defined in database and/or tables config.
+Some of the most usual queries can be built automatically (like `SELECT` by field value, `UPDATE`, `INSERT` and `DELETE`).
+Complex queries can be defined in database and/or tables config.
 The main goal is to separate `SQL` queries out of `PHP` code and provide an easy way for CRUD operations.
 
 ### Features
@@ -34,30 +34,14 @@ It will also install `v-dem/queasy-helper`.
 #### Notes
 
 *   You can use `setLogger()` method which accepts `Psr\Log\LoggerInterface` implementation to log all queries, by default `Psr\Log\NullLogger` is used.
-*   By default error mode is set to `PDO::ERRMODE_EXCEPTION` (as in PHP8) if another mode is not set in `$options`.
-
-##### IMPORTANT!
-
-*   For MySQL Server need to set option `PDO::MYSQL_ATTR_INIT_COMMAND` to `SET GLOBAL SQL_MODE=ANSI_QUOTES` or run same query before calling DB-specific methods.
-*   For MSSQL Server need to run `SET QUOTED_IDENTIFIER ON` or `SET ANSI_DEFAULTS ON` query before calling DB-specific methods.
+*   By default error mode (`PDO::ATTR_ERRMODE`) is set to `PDO::ERRMODE_EXCEPTION` (as in PHP8). If you need to use other error mode and are using `Db::trans()` method then be sure to manually check `errorInfo()` and throw an exception inside transaction.
+*   For PostgreSQL you may need to add option `Db::ATTR_USE_RETURNING => true` on initialization to make `Db::id()` work (it will add `RETURNING "id"` to each single `INSERT` statement).
+*   All table and column names in auto-generated SQL code are enclosed in double quotes (as per ANSI SQL standard) so check following notes:
+*   For MySQL need to set option `PDO::MYSQL_ATTR_INIT_COMMAND` to `SET SQL_MODE = ANSI_QUOTES` or run same query after initialization.
+*   For MS SQL Server need to run `SET QUOTED_IDENTIFIER ON` or `SET ANSI_DEFAULTS ON` query after initialization.
 
 #### Initialization
 
-Sample:
-```php
-$db = new queasy\db\Db(
-    [
-        'dsn' => 'pgsql:host=localhost;dbname=test',
-        'user' => 'test_user',
-        'password' => 'test_password',
-        'options' => [
-            ...options...
-        ]
-    ]
-);
-```
-
-Or:
 ```php
 $db = new queasy\db\Db(
     [
@@ -78,15 +62,20 @@ Or PDO-way:
 $db = new queasy\db\Db('pgsql:host=localhost;dbname=test', 'test_user', 'test_password', $options);
 ```
 
-* Fourth argument (`$options`) is optional, will be passed to `PDO::prepare()`
+If DSN is not set then `SQLite` in-memory database will be used:
+```php
+$db = new queasy\db\Db();
+```
 
-#### Get all records from `users` table
+#### Retrieving records
+
+##### Get all records from `users` table
 
 ```php
 $users = $db->users->all();
 ```
 
-#### Using `foreach` with `users` table
+##### Using `foreach` with `users` table
 
 ```php
 foreach ($db->users as $user) {
@@ -94,7 +83,7 @@ foreach ($db->users as $user) {
 }
 ```
 
-#### Get single record from `users` table by `id` key
+##### Get single record from `users` table by `id` key
 
 ```php
 $user = $db->users->id[$userId];
@@ -105,13 +94,15 @@ It's possible to use `select()` method to pass PDO options; `select()` returns P
 $users = $db->users->id->select($userId, $options);
 ```
 
-#### Get multiple records
+##### Get multiple records
 
 ```php
 $users = $db->users->id[[$userId1, $userId2]];
 ```
 
-#### Insert a record into `users` table using associative array
+#### Innserting records
+
+##### Insert a record into `users` table using associative array
 
 ```php
 $db->users[] = [
@@ -120,7 +111,7 @@ $db->users[] = [
 ];
 ```
 
-#### Insert a record into `users` table by fields order
+##### Insert a record into `users` table by fields order
 
 ```php
 $db->users[] = [
@@ -129,7 +120,7 @@ $db->users[] = [
 ];
 ```
 
-#### Insert many records into `users` table using associative array (it will generate single `INSERT` statement)
+##### Insert many records into `users` table using associative array (it will generate single `INSERT` statement)
 
 ```php
 $db->users[] = [
@@ -143,7 +134,7 @@ $db->users[] = [
 ];
 ```
 
-#### Insert many records into `users` table by order
+##### Insert many records into `users` table by order
 
 ```php
 $db->users[] = [
@@ -153,25 +144,6 @@ $db->users[] = [
     ], [
         'mary.joe@example.com',
         sha1('herverystrongpassword')
-    ]
-];
-```
-
-#### Inserting many records into `users` table with field names denoted separately
-
-```php
-$db->users[] = [
-    [
-        'email',
-        'password_hash'
-    ], [
-        [
-            'john.doe@example.com',
-            sha1('myverystrongpassword')
-        ], [
-            'mary.joe@example.com',
-            sha1('herverystrongpassword')
-        ]
     ]
 ];
 ```
@@ -196,15 +168,11 @@ $insertedRowsCount = $db->users->insert([
 ], $options);
 ```
 
-* Second argument (`$options`) is optional, will be passed to `PDO::prepare()`
+* Second argument (`$options`) is optional, it will be passed to `PDO::prepare()`
 
-#### Get last insert id (alias of `lastInsertId()` method)
+#### Updating records
 
-```php
-$newUserId = $db->id();
-```
-
-#### Update a record in `users` table by `id` key
+##### Update a record in `users` table by `id` key
 
 ```php
 $db->users->id[$userId] = [
@@ -218,9 +186,9 @@ $updatedRowsCount = $db->users->id->update($userId, [
 ], $options);
 ```
 
-* Third argument (`$options`) is optional, will be passed to `PDO::prepare()`
+* Third argument (`$options`) is optional, it will be passed to `PDO::prepare()`
 
-#### Update multiple records
+##### Update multiple records
 
 ```php
 $db->users->id[[$userId1, $userId2]] = [
@@ -228,13 +196,15 @@ $db->users->id[[$userId1, $userId2]] = [
 ]
 ```
 
-#### Delete a record in `users` table by `id` key
+#### Deleting records
+
+##### Delete a record in `users` table by `id` key
 
 ```php
 unset($db->users->id[$userId]);
 ```
 
-#### Delete multiple records
+##### Delete multiple records
 
 ```php
 unset($db->users->id[[$userId1, $userId2]]);
@@ -244,15 +214,23 @@ unset($db->users->id[[$userId1, $userId2]]);
 $deletedRowsCount = $db->users->id->delete([[$userId1, $userId2]], $options);
 ```
 
-* Second argument (`$options`) is optional, will be passed to `PDO::prepare()`
+* Second argument (`$options`) is optional, it will be passed to `PDO::prepare()`
 
-#### Get count of all records in `users` table
+#### Other functions
+
+##### Get last insert id (alias for `lastInsertId()` method)
+
+```php
+$newUserId = $db->id();
+```
+
+##### Get count of all records in `users` table
 
 ```php
 $usersCount = count($db->users);
 ```
 
-#### Using transactions
+##### Using transactions
 
 ```php
 $db->trans(function() use($db) {
@@ -265,7 +243,7 @@ $db->trans(function() use($db) {
 ```
 * On exception transaction is rolled back and exception re-thrown to outer code.
 
-#### Run custom query (returns `PDOStatement`)
+##### Run custom queries (returns `PDOStatement`)
 
 ```php
 $users = $db->run('
@@ -279,9 +257,9 @@ $users = $db->run('
 )->fetchAll();
 ```
 
-* Third argument (`$options`) is optional, will be passed to `PDO::prepare()`
+* Third argument (`$options`) is optional, it will be passed to `PDO::prepare()`
 
-#### Run query predefined in configuration
+##### Run query predefined in configuration
 
 This feature can help keep code cleaner and place SQL code outside PHP, somewhere in config files.
 
@@ -310,7 +288,7 @@ $users = $db->searchUsersByName([
 ]);
 ```
 
-* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default, returns `PDOStatement` instance), `Db::RETURN_ONE`, `Db::RETURN_ALL`, `Db::RETURN_VALUE`
+* Possible values for `returns` option are `Db::RETURN_STATEMENT` (default, returns `PDOStatement` instance), `Db::RETURN_ONE`, `Db::RETURN_ALL` (using `PDOStatement::fetchAll()` method), `Db::RETURN_VALUE`
 
 Also it is possible to group predefined queries by tables:
 
@@ -341,7 +319,7 @@ $users = $db->users->searchByName([
 ]);
 ```
 
-#### Using `v-dem/queasy-db` together with `v-dem/queasy-config` and `v-dem/queasy-log`
+##### Using `v-dem/queasy-db` together with `v-dem/queasy-config` and `v-dem/queasy-log`
 
 `config.php:`
 ```php
