@@ -118,10 +118,26 @@ class Db extends PDO implements LoggerAwareInterface
                 $options
             );
 
+            // $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('queasy\\db\\Statement', array($this)));
+
             return;
         }
 
         throw new InvalidArgumentException('Invalid arguments passed to Db::__construct(): $configOrDsn must be null, or a string, or an array or ArrayAccess instance');
+    }
+
+    #[\ReturnTypeWillChange]
+    public function prepare($sql, array $options = array())
+    {
+        $statement = parent::prepare($sql, $options);
+
+        if (class_exists('\\WeakReference')) {
+            $this->statement = \WeakReference::create($statement);
+        } else {
+            $this->statement = $statement;
+        }
+
+        return $statement;
     }
 
     /**

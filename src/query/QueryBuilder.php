@@ -17,15 +17,22 @@ class QueryBuilder extends Query
 
     protected $where;
 
-    protected $bindings = [];
+    protected $bindings = array();
 
-    protected $joins = [];
+    protected $joins = array();
+
+    protected $options = array();
 
     public function __construct(PDO $pdo, $table)
     {
         parent::__construct($pdo);
 
         $this->table = $table;
+    }
+
+    public function options(array $options = array())
+    {
+        $this->options = $options;
     }
 
     public function join($columnOrJoinString, $table, $joinedColumn, $type = 'INNER', $operator = '=')
@@ -189,7 +196,9 @@ INSERT  INTO "%1$s"%2$s
 SELECT  %3$s
 FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $this->buildJoins() . $this->buildWhere());
 
-        return $sql;
+        $this->setSql($sql);
+
+        return $this->run($this->bindings, $this->options);
     }
 
     public function update(array $params = array(), array $bindings = array())
@@ -216,7 +225,9 @@ FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $
 UPDATE  "%1$s"%2$s
 SET     %3$s%4$s', $this->table, $this->buildJoins(), implode(',' . PHP_EOL . '        ', $sets), $this->buildWhere());
 
-        return $sql;
+        $this->setSql($sql);
+
+        return $this->run($this->bindings, $this->options);
     }
 
     public function delete()
@@ -228,7 +239,9 @@ SET     %3$s%4$s', $this->table, $this->buildJoins(), implode(',' . PHP_EOL . ' 
         $sql = sprintf('
 DELETE  FROM "%1$s"%2$s%3$s', $this->table, $this->buildJoins(), $this->buildWhere());
 
-        return $sql;
+        $this->setSql($sql);
+
+        return $this->run($this->bindings, $this->options);
     }
 
     public function select(array $params = array())
@@ -259,7 +272,9 @@ DELETE  FROM "%1$s"%2$s%3$s', $this->table, $this->buildJoins(), $this->buildWhe
 SELECT  %1$s
 FROM    %2$s%3$s%4$s', empty($selects) ? '*' : implode(', ', $selects), $this->table, $this->buildJoins(), $this->buildWhere());
 
-        echo $sql;
+        $this->setSql($sql);
+
+        return $this->run($this->bindings, $this->options);
     }
 }
 
