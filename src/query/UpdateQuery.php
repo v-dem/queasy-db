@@ -4,6 +4,8 @@ namespace queasy\db\query;
 
 use PDO;
 
+use queasy\db\Expression;
+
 class UpdateQuery extends TableQuery
 {
     private $fieldName;
@@ -26,8 +28,23 @@ class UpdateQuery extends TableQuery
         $paramsString = implode(
             ', ',
             array_map(
-                function($paramName) {
-                    return sprintf('"%s" = :%s', $paramName, $paramName);
+                function($paramName) use(&$params) {
+                    $paramValue = ':' . $paramName;
+                    if (is_object($params[$paramName]) && ($params[$paramName] instanceof Expression)) {
+                        $paramValue = $params[$paramName];
+                        $bindings = $params[$paramName]->getBindings();
+                        if (count($bindings)) {
+                            $params = array_merge($params, $bindings);
+                        }
+
+                        unset($params[$paramName]);
+                    }
+
+                    return sprintf(
+                        '"%s" = %s',
+                        $paramName,
+                        $paramValue
+                    );
                 },
                 array_keys($params)
             )

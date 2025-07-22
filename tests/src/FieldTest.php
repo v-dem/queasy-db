@@ -183,7 +183,9 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $this->qdb->users->id[7] = ['password_hash' => 'cbKBLVIWVW'];
+        $this->qdb->users->id[7] = [
+            'password_hash' => 'cbKBLVIWVW'
+        ];
 
         $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
         $this->assertEquals(7, $row['id']);
@@ -204,7 +206,9 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->qdb->users->id->update(7, ['password_hash' => 'cbKBLVIWVW']);
+        $rowsCount = $this->qdb->users->id->update(7, [
+            'password_hash' => 'cbKBLVIWVW'
+        ]);
         $this->assertEquals(1, $rowsCount);
 
         $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
@@ -226,7 +230,9 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $this->qdb->users->id[[7, 123]] = ['password_hash' => 'cbKBLVIWVW'];
+        $this->qdb->users->id[[7, 123]] = [
+            'password_hash' => 'cbKBLVIWVW'
+        ];
 
         $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 7')->fetch();
         $this->assertEquals(7, $row['id']);
@@ -252,7 +258,9 @@ class FieldTest extends TestCase
                     (13, \'mary.jones@example.com\', \'23413414210\'),
                     (124, \'vitaly.d@example.com\', \'756474540\')');
 
-        $rowsCount = $this->qdb->users->id->update([8, 124], ['password_hash' => 'cbKBLVIWVW0']);
+        $rowsCount = $this->qdb->users->id->update([ 8, 124 ], [
+            'password_hash' => 'cbKBLVIWVW0'
+        ]);
         $this->assertEquals(2, $rowsCount);
 
         $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 8')->fetch();
@@ -279,8 +287,46 @@ class FieldTest extends TestCase
                     (12, \'mary.jones@example.com\', \'2341341421\'),
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
-        $rowsCount = $this->qdb->users->id->update([7, 123, 17], ['password_hash' => 'cbKBLVIWVW']);
+        $rowsCount = $this->qdb->users->id->update([ 7, 123, 17 ], [
+            'password_hash' => 'cbKBLVIWVW'
+        ]);
         $this->assertEquals(2, $rowsCount);
+    }
+
+    public function testUpdateFunctionExpr()
+    {
+        $this->pdo->exec('
+            INSERT  INTO "users"
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $this->qdb->users->id[7] = [
+            'password_hash' => Db::expr('concat(\'a\', \'cbKBLVIWVW\')')
+        ];
+
+        $row = $this->qdb->users->id[7];
+
+        $this->assertEquals('acbKBLVIWVW', $row['password_hash']);
+    }
+
+    public function testUpdateFunctionExprWithBind()
+    {
+        $this->pdo->exec('
+            INSERT  INTO "users"
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $this->qdb->users->id[7] = [
+            'password_hash' => Db::expr('concat(\'a\', :value)', [ 'value' => '123' ]),
+            'email' => 'john.doe2@example.com'
+        ];
+
+        $row = $this->qdb->users->id[7];
+
+        $this->assertEquals('a123', $row['password_hash']);
+        $this->assertEquals('john.doe2@example.com', $row['email']);
     }
 
     public function testIsset()

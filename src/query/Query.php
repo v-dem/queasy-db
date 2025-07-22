@@ -7,6 +7,7 @@ use PDO;
 use queasy\helper\Arrays;
 use queasy\helper\Strings;
 
+use queasy\db\Blob;
 use queasy\db\DbException;
 
 class Query extends AbstractQuery
@@ -34,7 +35,6 @@ class Query extends AbstractQuery
         $counter = 1;
         $isAssoc = Arrays::isAssoc($params);
         foreach ($params as $paramKey => $paramValue) {
-            // Detect parameter type
             $paramType = $this->getParamType($paramValue);
 
             $bindKey = $isAssoc
@@ -71,7 +71,7 @@ class Query extends AbstractQuery
             return PDO::PARAM_BOOL;
         }
 
-        if (is_resource($value)) {
+        if (is_resource($value) || ($value instanceof Blob)) {
             return PDO::PARAM_LOB;
         }
 

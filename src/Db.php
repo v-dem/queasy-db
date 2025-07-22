@@ -19,9 +19,9 @@ use queasy\db\query\CustomQuery;
 
 class Db extends PDO implements LoggerAwareInterface
 {
-    public static function expr($expr)
+    public static function expr($expr, array $bindings = array())
     {
-        return new Expression($expr);
+        return new Expression($expr, $bindings);
     }
 
     const RETURN_STATEMENT = 1;
@@ -45,6 +45,8 @@ class Db extends PDO implements LoggerAwareInterface
      * @var LoggerInterface Logger instance
      */
     protected $logger;
+
+    protected $statement;
 
     /**
      * Create Db instance

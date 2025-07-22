@@ -22,6 +22,7 @@ use queasy\db\query\CountQuery;
 use queasy\db\query\SelectQuery;
 use queasy\db\query\UpdateQuery;
 use queasy\db\query\DeleteQuery;
+use queasy\db\query\QueryBuilder;
 
 class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInterface
 {
@@ -126,6 +127,13 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
      */
     public function __call($method, array $args)
     {
+        if (method_exists('queasy\\db\\query\\QueryBuilder', $method)) {
+            $queryBuilder = new QueryBuilder($this->pdo, $this->name);
+            $queryBuilder->setLogger($this->logger);
+
+            return $queryBuilder;
+        }
+
         if (isset($this->config[$method])) {
             $query = new CustomQuery($this->pdo, $this->config[$method]);
             $query->setLogger($this->logger);
@@ -155,7 +163,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
             ? func_get_arg(0)
             : func_get_args();
         if ((null === $params) || !is_array($params)) {
-            throw new InvalidArgumentException('Wrong rows argument.');
+            throw new InvalidArgumentException('Argument must be a non-empty array.');
         }
 
         $keys = array_keys($params);
@@ -168,7 +176,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
 
         if (count($keys) && is_array($params[$keys[0]])) { // Batch inserts
             $isSingleInsert = false;
-            $queryClass = 'queasy\\db\\query\\BatchSeparatelyNamedInsertQuery'; // Default
             $keys = array_keys($params[$keys[0]]);
             $queryClass = (!count($keys) || is_numeric($keys[0]))
                 ? 'queasy\\db\\query\\BatchInsertQuery' // Batch insert
@@ -183,8 +190,8 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
         if ($isSingleInsert) {
             try {
                 return $this->pdo->lastInsertId();
-            } catch (PDOException $e) {
-                return true;
+            } catch (PDOException $e) { // Driver doesn't support this
+                return false;
             }
         }
 
@@ -211,14 +218,10 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
         return $statement->rowCount();
     }
 
-    public function select(array $columns = null, array $options = array())
+    public function where($where, array $bindings = array())
     {
-        $queryBuilder = new QueryBuilder($this->pdo, $options);
-        $queryBuilder->setLogger($this->logger);
-        $queryBuilder->table($this->name);
-        $queryBuilder->select($columns);
-
-        return $queryBuilder;
+        return new QueryBuilder($this->pdo, $this->name)
+            ->where($where, $bindings);
     }
 
     /**

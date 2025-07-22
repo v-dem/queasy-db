@@ -45,7 +45,7 @@ class Field implements ArrayAccess, LoggerAwareInterface
         return $this->table->delete($this->name, $offset, $options);
     }
 
-    public function select($value, array $options = array(), $columns = array())
+    public function select($value, $columns = array(), array $options = array())
     {
         $query = new SelectQuery($this->pdo, $this->table->getName());
         $query->setLogger($this->logger);

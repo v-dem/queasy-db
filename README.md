@@ -100,7 +100,7 @@ $users = $db->users->id->select($userId, $options);
 $users = $db->users->id[[$userId1, $userId2]];
 ```
 
-#### Innserting records
+#### Inserting records
 
 ##### Insert a record into `users` table using associative array
 

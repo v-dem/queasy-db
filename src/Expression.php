@@ -4,16 +4,29 @@ namespace queasy\db;
 
 class Expression
 {
-    private $expr;
+    private $expression;
 
-    public function __construct($expr)
+    private $bindings;
+
+    public function __construct($expression, array $bindings = array())
     {
-        $this->expr = $expr;
+        $this->expression = $expression;
+        $this->bindings = $bindings;
+    }
+
+    public function getExpression()
+    {
+        return $this->expression;
+    }
+
+    public function getBindings()
+    {
+        return $this->bindings;
     }
 
     public function __toString()
     {
-        return $this->expr;
+        return $this->expression;
     }
 }
 
