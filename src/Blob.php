@@ -10,7 +10,7 @@ class Blob
     public function __construct($value, $length = null)
     {
         $this->value = $value;
-        $this->length = (is_null($value) && is_string($value))
+        $this->length = is_string($value)
             ? strlen($value)
             : $length;
     }

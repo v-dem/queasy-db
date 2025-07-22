@@ -23,8 +23,6 @@ class Query extends AbstractQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        $this->logger()->debug(sprintf('%s::run(): SQL: %s', get_class($this), $this->sql()), $params);
-
         if (null === $options) {
             $options = array();
         }

@@ -11,10 +11,6 @@ use ArrayAccess;
 use Countable;
 use IteratorAggregate;
 
-use Psr\Log\NullLogger;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerAwareInterface;
-
 use queasy\helper\System;
 
 use queasy\db\query\CustomQuery;
@@ -24,7 +20,7 @@ use queasy\db\query\UpdateQuery;
 use queasy\db\query\DeleteQuery;
 use queasy\db\query\QueryBuilder;
 
-class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInterface
+class Table implements ArrayAccess, Countable, IteratorAggregate
 {
     protected $pdo;
 
@@ -39,17 +35,8 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
      */
     protected $config;
 
-    /**
-     * Logger instance.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
-
     public function __construct(PDO $pdo, $name, $config = array())
     {
-        $this->logger = new NullLogger();
-
         $this->pdo = $pdo;
         $this->name = $name;
         $this->fields = array();
@@ -60,7 +47,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
     {
         if (!isset($this->fields[$fieldName])) {
             $field = new Field($this->pdo, $this, $fieldName);
-            $field->setLogger($this->logger);
 
             $this->fields[$fieldName] = $field;
         }
@@ -71,7 +57,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
     public function statement()
     {
         $query = new SelectQuery($this->pdo, $this->name);
-        $query->setLogger($this->logger);
 
         return $query();
     }
@@ -127,16 +112,8 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
      */
     public function __call($method, array $args)
     {
-        if (method_exists('queasy\\db\\query\\QueryBuilder', $method)) {
-            $queryBuilder = new QueryBuilder($this->pdo, $this->name);
-            $queryBuilder->setLogger($this->logger);
-
-            return $queryBuilder;
-        }
-
         if (isset($this->config[$method])) {
             $query = new CustomQuery($this->pdo, $this->config[$method]);
-            $query->setLogger($this->logger);
 
             return System::callUserFuncArray(array($query, 'run'), $args);
         }
@@ -148,7 +125,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
     public function count()
     {
         $query = new CountQuery($this->pdo, $this->name);
-        $query->setLogger($this->logger);
 
         $statement = $query();
 
@@ -183,7 +159,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
         }
 
         $query = new $queryClass($this->pdo, $this->name);
-        $query->setLogger($this->logger);
 
         $statement = $query($params);
 
@@ -201,7 +176,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
     {
         $query = new UpdateQuery($this->pdo, $this->name, $fieldName, $fieldValue);
-        $query->setLogger($this->logger);
 
         $statement = $query($params, $options);
 
@@ -211,7 +185,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
     public function delete($fieldName = null, $fieldValue = null, array $options = array())
     {
         $query = new DeleteQuery($this->pdo, $this->name, $fieldName, $fieldValue);
-        $query->setLogger($this->logger);
 
         $statement = $query(array(), $options);
 
@@ -222,16 +195,6 @@ class Table implements ArrayAccess, Countable, IteratorAggregate, LoggerAwareInt
     {
         return new QueryBuilder($this->pdo, $this->name)
             ->where($where, $bindings);
-    }
-
-    /**
-     * Sets a logger.
-     *
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
     }
 
     public function getName()

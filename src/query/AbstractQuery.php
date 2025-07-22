@@ -4,24 +4,13 @@ namespace queasy\db\query;
 
 use PDO;
 
-use Psr\Log\NullLogger;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerAwareInterface;
-
 use queasy\db\DbException;
 
-abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
+abstract class AbstractQuery implements QueryInterface
 {
     private $pdo;
 
     private $sql;
-
-    /**
-     * Logger instance.
-     *
-     * @var LoggerInterface
-     */
-    protected $logger;
 
     /**
      * Constructor.
@@ -33,8 +22,6 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
      */
     public function __construct(PDO $pdo, $sql = null)
     {
-        $this->logger = new NullLogger();
-
         $this->pdo = $pdo;
         $this->setSql($sql);
     }
@@ -44,21 +31,6 @@ abstract class AbstractQuery implements QueryInterface, LoggerAwareInterface
     public function __invoke(array $params = array(), array $options = array())
     {
         return $this->run($params, $options);
-    }
-
-    /**
-     * Set a logger.
-     *
-     * @param LoggerInterface $logger
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    protected function logger()
-    {
-        return $this->logger;
     }
 
     protected function pdo()

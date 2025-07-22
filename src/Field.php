@@ -5,14 +5,10 @@ namespace queasy\db;
 use PDO;
 use ArrayAccess;
 
-use Psr\Log\NullLogger;
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerAwareInterface;
-
 use queasy\db\query\CountQuery;
 use queasy\db\query\SelectQuery;
 
-class Field implements ArrayAccess, LoggerAwareInterface
+class Field implements ArrayAccess
 {
     protected $pdo;
 
@@ -20,12 +16,8 @@ class Field implements ArrayAccess, LoggerAwareInterface
 
     protected $name;
 
-    protected $logger;
-
     public function __construct(PDO $pdo, Table $table, $name)
     {
-        $this->logger = new NullLogger();
-
         $this->pdo = $pdo;
         $this->table = $table;
         $this->name = $name;
@@ -48,7 +40,6 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function select($value, $columns = array(), array $options = array())
     {
         $query = new SelectQuery($this->pdo, $this->table->getName());
-        $query->setLogger($this->logger);
 
         $statement = $query(array($this->name => $value), $options, $columns);
 
@@ -59,13 +50,10 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function offsetExists($offset)
     {
         $query = new CountQuery($this->pdo, $this->table->getName());
-        $query->setLogger($this->logger);
 
         $statement = $query(array($this->name => $offset));
 
-        $row = $statement->fetch();
-
-        $count = array_shift($row);
+        $count = $statement->fetch(PDO::FETCH_COLUMN);
 
         return $count > 0;
     }
@@ -97,11 +85,6 @@ class Field implements ArrayAccess, LoggerAwareInterface
     public function __invoke($value, array $options = array())
     {
         return $this->select([$value], $options)->fetchAll();
-    }
-
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
     }
 }
 

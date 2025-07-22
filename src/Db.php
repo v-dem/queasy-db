@@ -46,7 +46,7 @@ class Db extends PDO implements LoggerAwareInterface
      */
     protected $logger;
 
-    protected $statement;
+    protected $lastStatement;
 
     /**
      * Create Db instance
@@ -129,15 +129,22 @@ class Db extends PDO implements LoggerAwareInterface
     #[\ReturnTypeWillChange]
     public function prepare($sql, array $options = array())
     {
+        $this->logger()->debug('Db::prepare(): SQL: ' . $sql);
+
         $statement = parent::prepare($sql, $options);
 
         if (class_exists('\\WeakReference')) {
-            $this->statement = \WeakReference::create($statement);
+            $this->lastStatement = \WeakReference::create($statement);
         } else {
-            $this->statement = $statement;
+            $this->lastStatement = $statement;
         }
 
         return $statement;
+    }
+
+    public function getLastStatement()
+    {
+        return $this->lastStatement;
     }
 
     /**
@@ -167,7 +174,6 @@ class Db extends PDO implements LoggerAwareInterface
         }
 
         $query = $this->queries[$name];
-        $query->setLogger($this->logger);
 
         $params = array_shift($args);
         $options = array_shift($args);
@@ -198,7 +204,6 @@ class Db extends PDO implements LoggerAwareInterface
                 : array();
 
             $this->tables[$name] = new Table($this, $name, $config);
-            $this->tables[$name]->setLogger($this->logger);
         }
 
         return $this->tables[$name];
@@ -216,7 +221,6 @@ class Db extends PDO implements LoggerAwareInterface
     public function run($sql, array $params = array(), array $options = array())
     {
         $query = new Query($this, $sql);
-        $query->setLogger($this->logger);
 
         return $query($params, $options);
     }
