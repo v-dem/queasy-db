@@ -201,10 +201,6 @@ FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $
 
         $this->setSql($sql);
 
-        echo $sql . PHP_EOL;
-
-        print_r($this->bindings);
-
         return $this->run($this->bindings, $this->options);
     }
 
