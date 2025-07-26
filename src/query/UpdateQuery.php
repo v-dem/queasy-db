@@ -2,8 +2,7 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
+use queasy\db\Db;
 use queasy\db\Expression;
 
 class UpdateQuery extends TableQuery
@@ -12,9 +11,9 @@ class UpdateQuery extends TableQuery
 
     private $fieldValue;
 
-    public function __construct(PDO $pdo, $tableName, $fieldName = null, $fieldValue = null)
+    public function __construct(Db $db, $tableName, $fieldName = null, $fieldValue = null)
     {
-        parent::__construct($pdo, $tableName);
+        parent::__construct($db, $tableName);
 
         $this->fieldName = $fieldName;
 

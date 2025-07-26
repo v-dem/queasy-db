@@ -10,15 +10,15 @@ use queasy\db\query\SelectQuery;
 
 class Field implements ArrayAccess
 {
-    protected $pdo;
+    protected $db;
 
     protected $table;
 
     protected $name;
 
-    public function __construct(PDO $pdo, Table $table, $name)
+    public function __construct(Db $db, Table $table, $name)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
         $this->table = $table;
         $this->name = $name;
     }
@@ -39,7 +39,7 @@ class Field implements ArrayAccess
 
     public function select($value, $columns = array(), array $options = array())
     {
-        $query = new SelectQuery($this->pdo, $this->table->getName());
+        $query = new SelectQuery($this->db, $this->table->getName());
 
         $statement = $query(array($this->name => $value), $options, $columns);
 
@@ -49,7 +49,7 @@ class Field implements ArrayAccess
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
-        $query = new CountQuery($this->pdo, $this->table->getName());
+        $query = new CountQuery($this->db, $this->table->getName());
 
         $statement = $query(array($this->name => $offset));
 

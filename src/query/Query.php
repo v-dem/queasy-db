@@ -2,11 +2,10 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
 use queasy\helper\Arrays;
 use queasy\helper\Strings;
 
+use queasy\db\Db;
 use queasy\db\Blob;
 use queasy\db\DbException;
 
@@ -27,7 +26,7 @@ class Query extends AbstractQuery
             $options = array();
         }
 
-        $statement = $this->pdo()->prepare($this->sql(), $options);
+        $statement = $this->db()->prepare($this->sql(), $options);
         $statement->closeCursor(); // Avoid error with not closed recordset
 
         $counter = 1;
@@ -58,22 +57,22 @@ class Query extends AbstractQuery
     protected function getParamType($value)
     {
         if (null === $value) {
-            return PDO::PARAM_NULL;
+            return Db::PARAM_NULL;
         }
 
         if (is_int($value)) {
-            return PDO::PARAM_INT;
+            return Db::PARAM_INT;
         }
 
         if (is_bool($value)) {
-            return PDO::PARAM_BOOL;
+            return Db::PARAM_BOOL;
         }
 
         if (is_resource($value) || ($value instanceof Blob)) {
-            return PDO::PARAM_LOB;
+            return Db::PARAM_LOB;
         }
 
-        return PDO::PARAM_STR;
+        return Db::PARAM_STR;
     }
 }
 

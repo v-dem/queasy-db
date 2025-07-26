@@ -2,8 +2,7 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
+use queasy\db\Db;
 use queasy\db\Expression;
 use queasy\db\DbException;
 
@@ -13,8 +12,6 @@ class QueryBuilder extends Query
 
     protected $intoTable;
 
-    protected $options;
-
     protected $where;
 
     protected $bindings = array();
@@ -23,9 +20,9 @@ class QueryBuilder extends Query
 
     protected $options = array();
 
-    public function __construct(PDO $pdo, $table)
+    public function __construct(Db $db, $table)
     {
-        parent::__construct($pdo);
+        parent::__construct($db);
 
         $this->table = $table;
     }
@@ -78,6 +75,10 @@ class QueryBuilder extends Query
 
         return $this;
     }
+/*
+OFFSET offset_value ROWS:
+FETCH FIRST/NEXT fetch_value ROWS ONLY
+*/
 /*
     // Set grouping (GROUP BY clause)
     public function groupBy($column)
@@ -164,7 +165,7 @@ WHERE   " . $this->where;
             throw new DbException('Missing "INTO" clause: need to call QueryBuilder::into() first');
         }
 
-        $this->bindings = array_merge($this->bindings, $bindings);
+        $this->bindings = array_merge($this->bindings, $bindings); // FIXME: Is it needed? All bindings are in FROM and maybe in Expressions
 
         $columns = array();
         $selects = array();
@@ -178,6 +179,8 @@ WHERE   " . $this->where;
                 $paramValueStr = $paramValue->getExpression();
 
                 $this->bindings = array_merge($this->bindings, $paramValue->getBindings());
+            } else {
+                $this->bindings[$paramName] = $paramValue;
             }
 
             $selects[] = $paramValueStr;
@@ -197,6 +200,10 @@ SELECT  %3$s
 FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $this->buildJoins() . $this->buildWhere());
 
         $this->setSql($sql);
+
+        echo $sql . PHP_EOL;
+
+        print_r($this->bindings);
 
         return $this->run($this->bindings, $this->options);
     }

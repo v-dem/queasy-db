@@ -2,27 +2,26 @@
 
 namespace queasy\db\query;
 
-use PDO;
-
+use queasy\db\Db;
 use queasy\db\DbException;
 
 abstract class AbstractQuery implements QueryInterface
 {
-    private $pdo;
+    private $db;
 
     private $sql;
 
     /**
      * Constructor.
      *
-     * @param PDO $pdo PDO instance
+     * @param queasy\db\Db $db Db instance
      * @param string $query Query string
      *
      * @throws DbException When query can't be prepared
      */
-    public function __construct(PDO $pdo, $sql = null)
+    public function __construct(Db $db, $sql = null)
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
         $this->setSql($sql);
     }
 
@@ -33,9 +32,9 @@ abstract class AbstractQuery implements QueryInterface
         return $this->run($params, $options);
     }
 
-    protected function pdo()
+    protected function db()
     {
-        return $this->pdo;
+        return $this->db;
     }
 
     protected function sql()

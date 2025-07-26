@@ -22,7 +22,7 @@ use queasy\db\query\QueryBuilder;
 
 class Table implements ArrayAccess, Countable, IteratorAggregate
 {
-    protected $pdo;
+    protected $db;
 
     protected $name;
 
@@ -35,9 +35,9 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
      */
     protected $config;
 
-    public function __construct(PDO $pdo, $name, $config = array())
+    public function __construct(Db $db, $name, $config = array())
     {
-        $this->pdo = $pdo;
+        $this->db = $db;
         $this->name = $name;
         $this->fields = array();
         $this->config = $config;
@@ -46,7 +46,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
     public function __get($fieldName)
     {
         if (!isset($this->fields[$fieldName])) {
-            $field = new Field($this->pdo, $this, $fieldName);
+            $field = new Field($this->db, $this, $fieldName);
 
             $this->fields[$fieldName] = $field;
         }
@@ -56,7 +56,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function statement()
     {
-        $query = new SelectQuery($this->pdo, $this->name);
+        $query = new SelectQuery($this->db, $this->name);
 
         return $query();
     }
@@ -88,7 +88,13 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
     public function offsetSet($offset, $value)
     {
         if (null !== $offset) {
-            throw new BadMethodCallException('Not implemented. Use Field instead of Table to update record.');
+            if (!($value instanceof QueryBuilder) || !is_array($offset)) {
+                throw new BadMethodCallException('Not implemented. Use Field instead of Table to update record.');
+            }
+
+            $value->into($this->name)->insert($offset);
+
+            return $this->db->getLastStatement()->rowCount();
         }
 
         $this->insert($value);
@@ -113,7 +119,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
     public function __call($method, array $args)
     {
         if (isset($this->config[$method])) {
-            $query = new CustomQuery($this->pdo, $this->config[$method]);
+            $query = new CustomQuery($this->db, $this->config[$method]);
 
             return System::callUserFuncArray(array($query, 'run'), $args);
         }
@@ -124,7 +130,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
     #[\ReturnTypeWillChange]
     public function count()
     {
-        $query = new CountQuery($this->pdo, $this->name);
+        $query = new CountQuery($this->db, $this->name);
 
         $statement = $query();
 
@@ -138,6 +144,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
         $params = (1 === func_num_args())
             ? func_get_arg(0)
             : func_get_args();
+
         if ((null === $params) || !is_array($params)) {
             throw new InvalidArgumentException('Argument must be a non-empty array.');
         }
@@ -158,13 +165,13 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
                 : 'queasy\\db\\query\\BatchNamedInsertQuery'; // Batch insert with field names
         }
 
-        $query = new $queryClass($this->pdo, $this->name);
+        $query = new $queryClass($this->db, $this->name);
 
         $statement = $query($params);
 
         if ($isSingleInsert) {
             try {
-                return $this->pdo->lastInsertId();
+                return $this->db->lastInsertId();
             } catch (PDOException $e) { // Driver doesn't support this
                 return false;
             }
@@ -175,7 +182,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new UpdateQuery($this->pdo, $this->name, $fieldName, $fieldValue);
+        $query = new UpdateQuery($this->db, $this->name, $fieldName, $fieldValue);
 
         $statement = $query($params, $options);
 
@@ -184,7 +191,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function delete($fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new DeleteQuery($this->pdo, $this->name, $fieldName, $fieldValue);
+        $query = new DeleteQuery($this->db, $this->name, $fieldName, $fieldValue);
 
         $statement = $query(array(), $options);
 
@@ -193,7 +200,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function where($where, array $bindings = array())
     {
-        return new QueryBuilder($this->pdo, $this->name)
+        return new QueryBuilder($this->db, $this->name)
             ->where($where, $bindings);
     }
 
