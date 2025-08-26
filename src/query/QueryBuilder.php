@@ -6,10 +6,8 @@ use queasy\db\Db;
 use queasy\db\Expression;
 use queasy\db\DbException;
 
-class QueryBuilder extends Query
+class QueryBuilder extends TableQuery
 {
-    protected $table;
-
     protected $intoTable;
 
     protected $where;
@@ -20,56 +18,45 @@ class QueryBuilder extends Query
 
     protected $options = array();
 
-    public function __construct(Db $db, $table)
-    {
-        parent::__construct($db);
-
-        $this->table = $table;
-    }
-
     public function options(array $options = array())
     {
         $this->options = $options;
-    }
-
-    public function join($columnOrJoinString, $table, $joinedColumn, $type = 'INNER', $operator = '=')
-    {
-        if (1 === func_num_args()) {
-            $this->joins[] = $columnOrJoinString;
-        } else {
-            $this->joins[] = "$type JOIN \"$table\"
-                ON \"" . $this->table . "\".\"$columnOrJoinString\" $operator \"$table\".\"$joinedColumn\"";
-        }
 
         return $this;
     }
 
-    public function innerJoin($column, $table, $joinedColumn)
+    public function join($columnOrJoinString, $joinTable, $joinedColumn, $type = 'INNER', $operator = '=')
     {
-        return $this->join($column, $table, $joinedColumn, 'INNER');
+        $this->joins[] = (1 === func_num_args())
+            ? $columnOrJoinString
+            : "$type JOIN \"$joinTable\"
+                ON \"" . $this->table() . "\".\"$columnOrJoinString\" $operator \"$joinTable\".\"$joinedColumn\"";
+
+        return $this;
     }
 
-    public function leftJoin($column, $table, $joinedColumn)
+    public function innerJoin($column, $joinTable, $joinedColumn)
     {
-        return $this->join($column, $table, $joinedColumn, 'LEFT');
+        return $this->join($column, $joinTable, $joinedColumn, 'INNER');
     }
 
-    public function rightJoin($column, $table, $joinedColumn)
+    public function leftJoin($column, $joinTable, $joinedColumn)
     {
-        return $this->join($column, $table, $joinedColumn, 'RIGHT');
+        return $this->join($column, $joinTable, $joinedColumn, 'LEFT');
     }
 
-    public function fullJoin($column, $table, $joinedColumn)
+    public function rightJoin($column, $joinTable, $joinedColumn)
     {
-        return $this->join($column, $table, $joinedColumn, 'FULL OUTER');
+        return $this->join($column, $joinTable, $joinedColumn, 'RIGHT');
+    }
+
+    public function fullJoin($column, $joinTable, $joinedColumn)
+    {
+        return $this->join($column, $joinTable, $joinedColumn, 'FULL OUTER');
     }
 
     public function where($where = null, array $bindings = array())
     {
-        if (!empty($this->where)) {
-            throw new DbException('WHERE clause already created');
-        }
-
         $this->where = $where;
         $this->bindings = array_merge($this->bindings, $bindings);
 
@@ -159,13 +146,11 @@ WHERE   " . $this->where;
         return $sql;
     }
 
-    public function insert(array $params = array(), array $bindings = array())
+    public function insert(array $params = array())
     {
         if (empty($this->intoTable)) {
-            throw new DbException('Missing "INTO" clause: need to call QueryBuilder::into() first');
+            throw new DbException('Missing INTO clause');
         }
-
-        $this->bindings = array_merge($this->bindings, $bindings); // FIXME: Is it needed? All bindings are in FROM and maybe in Expressions
 
         $columns = array();
         $selects = array();
@@ -197,20 +182,18 @@ WHERE   " . $this->where;
         $sql = sprintf('
 INSERT  INTO "%1$s"%2$s
 SELECT  %3$s
-FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $this->buildJoins() . $this->buildWhere());
+FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table(), $this->buildJoins() . $this->buildWhere());
 
         $this->setSql($sql);
 
         return $this->run($this->bindings, $this->options);
     }
 
-    public function update(array $params = array(), array $bindings = array())
+    public function update(array $params = array())
     {
         if (!empty($this->intoTable)) {
-            throw new DbException('INTO clause not used for UPDATE');
+            throw new DbException('INTO clause could not be used for UPDATE');
         }
-
-        $this->bindings = array_merge($this->bindings, $bindings);
 
         $sets = array();
         foreach ($params as $paramName => $paramValue) {
@@ -219,6 +202,8 @@ FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $
                 $paramValueStr = $paramValue->getExpression();
 
                 $this->bindings = array_merge($this->bindings, $paramValue->getBindings());
+            } else {
+                $this->bindings[$paramName] = $paramValue;
             }
 
             $sets[] = sprintf('"%1$s" = %2$s', $paramName, $paramValueStr);
@@ -226,7 +211,7 @@ FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table, $
 
         $sql = sprintf('
 UPDATE  "%1$s"%2$s
-SET     %3$s%4$s', $this->table, $this->buildJoins(), implode(',' . PHP_EOL . '        ', $sets), $this->buildWhere());
+SET     %3$s%4$s', $this->table(), $this->buildJoins(), implode(',' . PHP_EOL . '        ', $sets), $this->buildWhere());
 
         $this->setSql($sql);
 
@@ -236,11 +221,11 @@ SET     %3$s%4$s', $this->table, $this->buildJoins(), implode(',' . PHP_EOL . ' 
     public function delete()
     {
         if (!empty($this->intoTable)) {
-            throw new DbException('INTO clause not used for DELETE');
+            throw new DbException('INTO clause could not be used for DELETE');
         }
 
         $sql = sprintf('
-DELETE  FROM "%1$s"%2$s%3$s', $this->table, $this->buildJoins(), $this->buildWhere());
+DELETE  FROM "%1$s"%2$s%3$s', $this->table(), $this->buildJoins(), $this->buildWhere());
 
         $this->setSql($sql);
 
@@ -250,21 +235,19 @@ DELETE  FROM "%1$s"%2$s%3$s', $this->table, $this->buildJoins(), $this->buildWhe
     public function select(array $params = array())
     {
         if (!empty($this->intoTable)) {
-            throw new DbException('INTO clause not used for SELECT; SELECT..INTO not implemented');
+            throw new DbException('INTO clause could not be used for SELECT this way');
         }
 
         $selects = array();
         foreach ($params as $paramName => $paramValue) {
-            if (is_int($paramName)) {
-                $selects[] = ($paramValue instanceof Expression)
-                    ? $paramValue->getExpression()
-                    : '"' . $paramValue . '"';
-            } else {
-                $selects[] = (($paramValue instanceof Expression)
+            $selects[] = is_int($paramName)
+                ? (($paramValue instanceof Expression)
                     ? $paramValue->getExpression()
                     : '"' . $paramValue . '"')
-                    . ' AS "' . $paramName . '"';
-            }
+                : ((($paramValue instanceof Expression)
+                    ? $paramValue->getExpression()
+                    : '"' . $paramValue . '"')
+                    . ' AS "' . $paramName . '"');
 
             if ($paramValue instanceof Expression) {
                 $this->bindings = array_merge($this->bindings, $paramValue->getBindings());
@@ -273,7 +256,7 @@ DELETE  FROM "%1$s"%2$s%3$s', $this->table, $this->buildJoins(), $this->buildWhe
 
         $sql = sprintf('
 SELECT  %1$s
-FROM    %2$s%3$s%4$s', empty($selects) ? '*' : implode(', ', $selects), $this->table, $this->buildJoins(), $this->buildWhere());
+FROM    %2$s%3$s%4$s', empty($selects) ? '*' : implode(', ', $selects), $this->table(), $this->buildJoins(), $this->buildWhere());
 
         $this->setSql($sql);
 

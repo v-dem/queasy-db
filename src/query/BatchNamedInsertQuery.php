@@ -45,7 +45,7 @@ class BatchNamedInsertQuery extends TableQuery
         $sql = sprintf('
             INSERT  INTO "%s" (%s)
             VALUES  %s',
-            $this->tableName(),
+            $this->table(),
             $columnsString,
             $paramsString
         );

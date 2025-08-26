@@ -6,18 +6,18 @@ use queasy\db\Db;
 
 abstract class TableQuery extends Query
 {
-    private $tableName;
+    private $table;
 
-    public function __construct(Db $db, $tableName, $sql = '')
+    public function __construct(Db $db, $table, $sql = '')
     {
-        $this->tableName = $tableName;
+        $this->table = $table;
 
         parent::__construct($db, $sql);
     }
 
-    protected function tableName()
+    protected function table()
     {
-        return $this->tableName;
+        return $this->table;
     }
 }
 

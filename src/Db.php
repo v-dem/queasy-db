@@ -24,6 +24,11 @@ class Db extends PDO implements LoggerAwareInterface
         return new Expression($expr, $bindings);
     }
 
+    public static function inExpr($column, array $values)
+    {
+        return new InExpression($column, $values);
+    }
+
     const RETURN_STATEMENT = 1;
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
@@ -129,11 +134,11 @@ class Db extends PDO implements LoggerAwareInterface
     #[\ReturnTypeWillChange]
     public function prepare($sql, array $options = array())
     {
-        $this->logger()->debug('Db::prepare(): SQL: ' . $sql);
+        $this->logger->debug('Db::prepare(): SQL: ' . $sql);
 
         $statement = parent::prepare($sql, $options);
 
-        if (class_exists('\\WeakReference')) {
+        if (class_exists('\\WeakReference')) { // Trick to make PHPUnit tests run. It doesn't allow to keep reference to PDOStatement otherwise.
             $this->lastStatement = \WeakReference::create($statement);
         } else {
             $this->lastStatement = $statement;
@@ -276,16 +281,6 @@ class Db extends PDO implements LoggerAwareInterface
     public function useReturning()
     {
         return $this->useReturning;
-    }
-
-    /**
-     * Return logger instance.
-     *
-     * @return Psr\Log\LoggerInterface Logger instance
-     */
-    protected function logger()
-    {
-        return $this->logger;
     }
 }
 

@@ -5,9 +5,6 @@ namespace queasy\db;
 use PDO;
 use ArrayAccess;
 
-use queasy\db\query\CountQuery;
-use queasy\db\query\SelectQuery;
-
 class Field implements ArrayAccess
 {
     protected $db;
@@ -39,23 +36,27 @@ class Field implements ArrayAccess
 
     public function select($value, $columns = array(), array $options = array())
     {
-        $query = new SelectQuery($this->db, $this->table->getName());
+        $builder = $this->table->where()->options($options);
 
-        $statement = $query(array($this->name => $value), $options, $columns);
+        if (is_array($value)) {
+            $inExpr = Db::inExpr($this->name, $value);
 
-        return $statement;
+            $builder = $builder->where($inExpr, $inExpr->getBindings());
+        } else {
+            $builder = $builder->where(sprintf('"%1$s" = :%1$s', $this->name), [
+                $this->name => $value
+            ]);
+        }
+
+        return $builder->select($columns);
     }
 
     #[\ReturnTypeWillChange]
     public function offsetExists($offset)
     {
-        $query = new CountQuery($this->db, $this->table->getName());
-
-        $statement = $query(array($this->name => $offset));
-
-        $count = $statement->fetch(PDO::FETCH_COLUMN);
-
-        return $count > 0;
+        return null != $this->table->where(sprintf('"%1$s" = :%1$s', $this->name), [ $this->name => $offset ])
+            ->select([ $this->db->expr('1') ])
+            ->fetch();
     }
 
     #[\ReturnTypeWillChange]

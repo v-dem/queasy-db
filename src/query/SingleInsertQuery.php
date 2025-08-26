@@ -17,7 +17,7 @@ class SingleInsertQuery extends TableQuery
     {
         $sql = sprintf('
             INSERT  INTO "%s"',
-            $this->tableName()
+            $this->table()
         );
 
         $sql = count($params)

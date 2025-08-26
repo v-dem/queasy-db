@@ -22,12 +22,8 @@ class Query extends AbstractQuery
      */
     public function run(array $params = array(), array $options = array())
     {
-        if (null === $options) {
-            $options = array();
-        }
-
         $statement = $this->db()->prepare($this->sql(), $options);
-        $statement->closeCursor(); // Avoid error with not closed recordset
+        $statement->closeCursor(); // Avoid error with recordset not closed
 
         $counter = 1;
         $isAssoc = Arrays::isAssoc($params);

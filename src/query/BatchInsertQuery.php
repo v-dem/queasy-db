@@ -28,7 +28,7 @@ class BatchInsertQuery extends TableQuery
         $sql = sprintf('
             INSERT  INTO "%s"
             VALUES  %s',
-            $this->tableName(),
+            $this->table(),
             sprintf($rowsString, $rowString)
         );
 

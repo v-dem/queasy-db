@@ -14,10 +14,6 @@ use IteratorAggregate;
 use queasy\helper\System;
 
 use queasy\db\query\CustomQuery;
-use queasy\db\query\CountQuery;
-use queasy\db\query\SelectQuery;
-use queasy\db\query\UpdateQuery;
-use queasy\db\query\DeleteQuery;
 use queasy\db\query\QueryBuilder;
 
 class Table implements ArrayAccess, Countable, IteratorAggregate
@@ -56,9 +52,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function statement()
     {
-        $query = new SelectQuery($this->db, $this->name);
-
-        return $query();
+        return $this->where()->select();
     }
 
     public function all()
@@ -92,7 +86,9 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
                 throw new BadMethodCallException('Not implemented. Use Field instead of Table to update record.');
             }
 
-            $value->into($this->name)->insert($offset);
+            $value
+                ->into($this->name)
+                ->insert($offset);
 
             return $this->db->getLastStatement()->rowCount();
         }
@@ -130,13 +126,9 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
     #[\ReturnTypeWillChange]
     public function count()
     {
-        $query = new CountQuery($this->db, $this->name);
-
-        $statement = $query();
-
-        $row = $statement->fetch(PDO::FETCH_ASSOC);
-
-        return array_shift($row);
+        return $this->where()
+            ->select([ 'count' => $this->db->expr('count(*)') ])
+            ->fetchColumn();
     }
 
     public function insert()
@@ -182,23 +174,46 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function update(array $params, $fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new UpdateQuery($this->db, $this->name, $fieldName, $fieldValue);
+        $builder = $this->where()->options($options);
 
-        $statement = $query($params, $options);
+        if (is_array($fieldValue)) {
+            $inExpr = Db::inExpr($fieldName, $fieldValue);
 
-        return $statement->rowCount();
+            $builder = $builder->where($inExpr, $inExpr->getBindings());
+        } elseif (null != $fieldValue) {
+            $builder = $builder->where("\"$fieldName\" = :$fieldName", [
+                $fieldName => $fieldValue
+            ]);
+        }
+
+        return $builder->update($params)->rowCount();
     }
 
     public function delete($fieldName = null, $fieldValue = null, array $options = array())
     {
-        $query = new DeleteQuery($this->db, $this->name, $fieldName, $fieldValue);
+        $builder = $this
+            ->where("\"$fieldName\" IS NULL")
+            ->options($options);
 
-        $statement = $query(array(), $options);
+        if (is_array($fieldValue)) {
+            $inExpr = Db::inExpr($fieldName, $fieldValue);
 
-        return $statement->rowCount();
+            $builder = $builder->where($inExpr, $inExpr->getBindings());
+        } elseif (null != $fieldValue) {
+            $builder = $builder->where("\"$fieldName\" = :$fieldName", [
+                $fieldName => $fieldValue
+            ]);
+        }
+
+        return $builder->delete()->rowCount();
     }
 
-    public function where($where, array $bindings = array())
+    public function truncate()
+    {
+        $this->db->query('TRUNCATE TABLE "' . $this->name . '"');
+    }
+
+    public function where($where = '', array $bindings = array())
     {
         return new QueryBuilder($this->db, $this->name)
             ->where($where, $bindings);

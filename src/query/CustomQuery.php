@@ -36,16 +36,18 @@ class CustomQuery extends Query
 
         $statement = parent::run($params, $options);
 
-        if (!isset($this->config['returns'])) {
+        if (!isset($this->config['returns']) || ($this->config['returns'] === Db::RETURN_STATEMENT)) {
             return $statement;
         }
 
         $fetchMode = isset($this->config['fetchMode'])
             ? $this->config['fetchMode']
             : Db::FETCH_BOTH;
+
         $fetchClass = isset($this->config['fetchClass'])
             ? $this->config['fetchClass']
             : 'stdClass';
+
         switch ($this->config['returns']) {
             case Db::RETURN_ONE:
                 return (Db::FETCH_CLASS === $fetchMode)
@@ -61,7 +63,7 @@ class CustomQuery extends Query
                 return $statement->fetchColumn();
 
             default:
-                throw new DbException('Wrong return type: ' . $this->config['returns']);
+                throw new DbException('Unknown return type: ' . $this->config['returns']);
         }
     }
 }

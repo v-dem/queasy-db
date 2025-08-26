@@ -1,0 +1,5 @@
+/tests export-ignore
+/codecov.yml export-ignore
+/coverage.xml export-ignore
+/phpunit.xml export-ignore
+/.github export-ignore

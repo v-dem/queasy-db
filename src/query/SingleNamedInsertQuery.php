@@ -18,7 +18,7 @@ class SingleNamedInsertQuery extends TableQuery
         $sql = sprintf('
             INSERT  INTO "%s" (%s)
             VALUES  (%s)',
-            $this->tableName(),
+            $this->table(),
             implode(', ',
                 array_map(function($paramName) {
                     return '"' . $paramName . '"';
