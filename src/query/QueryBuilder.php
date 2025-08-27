@@ -62,10 +62,12 @@ class QueryBuilder extends TableQuery
 
         return $this;
     }
+
 /*
 OFFSET offset_value ROWS:
 FETCH FIRST/NEXT fetch_value ROWS ONLY
 */
+
 /*
     // Set grouping (GROUP BY clause)
     public function groupBy($column)
@@ -84,6 +86,7 @@ FETCH FIRST/NEXT fetch_value ROWS ONLY
         return $this;
     }
 */
+
 /*
     // Set ordering (ORDER BY clause)
     public function orderBy($column, $direction = 'ASC')
@@ -104,6 +107,7 @@ FETCH FIRST/NEXT fetch_value ROWS ONLY
         return $this;
     }
 */
+
     public function into($intoTable)
     {
         if (!empty($this->intoTable)) {
