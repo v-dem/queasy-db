@@ -302,7 +302,7 @@ class FieldTest extends TestCase
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         $this->qdb->users->id[7] = [
-            'password_hash' => Db::expr('concat(\'a\', \'cbKBLVIWVW\')')
+            'password_hash' => $this->qdb->expr('concat(\'a\', \'cbKBLVIWVW\')')
         ];
 
         $row = $this->qdb->users->id[7];
@@ -319,7 +319,7 @@ class FieldTest extends TestCase
                     (123, \'vitaly.d@example.com\', \'75647454\')');
 
         $this->qdb->users->id[7] = [
-            'password_hash' => Db::expr('concat(\'a\', :value)', [ 'value' => '123' ]),
+            'password_hash' => $this->qdb->expr('concat(\'a\', :value)', [ 'value' => '123' ]),
             'email' => 'john.doe2@example.com'
         ];
 

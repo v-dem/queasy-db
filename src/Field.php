@@ -39,7 +39,7 @@ class Field implements ArrayAccess
         $builder = $this->table->where()->options($options);
 
         if (is_array($value)) {
-            $inExpr = Db::inExpr($this->name, $value);
+            $inExpr = $this->db->inExpr($this->name, $value);
 
             $builder = $builder->where($inExpr, $inExpr->getBindings());
         } else {

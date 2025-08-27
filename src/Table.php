@@ -177,7 +177,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
         $builder = $this->where()->options($options);
 
         if (is_array($fieldValue)) {
-            $inExpr = Db::inExpr($fieldName, $fieldValue);
+            $inExpr = $this->db->inExpr($fieldName, $fieldValue);
 
             $builder = $builder->where($inExpr, $inExpr->getBindings());
         } elseif (null != $fieldValue) {
@@ -196,7 +196,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
             ->options($options);
 
         if (is_array($fieldValue)) {
-            $inExpr = Db::inExpr($fieldName, $fieldValue);
+            $inExpr = $this->db->inExpr($fieldName, $fieldValue);
 
             $builder = $builder->where($inExpr, $inExpr->getBindings());
         } elseif (null != $fieldValue) {
