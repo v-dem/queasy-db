@@ -215,7 +215,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
 
     public function where($where = '', array $bindings = array())
     {
-        return new QueryBuilder($this->db, $this->name)
+        return (new QueryBuilder($this->db, $this->name))
             ->where($where, $bindings);
     }
 

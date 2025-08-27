@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1756191893">
-  <project timestamp="1756191893">
+<coverage generated="1756283954">
+  <project timestamp="1756283954">
     <file name="/var/projects/queasy/queasy-db/src/Blob.php">
       <class name="queasy\db\Blob" namespace="global">
-        <metrics complexity="4" methods="3" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="6" coveredstatements="0" elements="9" coveredelements="0"/>
+        <metrics complexity="5" methods="3" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="6" coveredstatements="0" elements="9" coveredelements="0"/>
       </class>
-      <line num="10" type="method" name="__construct" visibility="public" complexity="2" crap="6" count="0"/>
+      <line num="10" type="method" name="__construct" visibility="public" complexity="3" crap="12" count="0"/>
       <line num="12" type="stmt" count="0"/>
       <line num="13" type="stmt" count="0"/>
       <line num="14" type="stmt" count="0"/>
