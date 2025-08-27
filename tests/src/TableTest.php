@@ -31,6 +31,7 @@ class TableTest extends TestCase
             'connection' => [
                 'dsn' => 'sqlite:tests/resources/test.sqlite.temp'
             ],
+
             'tables' => [
                 'users' => [
                     'deleteWithSubstringInEmail' => [
@@ -38,6 +39,7 @@ class TableTest extends TestCase
                             DELETE  FROM "users"
                             WHERE   "email" LIKE (\'%\' || :substring || \'%\')'
                     ],
+
                     'selectWithSubstringInEmailBackOrdered' => [
                         'sql' => '
                             SELECT  *
@@ -46,6 +48,7 @@ class TableTest extends TestCase
                             ORDER   BY "id" DESC',
                         'returns' => Db::RETURN_ALL
                     ],
+
                     'getLatestById' => [
                         'sql' => '
                             SELECT  *
@@ -55,6 +58,7 @@ class TableTest extends TestCase
                         'returns' => Db::RETURN_ONE
                     ]
                 ],
+
                 'user_roles' => [
                     'getRolesCount' => [
                         'sql' => '
