@@ -8,15 +8,17 @@
 
 ## Package `v-dem/queasy-db`
 
-QuEasy DB is a set of database access classes for CRUD operations.
-Some of the most usual queries can be built automatically (like `SELECT` by field value, `UPDATE`, `INSERT` and `DELETE`).
+QuEasy DB is a set of database access classes mainly for CRUD operations.
+Some of the most usual queries can be built automatically (like `SELECT` by unique field, `UPDATE`, `INSERT` and `DELETE`).
 Complex queries can be defined in database and/or tables config.
+Also there's a simple query builder.
 The main goal is to separate `SQL` queries out of `PHP` code and provide an easy way for CRUD operations.
 
 ### Features
 
 * QuEasy DB extends `PDO` class, so any project which uses `PDO` can be seamlessly moved to use QuEasy DB.
 * Simple CRUD database operations in just one PHP code row.
+* Simple query builder.
 * Separating SQL queries from PHP code.
 
 ### Requirements
@@ -27,7 +29,7 @@ The main goal is to separate `SQL` queries out of `PHP` code and provide an easy
 
     composer require v-dem/queasy-db
 
-It will also install `v-dem/queasy-helper`.
+This will also install `v-dem/queasy-helper`.
 
 ### Usage
 

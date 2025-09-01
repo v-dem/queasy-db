@@ -35,6 +35,7 @@ class Db extends PDO implements LoggerAwareInterface
     const RETURN_VALUE = 4;
 
     const ATTR_USE_RETURNING = 'useReturning';
+    const ATTR_INIT_COMMAND = 'initCommand';
 
     private $tables = array();
 
@@ -122,6 +123,10 @@ class Db extends PDO implements LoggerAwareInterface
                 isset($connection['password'])? $connection['password']: null,
                 $options
             );
+
+            if (isset($options[self::ATTR_INIT_COMMAND])) {
+                $this->execute($options[self::ATTR_INIT_COMMAND]);
+            }
 
             // $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('queasy\\db\\Statement', array($this)));
 
