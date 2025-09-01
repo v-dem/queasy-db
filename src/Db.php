@@ -125,7 +125,7 @@ class Db extends PDO implements LoggerAwareInterface
             );
 
             if (isset($options[self::ATTR_INIT_COMMAND])) {
-                $this->execute($options[self::ATTR_INIT_COMMAND]);
+                $this->exec($options[self::ATTR_INIT_COMMAND]);
             }
 
             // $this->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('queasy\\db\\Statement', array($this)));
