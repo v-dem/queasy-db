@@ -337,7 +337,7 @@ class FieldTest extends TestCase
         $this->assertFalse(isset($this->qdb->user_roles->id[7]));
     }
 
-    public function testUpdateWithNullArgIssue72()
+    public function testUpdateWithNullArgIssue72Fixed()
     {
         $this->pdo->exec('
             INSERT  INTO "users"
