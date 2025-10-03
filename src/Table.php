@@ -180,7 +180,7 @@ class Table implements ArrayAccess, Countable, IteratorAggregate
             $inExpr = $this->db->inExpr($fieldName, $fieldValue);
 
             $builder = $builder->where($inExpr, $inExpr->getBindings());
-        } elseif (null != $fieldValue) {
+        } elseif ($fieldName !== null) {
             $builder = $builder->where("\"$fieldName\" = :$fieldName", [
                 $fieldName => $fieldValue
             ]);

@@ -26,7 +26,7 @@ class Field implements ArrayAccess
             return $this->delete($offset);
         }
 
-        return $this->table->update($value, $this->name, $offset, $options);
+        return $this->table->update($value, $this->name, $offset, $options, 123);
     }
 
     public function delete($offset, array $options = array())

@@ -336,5 +336,26 @@ class FieldTest extends TestCase
         $this->assertTrue(isset($this->qdb->user_roles->id[3]));
         $this->assertFalse(isset($this->qdb->user_roles->id[7]));
     }
+
+    public function testUpdateWithNullArgIssue72()
+    {
+        $this->pdo->exec('
+            INSERT  INTO "users"
+            VALUES  (7, \'john.doe@example.com\', \'7346598173659873\'),
+                    (12, \'mary.jones@example.com\', \'2341341421\'),
+                    (123, \'vitaly.d@example.com\', \'75647454\')');
+
+        $this->qdb->users->id[null] = [
+            'password_hash' => 'cbKBLVIWVW'
+        ];
+
+        $query = $this->pdo->prepare('
+            SELECT  count(*)
+            FROM    "users"
+            WHERE   "password_hash" = \'cbKBLVIWVW\'');
+        $query->execute();
+
+        $this->assertEquals(0, $query->fetchColumn());
+    }
 }
 
