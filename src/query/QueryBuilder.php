@@ -91,7 +91,7 @@ class QueryBuilder extends TableQuery
 
     public function group($column)
     {
-        $this->groups[$column] = $direction;
+        $this->groups[] = $column;
 
         return $this;
     }
