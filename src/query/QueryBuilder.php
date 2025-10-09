@@ -12,9 +12,15 @@ class QueryBuilder extends TableQuery
 
     protected $where;
 
+    protected $having;
+
     protected $bindings = array();
 
     protected $joins = array();
+
+    protected $orders = array();
+
+    protected $groups = array();
 
     protected $options = array();
 
@@ -63,50 +69,37 @@ class QueryBuilder extends TableQuery
         return $this;
     }
 
-/*
-OFFSET offset_value ROWS:
-FETCH FIRST/NEXT fetch_value ROWS ONLY
-*/
-
-/*
-    // Set grouping (GROUP BY clause)
-    public function groupBy($column)
+    public function order($column, $direction = 'ASC')
     {
-        $this->groupBy = 'GROUP BY ';
+        $this->orders[$column] = $direction;
 
         return $this;
     }
 
-    // Add HAVING clause
-    public function having($conditions, $bindings)
+    public function orderBy($column, $direction = 'ASC')
     {
-        $this->havingConditions = $conditions;
+        return $this->order($column, $direction);
+    }
+
+    public function having($having = null, array $bindings = array())
+    {
+        $this->having = $having;
         $this->bindings = array_merge($this->bindings, $bindings);
 
         return $this;
     }
-*/
 
-/*
-    // Set ordering (ORDER BY clause)
-    public function orderBy($column, $direction = 'ASC')
+    public function group($column)
     {
-        $this->orderBy = 'ORDER BY ';
-        if (is_array($column)) {
-            $columns = array_map(function($key, $value) {
-                return is_numeric($key)
-                    ? $value . ' ASC'
-                    : $key . ' ' . $value;
-            }, array_keys($column), array_values($column));
-
-            $this->orderBy = implode(', ', $columns);
-        } else {
-            $this->orderBy = $column . ' ' . $direction;
-        }
+        $this->groups[$column] = $direction;
 
         return $this;
     }
-*/
+
+    public function groupBy($column)
+    {
+        return $this->group($column);
+    }
 
     public function into($intoTable)
     {
@@ -121,33 +114,56 @@ FETCH FIRST/NEXT fetch_value ROWS ONLY
 
     public function buildJoins()
     {
-        $sql = '';
         if (!empty($this->joins)) {
-            $sql .= '
+            return '
         ' . implode('
         ', $this->joins);
         }
 
-        return $sql;
+        return '';
     }
 
     public function buildWhere()
     {
-        $sql = '';
         if (!empty($this->where)) {
-            $sql .= "
+            return "
 WHERE   " . $this->where;
         }
-/*
-        if (!empty($this->order)) {
-            $query .= " {$this->order}";
+
+        return '';
+    }
+
+    public function buildOrders()
+    {
+        if (count($this->orders)) {
+            return '
+ORDER   BY ' . implode(', ', array_map(function($column, $direction) {
+                return '"' . $column . '" ' . $direction;
+            },
+            array_keys($this->orders), array_values($this->orders)));
         }
 
-        if (!empty($this->limit)) {
-            $query .= " {$this->limit}";
+        return '';
+    }
+
+    public function buildHaving()
+    {
+        if (!empty($this->having)) {
+            return "
+HAVING  " . $this->having;
         }
-*/
-        return $sql;
+
+        return '';
+    }
+
+    public function buildGroups()
+    {
+        if (count($this->groups)) {
+            return '
+GROUP   BY ' . implode(', ', $this->groups);
+        }
+
+        return '';
     }
 
     public function insert(array $params = array())
@@ -260,7 +276,14 @@ DELETE  FROM "%1$s"%2$s%3$s', $this->table(), $this->buildJoins(), $this->buildW
 
         $sql = sprintf('
 SELECT  %1$s
-FROM    %2$s%3$s%4$s', empty($selects) ? '*' : implode(', ', $selects), $this->table(), $this->buildJoins(), $this->buildWhere());
+FROM    %2$s%3$s%4$s%5$s%6$s%7$s',
+            (empty($selects) ? '*' : implode(', ', $selects)),
+            $this->table(),
+            $this->buildJoins(),
+            $this->buildWhere(),
+            $this->buildOrders(),
+            $this->buildGroups(),
+            $this->buildHaving());
 
         $this->setSql($sql);
 
