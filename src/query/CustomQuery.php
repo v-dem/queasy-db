@@ -5,6 +5,8 @@ namespace queasy\db\query;
 use queasy\db\Db;
 use queasy\db\DbException;
 
+use queasy\helper\Arrays;
+
 class CustomQuery extends Query
 {
     private $config;
@@ -42,7 +44,7 @@ class CustomQuery extends Query
 
         $fetchMode = isset($this->config['fetchMode'])
             ? $this->config['fetchMode']
-            : Db::FETCH_BOTH;
+            : Db::FETCH_BOTH; // TODO: Check this, issue #73
 
         $fetchClass = isset($this->config['fetchClass'])
             ? $this->config['fetchClass']
@@ -61,6 +63,11 @@ class CustomQuery extends Query
 
             case Db::RETURN_VALUE:
                 return $statement->fetchColumn();
+
+            case Db::RETURN_MAP:
+                $keyColumn = $this->config['keyColumn'];
+
+                return Arrays::column($statement->fetchAll(), $keyColumn);
 
             default:
                 throw new DbException('Unknown return type: ' . $this->config['returns']);
