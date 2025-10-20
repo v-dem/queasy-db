@@ -33,6 +33,7 @@ class Db extends PDO implements LoggerAwareInterface
     const RETURN_ONE = 2;
     const RETURN_ALL = 3;
     const RETURN_VALUE = 4;
+    const RETURN_MAP = 5; // TODO: Implement this.
 
     const ATTR_USE_RETURNING = 'useReturning';
     const ATTR_INIT_COMMAND = 'initCommand';

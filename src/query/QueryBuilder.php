@@ -174,21 +174,21 @@ GROUP   BY ' . implode(', ', $this->groups);
 
         $columns = array();
         $selects = array();
-        foreach ($params as $paramName => $paramValue) {
-            if (!is_int($paramName)) {
-                $columns[] = '"' . $paramName . '"';
+        foreach ($params as $name => $value) {
+            if (!is_int($name)) {
+                $columns[] = '"' . $name . '"';
             }
 
-            $paramValueStr = ':' . $paramName;
-            if ($paramValue instanceof Expression) {
-                $paramValueStr = $paramValue->getExpression();
+            $valueStr = ':' . $name;
+            if ($value instanceof Expression) {
+                $valueStr = $value->getExpression();
 
-                $this->bindings = array_merge($this->bindings, $paramValue->getBindings());
+                $this->bindings = array_merge($this->bindings, $value->getBindings());
             } else {
-                $this->bindings[$paramName] = $paramValue;
+                $this->bindings[$name] = $value;
             }
 
-            $selects[] = $paramValueStr;
+            $selects[] = $valueStr;
         }
 
         $columnsStr = empty($columns)
@@ -216,17 +216,17 @@ FROM    "%4$s"%5$s', $this->intoTable, $columnsStr, $selectsStr, $this->table(),
         }
 
         $sets = array();
-        foreach ($params as $paramName => $paramValue) {
-            $paramValueStr = ':' . $paramName;
-            if ($paramValue instanceof Expression) {
-                $paramValueStr = $paramValue->getExpression();
+        foreach ($params as $name => $value) {
+            $valueStr = ':' . $name;
+            if ($value instanceof Expression) {
+                $valueStr = $value->getExpression();
 
-                $this->bindings = array_merge($this->bindings, $paramValue->getBindings());
+                $this->bindings = array_merge($this->bindings, $value->getBindings());
             } else {
-                $this->bindings[$paramName] = $paramValue;
+                $this->bindings[$name] = $value;
             }
 
-            $sets[] = sprintf('"%1$s" = %2$s', $paramName, $paramValueStr);
+            $sets[] = sprintf('"%1$s" = %2$s', $name, $valueStr);
         }
 
         $sql = sprintf('
@@ -259,18 +259,18 @@ DELETE  FROM "%1$s"%2$s%3$s', $this->table(), $this->buildJoins(), $this->buildW
         }
 
         $selects = array();
-        foreach ($params as $paramName => $paramValue) {
-            $selects[] = is_int($paramName)
-                ? (($paramValue instanceof Expression)
-                    ? $paramValue->getExpression()
-                    : '"' . $paramValue . '"')
-                : ((($paramValue instanceof Expression)
-                    ? $paramValue->getExpression()
-                    : '"' . $paramValue . '"')
-                    . ' AS "' . $paramName . '"');
+        foreach ($params as $name => $value) {
+            $selects[] = is_int($name)
+                ? (($value instanceof Expression)
+                    ? $value->getExpression()
+                    : '"' . $value . '"')
+                : ((($value instanceof Expression)
+                    ? $value->getExpression()
+                    : '"' . $value . '"')
+                    . ' AS "' . $name . '"');
 
-            if ($paramValue instanceof Expression) {
-                $this->bindings = array_merge($this->bindings, $paramValue->getBindings());
+            if ($value instanceof Expression) {
+                $this->bindings = array_merge($this->bindings, $value->getBindings());
             }
         }
 
