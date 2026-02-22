@@ -106,9 +106,9 @@ $users = $db->users->id[[$userId1, $userId2]];
 
 ```php
 $usersFound = $db->users->where('
-        `name` LIKE :name
-        AND `is_active` = 1', [
-    'name' => $name . '%'
+        "name" LIKE :nameFilter
+        AND "is_active" = 1', [
+    'name' => $nameFilter . '%'
 ]);
 ```
 
