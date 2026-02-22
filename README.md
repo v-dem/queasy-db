@@ -111,10 +111,11 @@ $usersFound = $db->users->where('
     [
         'name' => $nameFilter . '%'
     ]
-);
+)->select();
 ```
 
 * Method `where()` returns `queasy\db\query\QueryBuilder` instance
+* `QueryBuilder`'s method `select()` returns `PDOStatement`
 
 #### Inserting records
 
