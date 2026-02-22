@@ -20,12 +20,12 @@ class SingleNamedInsertQuery extends TableQuery
             VALUES  (%s)',
             $this->table(),
             implode(', ',
-                array_map(function($paramName) {
+                array_map(static function($paramName) {
                     return '"' . $paramName . '"';
                 },  array_keys($params))
             ),
             implode(', ',
-                array_map(function($paramName) {
+                array_map(static function($paramName) {
                     return ':' . $paramName;
                 },  array_keys($params))
             )

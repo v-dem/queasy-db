@@ -275,7 +275,7 @@ class DbTest extends TestCase
     {
         $qdb = new Db(['connection' => ['dsn' => self::DATABASE_DSN]]);
 
-        $qdb->trans(function() use($qdb) {
+        $qdb->trans(static function() use($qdb) {
             $qdb->run('
                 INSERT  INTO "users" ("id", "email", "password_hash")
                 VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');
@@ -294,7 +294,7 @@ class DbTest extends TestCase
 
         $this->expectException(Exception::class);
 
-        $qdb->trans(function() use($qdb) {
+        $qdb->trans(static function() use($qdb) {
             $qdb->run('
                 INSERT  INTO "users" ("id", "email", "password_hash")
                 VALUES  (45, \'mary.jones@example.com\', \'9387460918340139684\')');

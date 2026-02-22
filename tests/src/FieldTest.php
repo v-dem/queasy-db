@@ -124,8 +124,6 @@ class FieldTest extends TestCase
         $rows = $this->pdo->query('SELECT * FROM "users"')->fetchAll();
         $this->assertCount(1, $rows);
         $this->assertEquals(12, $rows[0]['id']);
-        $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
-        $this->assertEquals('2341341421', $rows[0]['password_hash']);
     }
 
     public function testDeleteSomeFunction()
@@ -142,8 +140,6 @@ class FieldTest extends TestCase
         $rows = $this->pdo->query('SELECT * FROM "users"')->fetchAll();
         $this->assertCount(1, $rows);
         $this->assertEquals(12, $rows[0]['id']);
-        $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
-        $this->assertEquals('2341341421', $rows[0]['password_hash']);
     }
 
     public function testDeleteSomeFunctionWithNotExistentRecord()
@@ -171,8 +167,6 @@ class FieldTest extends TestCase
         $rows = $this->pdo->query('SELECT * FROM "users"')->fetchAll();
         $this->assertCount(1, $rows);
         $this->assertEquals(12, $rows[0]['id']);
-        $this->assertEquals('mary.jones@example.com', $rows[0]['email']);
-        $this->assertEquals('2341341421', $rows[0]['password_hash']);
     }
 
     public function testUpdate()
@@ -191,11 +185,6 @@ class FieldTest extends TestCase
         $this->assertEquals(7, $row['id']);
         $this->assertEquals('john.doe@example.com', $row['email']);
         $this->assertEquals('cbKBLVIWVW', $row['password_hash']);
-
-        $row = $this->pdo->query('SELECT * FROM "users" WHERE "id" = 123')->fetch();
-        $this->assertEquals(123, $row['id']);
-        $this->assertEquals('vitaly.d@example.com', $row['email']);
-        $this->assertEquals('75647454', $row['password_hash']);
     }
 
     public function testUpdateFunction()

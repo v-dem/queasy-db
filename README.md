@@ -96,11 +96,23 @@ It's possible to use `select()` method to pass PDO options; `select()` returns P
 $users = $db->users->id->select($userId, $options);
 ```
 
-##### Get multiple records
+##### Select multiple records
 
 ```php
 $users = $db->users->id[[$userId1, $userId2]];
 ```
+
+##### Select records using query
+
+```php
+$usersFound = $db->users->where('
+        `name` LIKE :name
+        AND `is_active` = 1', [
+    'name' => $name . '%'
+]);
+```
+
+* Method `where()` returns `queasy\db\query\QueryBuilder` instance
 
 #### Inserting records
 

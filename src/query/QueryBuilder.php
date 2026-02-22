@@ -43,7 +43,7 @@ class QueryBuilder extends TableQuery
 
     public function innerJoin($column, $joinTable, $joinedColumn)
     {
-        return $this->join($column, $joinTable, $joinedColumn, 'INNER');
+        return $this->join($column, $joinTable, $joinedColumn);
     }
 
     public function leftJoin($column, $joinTable, $joinedColumn)
@@ -137,7 +137,7 @@ WHERE   " . $this->where;
     {
         if (count($this->orders)) {
             return '
-ORDER   BY ' . implode(', ', array_map(function($column, $direction) {
+ORDER   BY ' . implode(', ', array_map(static function($column, $direction) {
                 return '"' . $column . '" ' . $direction;
             },
             array_keys($this->orders), array_values($this->orders)));
