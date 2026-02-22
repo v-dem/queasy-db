@@ -106,10 +106,12 @@ $users = $db->users->id[[$userId1, $userId2]];
 
 ```php
 $usersFound = $db->users->where('
-        "name" LIKE :nameFilter
-        AND "is_active" = 1', [
-    'name' => $nameFilter . '%'
-]);
+    "name" LIKE :nameFilter
+    AND "is_active" = 1',
+    [
+        'name' => $nameFilter . '%'
+    ]
+);
 ```
 
 * Method `where()` returns `queasy\db\query\QueryBuilder` instance
