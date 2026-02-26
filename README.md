@@ -69,6 +69,8 @@ If DSN is not set then `SQLite` in-memory database will be used:
 $db = new queasy\db\Db();
 ```
 
+* `queasy\db\Table` instances can be accessed like `$db->users`
+
 #### Retrieving records
 
 ##### Get all records from `users` table
@@ -102,6 +104,10 @@ $users = $db->users->id->select($userId, $options);
 $users = $db->users->id[[$userId1, $userId2]];
 ```
 
+#### Using query builder (`queasy\db\query\QueryBuidler`)
+
+* Method `queasy\db\Table::where()` returns `queasy\db\query\QueryBuilder` instance
+
 ##### Select records using query
 
 ```php
@@ -114,8 +120,15 @@ $usersFound = $db->users->where('
 )->select();
 ```
 
-* Method `where()` returns `queasy\db\query\QueryBuilder` instance
-* `QueryBuilder`'s method `select()` returns `PDOStatement`
+* `QueryBuilder`'s method `select()` returns `PDOStatement`, you can use it as iterator in `foreach` loop or retrieve records using `fetch()`, `fetchAll()` etc
+* `select()` method accepts `$params` array where you can use aliases or expressions:
+
+```php
+$db->users
+    ->where()
+    ->select(['count' => $db->expr('count(*)')])
+    ->fetch()['count'];
+```
 
 #### Inserting records
 
