@@ -27,14 +27,38 @@ class CustomQuery extends Query
      *
      * @throws DbException On error
      */
-    public function run(array $params = array(), array $options = array())
+    public function run(array $params = array(), array $optionsOrUses = array(), $options = array())
     {
         $configInterface = 'queasy\config\ConfigInterface';
         $config = ($this->config instanceof $configInterface)
             ? $this->config->toArray()
             : $this->config;
 
+        if (3 === func_num_args()) {
+            $uses = $optionsOrUses;
+        }
+
+        if (2 === func_num_args()) {
+            if (isset($config['uses'])) {
+                $uses = $optionsOrUses;
+            }
+        }
+
         $options = array_merge($options, isset($config['options'])? $config['options']: array());
+
+        if (isset($config['uses'])) {
+            $sql = $this->sql();
+            foreach ($config['uses'] as $use => $useSql) {
+                if (isset($uses[$use])) { // Substitute placeholder with SQL and append params
+                    $sql = preg_replace('/:' . $use . '/', $useSql, $sql);
+                    $params = array_merge($params, $uses[$use]);
+                } else { // Remove placeholder
+                    $sql = preg_replace('/:' . $use . '/', '', $sql);
+                }
+            }
+
+            $this->setSql($sql);
+        }
 
         $statement = parent::run($params, $options);
 
@@ -67,7 +91,7 @@ class CustomQuery extends Query
             case Db::RETURN_MAP:
                 $keyColumn = $this->config['keyColumn'];
 
-                return Arrays::column($statement->fetchAll(), $keyColumn);
+                return Arrays::column($statement->fetchAll(), null, $keyColumn);
 
             default:
                 throw new DbException('Unknown return type: ' . $this->config['returns']);

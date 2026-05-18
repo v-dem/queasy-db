@@ -112,60 +112,6 @@ class QueryBuilder extends TableQuery
         return $this;
     }
 
-    public function buildJoins()
-    {
-        if (!empty($this->joins)) {
-            return '
-        ' . implode('
-        ', $this->joins);
-        }
-
-        return '';
-    }
-
-    public function buildWhere()
-    {
-        if (!empty($this->where)) {
-            return "
-WHERE   " . $this->where;
-        }
-
-        return '';
-    }
-
-    public function buildOrders()
-    {
-        if (count($this->orders)) {
-            return '
-ORDER   BY ' . implode(', ', array_map(static function($column, $direction) {
-                return '"' . $column . '" ' . $direction;
-            },
-            array_keys($this->orders), array_values($this->orders)));
-        }
-
-        return '';
-    }
-
-    public function buildHaving()
-    {
-        if (!empty($this->having)) {
-            return "
-HAVING  " . $this->having;
-        }
-
-        return '';
-    }
-
-    public function buildGroups()
-    {
-        if (count($this->groups)) {
-            return '
-GROUP   BY ' . implode(', ', $this->groups);
-        }
-
-        return '';
-    }
-
     public function insert(array $params = array())
     {
         if (empty($this->intoTable)) {
@@ -288,6 +234,60 @@ FROM    %2$s%3$s%4$s%5$s%6$s%7$s',
         $this->setSql($sql);
 
         return $this->run($this->bindings, $this->options);
+    }
+
+    protected function buildJoins()
+    {
+        if (!empty($this->joins)) {
+            return '
+        ' . implode('
+        ', $this->joins);
+        }
+
+        return '';
+    }
+
+    protected function buildWhere()
+    {
+        if (!empty($this->where)) {
+            return "
+WHERE   " . $this->where;
+        }
+
+        return '';
+    }
+
+    protected function buildOrders()
+    {
+        if (count($this->orders)) {
+            return '
+ORDER   BY ' . implode(', ', array_map(static function($column, $direction) {
+                return '"' . $column . '" ' . $direction;
+            },
+            array_keys($this->orders), array_values($this->orders)));
+        }
+
+        return '';
+    }
+
+    protected function buildHaving()
+    {
+        if (!empty($this->having)) {
+            return "
+HAVING  " . $this->having;
+        }
+
+        return '';
+    }
+
+    protected function buildGroups()
+    {
+        if (count($this->groups)) {
+            return '
+GROUP   BY ' . implode(', ', $this->groups);
+        }
+
+        return '';
     }
 }
 
