@@ -49,16 +49,19 @@ class CustomQuery extends Query
         if (isset($config['uses'])) {
             $sql = $this->sql();
             foreach ($config['uses'] as $use => $useSql) {
-                if (isset($uses[$use])) { // Substitute placeholder with SQL and append params
-                    $sql = preg_replace('/:' . $use . '[^a-zA-Z0-9_]/', $useSql, $sql);
+                $replacement = '';
+                if (isset($uses[$use])) { // Substitute placeholder with SQL and append params, otherwise remove placeholder
+                    $replacement = $useSql;
                     $params = array_merge($params, $uses[$use]);
-                } else { // Remove placeholder
-                    $sql = preg_replace('/:' . $use . '[^a-zA-Z0-9_]/', '', $sql);
                 }
+
+                $sql = preg_replace('/:' . $use . '([^a-zA-Z0-9_]|$)/', preg_replace('/\$/', '\\$', $replacement) . '$1', $sql);
             }
 
             $this->setSql($sql);
         }
+
+        print_r($this->$sql);
 
         $statement = parent::run($params, $options);
 
