@@ -50,10 +50,10 @@ class CustomQuery extends Query
             $sql = $this->sql();
             foreach ($config['uses'] as $use => $useSql) {
                 if (isset($uses[$use])) { // Substitute placeholder with SQL and append params
-                    $sql = preg_replace('/:' . $use . '/', $useSql, $sql);
+                    $sql = preg_replace('/:' . $use . '[^a-zA-Z0-9_]/', $useSql, $sql);
                     $params = array_merge($params, $uses[$use]);
                 } else { // Remove placeholder
-                    $sql = preg_replace('/:' . $use . '/', '', $sql);
+                    $sql = preg_replace('/:' . $use . '[^a-zA-Z0-9_]/', '', $sql);
                 }
             }
 
