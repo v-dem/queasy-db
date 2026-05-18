@@ -61,8 +61,6 @@ class CustomQuery extends Query
             $this->setSql($sql);
         }
 
-        print_r($this->$sql);
-
         $statement = parent::run($params, $options);
 
         if (!isset($this->config['returns']) || ($this->config['returns'] === Db::RETURN_STATEMENT)) {
