@@ -27,7 +27,7 @@ class CustomQuery extends Query
      *
      * @throws DbException On error
      */
-    public function run(array $params = array(), array $optionsOrUses = array(), $options = array())
+    public function run(array $params = array(), $options = array())
     {
         $configInterface = 'queasy\config\ConfigInterface';
         $config = ($this->config instanceof $configInterface)
